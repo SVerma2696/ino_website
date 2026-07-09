@@ -1,0 +1,48 @@
+# ============================================
+# .gitignore — this file tells Git "don't track these files"
+# Think of it like a note on a box that says "don't pack this."
+# ============================================
+
+# --- Operating system junk files ---
+# Windows creates this file in folders you look at in File Explorer
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS creates this file in folders you look at in Finder
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux file manager leftovers
+.directory
+.Trash-*
+
+# --- Editor / IDE folders ---
+# VS Code settings some people don't want shared
+.vscode/
+# JetBrains IDEs (WebStorm, IntelliJ, etc.)
+.idea/
+# Sublime Text project files
+*.sublime-workspace
+*.sublime-project
+
+# --- Node.js stuff (in case this project ever adds tooling later) ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# --- Logs and temp files ---
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# --- Environment / secret files ---
+# Just in case a mail service, form backend, or API key ever gets added later
+.env
+.env.local
+.env.*.local

@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INO · @aceofgenz</title>
+<meta name="description" content="Your favorite OT5 Midzy creator. Daily content @Aceofgenz, weekly FMOs on @INOT5, and the INO-IT-ALLS Discord.">
+
+<!--
+  ============================================
+  🖤 ITZY EASTER EGG MAP 🖤
+  This whole page is a little love letter to ITZY (and their
+  fandom, Midzy). Here's a quick map of where the references
+  hide, so nothing gets missed while reading the code below:
+
+  - The color palette is themed after ITZY's "Motto" comeback
+  - "OT5", "MIDZY", and "RYUJIN BIAS" badges name-drop the group,
+    the fandom, and a member
+  - The moodboard photocards name every ITZY comeback era in order,
+    starting with "DALLA DALLA"
+  - The pulsing glow behind the photo cycles through Ryujin's two
+    favorite colors (blue + green) plus her official ITZY color (red)
+  - Section comments below borrow ITZY song titles as playful labels
+    ("Not Shy", "ICY", "Wannabe", "Cheshire", "Sneakers", "LOCO",
+    "Cake", "Untouchable", "Voltage", and "Motto")
+  - The footer's little tagline is written to sound like an ITZY motto
+  ============================================
+-->
+
+<!-- These two lines just tell the browser "hey, go ahead and get ready to talk to Google Fonts" -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- This line downloads the fancy letters (fonts) we use on the page -->
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ============================================
+     COLOR BOX 🎨 ("Motto" era + a little Ryujin, a little ICY)
+     Think of this like a box of crayons. Instead of
+     writing "pink" every time we want pink, we just
+     say --pink one time here, and use it everywhere else.
+     That way, if we ever want to change a color, we only
+     change it in ONE spot instead of a hundred spots!
+     ============================================ */
+  :root{
+    /* "Motto" era colors — soft and pastel, like cotton candy */
+    --bg: #FAF2ED;          /* the background color, like the color of the wall */
+    --bg-card: #FFFCFA;     /* the color of each little box/card on the page */
+    --pink: #F3A6C4;        /* candy pink, straight from the Motto photobook */
+    --lavender: #C6B6E8;    /* soft purple, a little "Cheshire" mystery mixed in */
+    --blue: #8FC3E3;        /* Ryujin's favorite color #1 */
+    --green: #9ECFAE;       /* Ryujin's favorite color #2 */
+    --red: #E2645C;         /* Ryujin's special ITZY color — also very "Not Shy" of her */
+    --text: #33262E;        /* the color of most words */
+    --muted: #8B7C82;       /* the color of quieter, less important words */
+    --border: rgba(51,38,46,0.09); /* a very light line color, like a pencil sketch */
+
+    /* FONT BOX ✏️ — these are just nicknames for the letter styles we picked */
+    --display: 'Archivo Black', 'Arial Black', sans-serif; /* big bold title letters */
+    --body: 'Space Grotesk', sans-serif;                   /* normal reading letters */
+    --mono: 'JetBrains Mono', monospace;                   /* typewriter-style letters */
+  }
+
+  /* ============================================
+     ERA THEME SWITCHER 🎨🕐
+     The "MOTTO" pill up in the badges row is actually a hidden
+     dropdown menu now (look for <select class="era-select">
+     in the HTML below). Whichever era someone picks, our tiny
+     script at the bottom of the page writes that era's nickname
+     onto the <html> tag as data-era="...". The moment that
+     attribute changes, ALL of these blocks below "wake up" — CSS
+     automatically re-checks which one matches, and swaps out the
+     5 crayon colors (plus the wall color) for that era's palette.
+     Since almost everything on the page — the glow, the badges,
+     the link stripes, the photocard borders, the background
+     blobs — all point at these SAME --pink/--lavender/--blue/
+     --green/--red names instead of hardcoded colors, the WHOLE
+     page re-colors itself in one shot. No era picked yet (or
+     "motto" picked) just means "use the crayons already defined
+     up in the COLOR BOX above" — that's why there's no separate
+     block for Motto down here.
+     ============================================ */
+  :root[data-era="dalla-dalla"]{
+    --bg:#FBEAEA; --pink:#FF8FA3; --lavender:#D4AFB9; --blue:#457B9D; --green:#6B9080; --red:#E63946;
+  }
+  :root[data-era="icy"]{
+    --bg:#EAF7FA; --pink:#B8F2E6; --lavender:#AED9E0; --blue:#7FD8E8; --green:#8ECAE6; --red:#5DA9C7;
+  }
+  :root[data-era="wannabe"]{
+    --bg:#FFF0F4; --pink:#FF4D8D; --lavender:#FFB3C6; --blue:#FF8FB1; --green:#FFD6E0; --red:#E8305A;
+  }
+  :root[data-era="not-shy"]{
+    --bg:#FAF0E6; --pink:#E29578; --lavender:#CB997E; --blue:#A47148; --green:#B08968; --red:#C1440E;
+  }
+  :root[data-era="mafia-in-the-morning"]{
+    --bg:#EDE7E3; --pink:#9A8C98; --lavender:#4A4E69; --blue:#22223B; --green:#5C5470; --red:#8B0000;
+  }
+  :root[data-era="loco"]{
+    --bg:#F3E8FF; --pink:#FF2DAF; --lavender:#B983FF; --blue:#00B8D9; --green:#7CFFCB; --red:#FF3860;
+  }
+  :root[data-era="sneakers"]{
+    --bg:#FFF8E7; --pink:#F4C95D; --lavender:#C9B458; --blue:#1D4ED8; --green:#2E8B57; --red:#B22222;
+  }
+  :root[data-era="cheshire"]{
+    --bg:#F5EAFB; --pink:#F15BB5; --lavender:#9B5DE5; --blue:#5E60CE; --green:#8AA399; --red:#D62839;
+  }
+  :root[data-era="cake"]{
+    --bg:#FFF5F7; --pink:#FF9FB2; --lavender:#DAB6FC; --blue:#C7CEEA; --green:#B5EAD7; --red:#FF6F91;
+  }
+  :root[data-era="untouchable"]{
+    --bg:#F5EDED; --pink:#EF233C; --lavender:#8D99AE; --blue:#2B2D42; --green:#5C677D; --red:#C1121F;
+  }
+  :root[data-era="gold"]{
+    --bg:#FFF9EC; --pink:#E5C687; --lavender:#CBB279; --blue:#B08D57; --green:#A98B4F; --red:#8C6A3F;
+  }
+  :root[data-era="imaginary-friend"]{
+    --bg:#F5F1FB; --pink:#F6C9D6; --lavender:#C8B6E2; --blue:#A0C4E2; --green:#B8E0D2; --red:#E6A4B4;
+  }
+  :root[data-era="yeji-air"]{
+    --bg:#F0FBFF; --pink:#FCF6BD; --lavender:#D0F4DE; --blue:#A9DEF9; --green:#CDEAC0; --red:#FF99C8;
+  }
+  :root[data-era="girls-will-be-girls"]{
+    --bg:#F4FBEF; --pink:#FF595E; --lavender:#6A4C93; --blue:#1982C4; --green:#8AC926; --red:#E63946;
+  }
+  :root[data-era="tunnel-vision"]{
+    --bg:#EFF0FF; --pink:#FF006E; --lavender:#8338EC; --blue:#3A86FF; --green:#06D6A0; --red:#EF233C;
+  }
+  :root[data-era="yuna-ice-cream"]{
+    --bg:#FFF6FA; --pink:#FFB5C2; --lavender:#C9A7EB; --blue:#A0E7E5; --green:#B4F8C8; --red:#FF9F9F;
+  }
+
+  /* A short, gentle fade whenever any of the theme colors change,
+     so picking a new era feels like a smooth mood-shift instead
+     of a jarring flash */
+  body, .bg-collage::after, .badge, .era-select, .link-card, .photocard, .glow{
+    transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease;
+  }
+
+  /* This makes sure every box on the page measures itself the same easy way */
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin:0;
+    padding:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    min-height: 100vh;
+    /* This is a safety net: it stops a sideways scrollbar from
+       ever sneaking in, no matter how wide or narrow the screen is */
+    overflow-x: hidden;
+  }
+
+  body{
+    /* This paints some soft, blurry colored circles behind everything,
+       kind of like light shining through colored bubbles — or like
+       the dreamy lighting in the "Motto" music video */
+    background-image:
+      radial-gradient(circle at 12% 6%, color-mix(in srgb, var(--lavender) 35%, transparent), transparent 42%),
+      radial-gradient(circle at 88% 94%, color-mix(in srgb, var(--pink) 32%, transparent), transparent 46%),
+      radial-gradient(circle at 90% 10%, color-mix(in srgb, var(--blue) 22%, transparent), transparent 38%);
+    /* "column" stacks the card, the moodboard label, both photocard
+       rows, and the footer top-to-bottom, all centered. Every one
+       of those lives directly in <body> now, as plain siblings —
+       nothing nested inside anything else. That's the trick that
+       lets the two photocard columns automatically resize the
+       whole page around whichever one turns out taller, instead
+       of a longer column accidentally overlapping the footer */
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-height:100vh;
+    /* Without this, the card and the photocard columns would sit
+       flush against the very top and bottom edges of the browser
+       window with zero breathing room — which is exactly what was
+       making things look "cut off." This guarantees a comfortable
+       margin above the very first thing on the page and below the
+       very last thing, no matter how tall the page ends up being */
+    padding: 36px 20px 44px;
+    /* This tells the browser "treat everything inside <body> as
+       its own self-contained layer stack." Without it, the photo
+       wall's negative z-index (see .bg-collage below) reaches
+       right past <body> and hides behind the page's base canvas
+       color instead of just behind <body>'s own content — this
+       one line keeps that negative stacking contained where we
+       actually want it */
+    isolation: isolate;
+  }
+
+  /* This is the whole "phone screen" shaped card that holds everything */
+  .page{
+    width:100%;
+    max-width: 480px;
+    display:flex;
+    flex-direction:column;
+  }
+
+  main{
+    flex:1;
+    padding: 28px 28px 24px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+  }
+
+  /* The circle behind the profile picture that glows softly,
+     like a nightlight changing colors — or like a fan's lightstick
+     swaying through Ryujin's favorite colors during "Voltage" */
+  .avatar-wrap{
+    position:relative;
+    width:136px;
+    height:136px;
+    margin-bottom: 22px;
+  }
+
+  .glow{
+    position:absolute;
+    inset:-24px;
+    border-radius:50%;
+    background: conic-gradient(from 0deg, var(--blue), var(--green), var(--pink), var(--lavender), var(--blue));
+    filter: blur(20px);
+    opacity:0.6;
+    animation: pulse 5s ease-in-out infinite; /* keeps looping forever, nice and slow */
+  }
+
+  /* This is the "breathing" animation — the glow gets a little
+     bigger and brighter, then smaller and dimmer, over and over,
+     kind of like a slow chorus swell */
+  @keyframes pulse{
+    0%, 100%{ opacity:0.45; transform: scale(0.96); }
+    50%{ opacity:0.75; transform: scale(1.05); }
+  }
+
+  /* The actual round profile picture frame */
+  .avatar{
+    position:relative;
+    width:136px;
+    height:136px;
+    border-radius:50%;   /* this is what makes the square photo look round */
+    overflow:hidden;      /* this hides any part of the photo outside the circle */
+    background: var(--bg-card);
+    border: 3px solid var(--bg-card);
+    box-shadow: 0 0 0 2px var(--border);
+    z-index:2;
+  }
+
+  .avatar img{
+    width:100%;
+    height:100%;
+    object-fit: cover; /* makes the photo fill the circle without looking squished */
+    display:block;
+  }
+
+  /* ============================================
+     "INTRO" FROSTED PANEL 🪟
+     Name, handle, bio, and badges all sit inside this one soft
+     panel now. A text-shadow glow alone wasn't always enough once
+     the background photos got more vivid — some photos are just
+     too busy behind certain letters. A translucent frosted-glass
+     panel (like the login screen "blur" look on a phone) guarantees
+     the words stay easy to read everywhere, no matter which photo
+     happens to be behind them, while the photos are still allowed
+     to peek through softly instead of being fully hidden */
+  .intro{
+    background: color-mix(in srgb, var(--bg-card) 62%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border-radius: 22px;
+    padding: 18px 22px 22px;
+    margin-bottom: 4px;
+  }
+
+  .name{
+    font-family: var(--display);
+    font-size: clamp(38px, 10vw, 48px);
+    letter-spacing: 1px;
+    margin: 4px 0 2px;
+    line-height:1;
+    color: var(--text);
+  }
+
+  .handle{
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--red);
+    letter-spacing: 0.5px;
+    margin-bottom: 18px;
+  }
+
+  .bio{
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--muted);
+    max-width: 340px;
+    margin: 0 auto 20px;
+  }
+
+  .bio strong{ color: var(--text); }
+
+  /* The little pill-shaped tags, like "OT5 MIDZY" — these are the
+     spot where we say out loud "hey, this page loves ITZY!" */
+  .badges{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin-bottom: 34px;
+  }
+
+  .badge{
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.6px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--text);
+    background: var(--bg-card);
+  }
+
+  .badge.ot5{
+    border-color: color-mix(in srgb, var(--red) 45%, transparent);
+    color: var(--red);
+  }
+  .badge.bias{
+    border-color: color-mix(in srgb, var(--blue) 60%, transparent);
+    color: color-mix(in srgb, var(--blue) 65%, black);
+    background: color-mix(in srgb, var(--blue) 14%, transparent);
+  }
+
+  /* ============================================
+     ERA PICKER DROPDOWN 🔽
+     This third pill isn't just a label anymore — it's a real,
+     working <select> dropdown wearing a badge costume! It keeps
+     the same pill shape as its two neighbors, but gets its own
+     chevron arrow, a bolder 2-color border, and a lift-up hover
+     so it reads clearly as "click me, I do something" instead
+     of just sitting there like plain text. Pick a different era
+     from the list and the tiny script at the bottom of the page
+     re-colors the ENTIRE site to match (see "ERA THEME SWITCHER"
+     up in the COLOR BOX for how) */
+  .era-select{
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.6px;
+    color: color-mix(in srgb, var(--lavender) 70%, black);
+    background-color: color-mix(in srgb, var(--lavender) 18%, var(--bg-card));
+    border: 1.5px solid color-mix(in srgb, var(--lavender) 75%, transparent);
+    border-radius: 999px;
+    padding: 7px 30px 7px 13px;
+    cursor: pointer;
+    /* Here's a sneaky little browser quirk: a closed <select> box
+       will sometimes puff itself up to be wide enough for its
+       LONGEST option ("MAFIA IN THE MORNING"), even while it's
+       only showing the short word "MOTTO" — kind of like a
+       suitcase that stays huge even after you take most of the
+       clothes out. "max-width" + "min-width: 0" is what stops
+       that from happening, so this pill always matches the OTHER
+       two badges in size. If someone picks a really long era name,
+       the text just quietly trims to "..." instead of stretching
+       the pill (or the whole page!) wider than the screen */
+    width: auto;
+    max-width: 148px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    /* A little downward chevron, drawn once as an SVG and reused
+       as a background image — this is the visual cue that says
+       "I open into a list, try clicking me" */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%234a3f52' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 9px;
+    box-shadow: 0 1px 3px rgba(51,38,46,0.06);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Lifting slightly on hover (like the link buttons already do)
+     keeps the "this is clickable" language consistent across
+     the whole page */
+  .era-select:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(51,38,46,0.14);
+  }
+
+  .era-select:focus-visible{
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--lavender) 40%, transparent);
+  }
+
+  /* Each option in the open list gets plain, readable colors —
+     browsers render this native dropdown popup themselves, so we
+     keep its styling simple rather than fighting the OS/browser */
+  .era-select option{
+    color: var(--text);
+    background: var(--bg-card);
+  }
+
+  /* The stack of clickable link buttons */
+  .links{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+
+  /* Shared look for every button/link card (the shape with a
+     little clipped corner, like a ticket stub — or like a
+     photocard with one corner peeking out of its sleeve) */
+  .link-card{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    width:100%;
+    padding: 16px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    text-decoration:none;
+    text-align:left;
+    font: inherit;
+    cursor:pointer;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    box-shadow: 0 1px 2px rgba(51,38,46,0.04);
+  }
+
+  /* This paints a different colored stripe down the left side of
+     each card, one after another, like a rainbow pattern — a small
+     nod to how each ITZY era gets its own signature color */
+  .link-card:nth-child(5n+1){ border-left: 3px solid var(--red); }
+  .link-card:nth-child(5n+2){ border-left: 3px solid var(--blue); }
+  .link-card:nth-child(5n+3){ border-left: 3px solid var(--green); }
+  .link-card:nth-child(5n+4){ border-left: 3px solid var(--pink); }
+  .link-card:nth-child(5n+5){ border-left: 3px solid var(--lavender); }
+
+  .link-card:hover{
+    transform: translateX(4px); /* nudges the card to the right a bit */
+    border-color: rgba(51,38,46,0.18);
+    box-shadow: 0 4px 14px rgba(51,38,46,0.08);
+  }
+
+  .link-card:focus-visible{
+    outline: 2px solid var(--red);
+    outline-offset: 2px;
+  }
+
+  /* The little colored square that holds each app's icon */
+  .icon{
+    flex-shrink:0;
+    width:40px;
+    height:40px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  /* This makes the little icon picture inside each colored square
+     always the same size, no matter how big the picture itself is */
+  .icon svg{ width:20px; height:20px; }
+
+  /* Each app gets its own real-life brand colors */
+  .icon.email{ background: #FCE8E6; }
+  .icon.email svg{ color:#EA4335; }
+
+  .icon.discord{ background: #E9EAFB; }
+  .icon.discord svg{ color:#5865F2; }
+
+  .icon.youtube{ background: #FDE7E7; }
+  .icon.youtube svg{ color:#FF0000; }
+
+  .icon.tiktok{ background: #101010; position:relative; }
+  .icon.tiktok svg{ width:20px; height:20px; }
+
+  .icon.instagram{ background: linear-gradient(135deg, #FEE1A8 0%, #F77737 30%, #E1306C 60%, #833AB4 100%); }
+  .icon.instagram svg{ color:#fff; }
+
+  /* Every link card has two lines of words next to its icon:
+     a bold title on top (like "Instagram") and a smaller,
+     quieter line underneath (like "instagram.com/aceofgenz") */
+  .link-text{ display:flex; flex-direction:column; gap:2px; overflow:hidden; }
+
+  .link-title{ font-size: 15px; font-weight:600; }
+
+  .link-sub{
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--muted);
+    white-space:nowrap;   /* keeps this line on one row, no wrapping */
+    overflow:hidden;      /* hides text that doesn't fit */
+    text-overflow:ellipsis; /* shows "..." if the text got cut off */
+  }
+
+  /* ============================================
+     LITTLE DOWN ARROW ⌄
+     This is the small "V" shaped arrow that lives at the very
+     right edge of the "Ads, Promos & Business" button. Think of
+     it like a light switch: most of the time it points DOWN,
+     which means "click me and something will drop open below."
+     "margin-left: auto" is the trick that pushes it all the way
+     to the right side of the button, no matter how short or long
+     the email address next to it is.
+     ============================================ */
+  .email-chevron{
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;   /* never lets the arrow get squished skinny */
+    margin-left: auto;
+    color: var(--muted);
+    /* This is what makes the flip feel like a smooth little
+       animation instead of an instant snap */
+    transition: transform 0.2s ease;
+  }
+
+  /* This is the actual "flip" — when the email button's
+     aria-expanded attribute says "true" (our JavaScript sets
+     that the moment the menu opens), we spin the arrow a half
+     turn (180 degrees) so it points UP instead of down, like
+     saying "click me again to close this back up." Since this
+     is plain CSS watching an attribute that's already being set
+     for accessibility reasons, no extra JavaScript is needed
+     just to make the arrow spin */
+  #email-button[aria-expanded="true"] .email-chevron{
+    transform: rotate(180deg);
+  }
+
+  /* ============================================
+     "WANNABE" POP-UP MENU 📧
+     When someone clicks the "Ads, Promos & Business" button, a
+     little menu pops open, kind of like a chorus dropping in —
+     instead of just guessing which mail app to open, we show
+     three friendly choices: Gmail, Outlook, or "whatever mail
+     app is already set up on this computer".
+     ============================================ */
+  .email-wrap{
+    position:relative;
+    width:100%;
+  }
+
+  .email-menu{
+    /* Hidden by default — we only show it after a click */
+    display:none;
+    position:absolute;
+    left:0;
+    right:0;
+    top: calc(100% + 8px);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(51,38,46,0.14);
+    overflow:hidden;
+    z-index: 10;
+  }
+
+  /* This little class gets added by our JS code to reveal the menu */
+  .email-menu.is-open{ display:block; }
+
+  .email-menu a{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding: 12px 16px;
+    color: var(--text);
+    text-decoration:none;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .email-menu a:last-child{ border-bottom:none; }
+
+  .email-menu a:hover{ background: rgba(51,38,46,0.04); }
+
+  .email-menu .dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    flex-shrink:0;
+  }
+
+  /* Each little dot next to a menu choice is colored like that
+     app's real logo, so it's easy to tell them apart at a glance */
+  .dot.gmail{ background:#EA4335; }    /* Gmail red */
+  .dot.outlook{ background:#0A2767; }  /* Outlook dark blue */
+  .dot.default{ background:#9ECFAE; }  /* just a friendly green */
+
+  /* The little strip of text at the very bottom of the page. It's
+     a direct child of <body> now (a sibling of .page, not nested
+     inside it), so we give it the same width + max-width as .page
+     to keep it lined up right underneath the card */
+  footer{
+    width:100%;
+    max-width:480px;
+    padding: 28px 28px 8px;
+    text-align:center;
+  }
+
+  footer p{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.3px;
+    margin: 0;
+    /* A small frosted "pill" behind the words, same idea as the
+       .intro panel above — guarantees this last line stays
+       readable however busy the photo behind it gets */
+    display:inline-block;
+    background: color-mix(in srgb, var(--bg-card) 60%, transparent);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    border-radius: 14px;
+    padding: 8px 16px;
+  }
+
+  footer .heart{ color: var(--red); }
+
+  /* ============================================
+     "GUESS WHO" MOODBOARD 🖼️
+     These are extra little picture frames, like photocards
+     scattered on a desk. Right now every single one shows
+     INO's picture (ino-pfp.png) as a placeholder — just a
+     stand-in until real pictures get dropped in later. On a
+     tall phone screen there isn't room to spread them out, so
+     they just line up in rows. But on a big laptop screen,
+     there's tons of empty space on either side of the card
+     doing nothing — so starting at the "DESKTOP RAIL LAYOUT"
+     section further down, we pick the frames up and float them
+     beside the card instead, like two little photocard stacks
+     keeping the card company. Like the footer above, both of
+     these are direct children of <body> now, so they each get
+     the same width + max-width as .page to stay lined up */
+  .gallery-label{
+    width:100%;
+    max-width:480px;
+    text-align:center;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 4px 0 12px;
+    text-shadow: 0 0 10px var(--bg-card), 0 0 4px var(--bg-card);
+  }
+
+  /* Both rows of picture frames share this same recipe */
+  .gallery{
+    width:100%;
+    max-width:480px;
+    display:flex;
+    flex-direction:row;
+    flex-wrap:wrap;
+    justify-content:space-evenly;
+    gap: 18px;
+    row-gap: 22px;
+    margin-bottom: 14px;
+  }
+
+  /* Each little photo gets a plain "frame" around it, like a
+     Polaroid picture, plus a caption underneath naming an ITZY
+     title track. The card is wide enough, and the caption is
+     allowed to wrap onto a second line, so even the longest era
+     names ("MAFIA IN THE MORNING", "GIRLS WILL BE GIRLS") show
+     in full instead of getting cut off with "..." */
+  .photocard{
+    width: 84px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 5px 5px 8px;
+    box-shadow: 0 6px 16px rgba(51,38,46,0.14);
+    text-align:center;
+    /* This makes the little "lift up" wiggle on hover feel smooth
+       instead of snapping instantly */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .photocard img{
+    width:100%;
+    aspect-ratio: 1 / 1;   /* every frame is still a perfect square... */
+    /* ...but "contain" (instead of the old "cover") means the
+       photo shrinks to fit ENTIRELY inside that square rather
+       than getting cropped to fill it — so a tall poster or a
+       wide group photo both show completely, with a little bit
+       of the card's own background peeking through on whichever
+       two sides have room left over, like a photo mat */
+    object-fit:contain;
+    background: var(--bg-card);
+    border-radius:2px;
+    display:block;
+  }
+
+  .photocard span{
+    display:block;
+    margin-top:5px;
+    line-height:1.3;
+    font-family: var(--mono);
+    font-size: 7.5px;
+    letter-spacing:0.4px;
+    color: var(--muted);
+    /* "normal" (instead of "nowrap") lets long era names wrap onto
+       a second line rather than getting truncated with "..." */
+    white-space:normal;
+    word-break: break-word;
+  }
+
+  /* A gentle "scattered on a desk" look: every photocard tilts
+     a tiny bit, alternating left and right, like a stack that
+     got playfully shuffled */
+  .photocard:nth-child(odd){ transform: rotate(-4deg); }
+  .photocard:nth-child(even){ transform: rotate(3deg); }
+
+  /* Hovering a photocard with a mouse straightens it and lifts
+     it up slightly, like picking it up off the desk to look closer */
+  .photocard:hover{
+    transform: rotate(0deg) translateY(-4px) scale(1.04);
+    box-shadow: 0 10px 22px rgba(51,38,46,0.2);
+  }
+
+  /* Each photocard's top edge gets one of our rainbow colors,
+     just like the link buttons do. "5n+1" means "the 1st, 6th,
+     11th, 16th... card" — so however many eras get added to the
+     timeline later, the same 5 crayons just keep cycling forever
+     instead of running out */
+  .gallery-left .photocard:nth-child(5n+1){ border-top: 3px solid var(--red); }
+  .gallery-left .photocard:nth-child(5n+2){ border-top: 3px solid var(--blue); }
+  .gallery-left .photocard:nth-child(5n+3){ border-top: 3px solid var(--green); }
+  .gallery-left .photocard:nth-child(5n+4){ border-top: 3px solid var(--pink); }
+  .gallery-left .photocard:nth-child(5n){ border-top: 3px solid var(--lavender); }
+  .gallery-right .photocard:nth-child(5n+1){ border-top: 3px solid var(--pink); }
+  .gallery-right .photocard:nth-child(5n+2){ border-top: 3px solid var(--lavender); }
+  .gallery-right .photocard:nth-child(5n+3){ border-top: 3px solid var(--red); }
+  .gallery-right .photocard:nth-child(5n+4){ border-top: 3px solid var(--blue); }
+  .gallery-right .photocard:nth-child(5n){ border-top: 3px solid var(--green); }
+
+  /* ============================================
+     TINY-SCREEN TUNING 🤏
+     For very narrow phones (and the little cover screen on a
+     folded phone), we shrink a few things down just a bit more
+     so nothing ever feels cramped or overlaps
+     ============================================ */
+  @media (max-width: 380px){
+    main{ padding: 32px 16px 20px; }
+    .avatar-wrap, .avatar{ width: 112px; height: 112px; }
+    .glow{ inset: -18px; }
+    .badge{ font-size: 10px; padding: 6px 10px; }
+    .photocard{ width: 68px; }
+  }
+
+  /* ============================================
+     TABLET & UNFOLDED-FOLDABLE TUNING 📐
+     This screen size — bigger than a phone, but not quite
+     "laptop" wide yet — covers things like an iPad, an Android
+     tablet, or a foldable phone once you've unfolded it into its
+     big inner screen. Without this block, all of that leftover
+     width just sits there empty, because the card and the
+     moodboard rows were both still capped at a phone-sized
+     480px. This block doesn't touch the trickier "floating
+     photocard columns beside the card" layout at all (that one
+     only turns on much later, at true laptop width, in the next
+     block down) — it just lets the card breathe a little more,
+     and lets the moodboard rows spread across more of the extra
+     width so more photocards fit per row instead of piling up
+     into a tall, skinny column of rows on a screen that's
+     plenty wide enough not to need that */
+  @media (min-width: 700px) and (max-width: 1079px){
+    .page{ max-width: 560px; }
+    .gallery, .gallery-label, footer{ max-width: 720px; }
+    .photocard{ width: 100px; }
+  }
+
+  /* ============================================
+     DESKTOP RAIL LAYOUT 💻 (laptops & bigger screens)
+     Once the screen is wide enough for it to look good — a
+     good laptop-sized window and up — a few things change:
+     1. The card itself gets a little bigger and roomier, since
+        there's more room to work with and it's usually being
+        viewed from a bit further away.
+     2. <body> itself turns into a 3-column grid: the left stack
+        of photocards, then the card, then the right stack of
+        photocards — with the footer placed directly underneath
+        the card (not the photocards). The two photocard columns
+        have 9 and 8 eras in them, so they're never exactly the
+        same height — CSS Grid automatically makes the WHOLE row
+        as tall as whichever column ends up tallest, so nothing
+        ever overlaps and the page never ends looking lopsided,
+        no matter how many eras get added to the timeline later.
+     ============================================ */
+  @media (min-width: 1080px){
+    main{ padding-top: 40px; }
+    .avatar-wrap, .avatar{ width: 156px; height: 156px; }
+    .glow{ inset: -28px; }
+    .name{ font-size: 52px; }
+    .link-card{ padding: 18px 24px; }
+    .link-title{ font-size: 16px; }
+    .link-sub{ font-size: 12px; }
+
+    /* The label ("midzy moodboard") was only there to explain
+       the rows on a phone. Once the frames become their own
+       floating columns, the label isn't needed anymore */
+    .gallery-label{ display:none; }
+
+    /* "grid-template-areas" is basically a little map drawn with
+       words — each row of quotes is one row of the page, and
+       each word is which element goes in that square. Writing
+       "left" in both rows tells the grid "this one column spans
+       both rows," which is exactly how the tall photocard stacks
+       end up running alongside both the card AND the footer */
+    body{
+      display:grid;
+      grid-template-columns: auto minmax(0, 480px) auto;
+      grid-template-areas:
+        "left page  right"
+        "left foot  right";
+      column-gap: 40px;
+      justify-content:center;
+      align-items:start;
+    }
+
+    .page{ grid-area: page; }
+    footer{ grid-area: foot; align-self:start; }
+
+    /* ============================================
+       SCATTERED MOODBOARD 🗂️
+       Instead of two tidy stacked columns, every photocard now
+       gets its OWN exact spot — a percent-based "top" (so it's
+       always a fixed fraction of the way down the column, no
+       matter how tall that column ends up being) plus a sideways
+       nudge and its own tilt. That's what creates the "jumbled
+       corkboard" look instead of a neat filing-cabinet stack.
+       "align-self: stretch" makes each column EXACTLY as tall as
+       the card + footer next to it — never taller — which is the
+       trick that keeps this from ever forcing extra scrolling:
+       everything scattered inside has to fit within that same
+       fixed height, using percentages instead of a growing list. */
+    .gallery-left, .gallery-right{
+      grid-row: 1 / 3;
+      position: relative;
+      align-self: stretch;
+      width: 190px;
+      max-width:none;
+      margin:0;
+    }
+    .gallery-left{ grid-area: left; }
+    .gallery-right{ grid-area: right; }
+
+    .gallery-left .photocard, .gallery-right .photocard{
+      position:absolute;
+    }
+
+    /* Each card below gets a different "top" percentage (spacing
+       them down the column), a different "left" nudge (scattering
+       them sideways), and a different tilt — no two cards share
+       the exact same recipe, which is what sells the "jumbled"
+       feeling instead of a repeating pattern */
+    .gallery-left .photocard:nth-child(1){ top:0%;  left:60px; transform:rotate(-7deg); }
+    .gallery-left .photocard:nth-child(2){ top:10%; left:4px;  transform:rotate(5deg); }
+    .gallery-left .photocard:nth-child(3){ top:20%; left:92px; transform:rotate(-4deg); }
+    .gallery-left .photocard:nth-child(4){ top:30%; left:20px; transform:rotate(6deg); }
+    .gallery-left .photocard:nth-child(5){ top:40%; left:76px; transform:rotate(-6deg); }
+    .gallery-left .photocard:nth-child(6){ top:50%; left:0px;  transform:rotate(4deg); }
+    .gallery-left .photocard:nth-child(7){ top:60%; left:96px; transform:rotate(-5deg); }
+    .gallery-left .photocard:nth-child(8){ top:70%; left:32px; transform:rotate(7deg); }
+    .gallery-left .photocard:nth-child(9){ top:80%; left:58px; transform:rotate(-3deg); }
+
+    .gallery-right .photocard:nth-child(1){ top:0%;    left:22px; transform:rotate(5deg); }
+    .gallery-right .photocard:nth-child(2){ top:11.5%; left:82px; transform:rotate(-6deg); }
+    .gallery-right .photocard:nth-child(3){ top:23%;   left:0px;  transform:rotate(4deg); }
+    .gallery-right .photocard:nth-child(4){ top:34.5%; left:60px; transform:rotate(-7deg); }
+    .gallery-right .photocard:nth-child(5){ top:46%;   left:96px; transform:rotate(6deg); }
+    .gallery-right .photocard:nth-child(6){ top:57.5%; left:12px; transform:rotate(-4deg); }
+    .gallery-right .photocard:nth-child(7){ top:69%;   left:70px; transform:rotate(5deg); }
+    .gallery-right .photocard:nth-child(8){ top:80%;   left:36px; transform:rotate(-6deg); }
+
+    /* Hovering still straightens a card and lifts it up, exactly
+       like the tidy version did — it just starts from a scattered
+       angle instead of the neat -4/+3 degree alternation */
+    .gallery-left .photocard:hover, .gallery-right .photocard:hover{
+      transform: rotate(0deg) translateY(-4px) scale(1.06);
+    }
+
+    .photocard{ width: 92px; }
+  }
+
+  /* On really big desktop monitors, give the scattered photocards
+     a little extra room and size so they don't look lost next to
+     the card */
+  @media (min-width: 1440px){
+    body{ column-gap: 56px; }
+    .gallery-left, .gallery-right{ width: 220px; }
+    .photocard{ width: 104px; }
+  }
+
+  /* If someone's browser/computer says "please, less motion" (some
+     people get dizzy from animation), we turn off the fancy stuff */
+  @media (prefers-reduced-motion: reduce){
+    .glow{ animation: none; opacity: 0.55; }
+    .link-card{ transition: none; }
+    .photocard{ transition: none; }
+  }
+
+  /* ============================================
+     BACKGROUND PHOTO WALL 🌫️
+     This is a totally different thing from the moodboard
+     photocards above! Instead of sharp little frames you can
+     look AT, this is a soft, blurry wash of pictures sitting
+     WAY in the back, behind literally everything else — kind
+     of like how a blurry background in a photo still tells you
+     something is there without stealing the spotlight from
+     whoever's in focus. We take 9 pictures, arrange them in a
+     3-by-3 grid that covers the whole screen, blur every single
+     one until it's just soft shapes and colors, and then lay a
+     tinted, mostly-see-through layer of our background color on
+     top of all of it — so it still feels calm and "Motto" pastel
+     instead of busy or distracting.
+     ============================================ */
+  .bg-collage{
+    /* "fixed" means this stays perfectly still in the window
+       even if someone scrolls up and down the page */
+    position: fixed;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    overflow: hidden;
+    /* This stops someone from accidentally clicking THIS instead
+       of a real button — clicks just pass right through it */
+    pointer-events: none;
+    /* A negative z-index sends this whole layer behind every
+       normal, everyday element on the page, even though it's
+       "position: fixed" — without this, a positioned element
+       like this one can accidentally jump IN FRONT of ordinary
+       page content instead of staying
+       politely in the back where a background belongs */
+    z-index: -1;
+  }
+
+  .bg-collage img{
+    width:100%;
+    height:100%;
+    /* Photos from a phone are usually much taller than they are
+       wide. Without these two "min" rules, a grid square is
+       allowed to stretch itself out to match that tall shape —
+       which was squishing rows 2 and 3 of our 3-by-3 grid down
+       off the bottom of the screen, so only row 1 ever showed!
+       Setting the minimums to 0 tells each square "never grow
+       bigger than your assigned spot," keeping all 3 rows locked
+       to neat, equal thirds of the screen */
+    min-width: 0;
+    min-height: 0;
+    object-fit:cover; /* fills each grid square without stretching or squishing */
+    display:block;
+    /* A lighter blur than before — enough to keep these feeling
+       like "background," but soft enough now that you can still
+       tell each square is a real photo instead of just a smudge */
+    filter: blur(3px) saturate(0.9) brightness(1.05);
+    opacity: 0.85;
+  }
+
+  /* This see-through pastel sheet sits on top of the photos,
+     tying their colors back into the rest of the page's palette
+     — like a thin sheet of tinted glass, not a thick fog */
+  .bg-collage::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    background: var(--bg);
+    opacity: 0.38;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================
+     Nine real pictures, blurred way down and tinted so they
+     read as a soft, glowy backdrop instead of a photo gallery.
+     aria-hidden="true" tells screen readers to skip right past
+     this — it's pure decoration, not real page content. -->
+<div class="bg-collage" aria-hidden="true">
+  <img src="IMG_2927.jpg" alt="" loading="lazy">
+  <img src="IMG_2936.jpg" alt="" loading="lazy">
+  <img src="IMG_2937.jpg" alt="" loading="lazy">
+  <img src="IMG_3193.jpg" alt="" loading="lazy">
+  <img src="IMG_3221.jpg" alt="" loading="lazy">
+  <img src="IMG_3282.jpg" alt="" loading="lazy">
+  <img src="IMG_3954.jpg" alt="" loading="lazy">
+  <img src="IMG_5256.jpg" alt="" loading="lazy">
+  <img src="IMG_5257.jpg" alt="" loading="lazy">
+</div>
+
+<div class="page">
+
+  <main>
+    <div class="avatar-wrap">
+      <div class="glow"></div>
+      <div class="avatar">
+        <!-- This is INO's actual profile picture. It lives right next to
+             this index.html file, in a file called ino-pfp.png -->
+        <img src="ino-pfp.png" alt="INO profile photo">
+      </div>
+    </div>
+
+    <!-- Name, handle, bio, and badges all live inside this one soft
+         "frosted glass" panel (see .intro in the CSS) so the words
+         stay easy to read no matter how busy the photo behind them
+         gets -->
+    <div class="intro">
+      <!-- The big bold name at the top of the page -->
+      <h1 class="name">INO</h1>
+      <!-- The small username underneath the name -->
+      <div class="handle">@aceofgenz</div>
+
+      <!-- A short paragraph telling visitors who INO is and what to do.
+           "OT5" means "all 5 members," and it's how Midzy fans say they
+           love the whole ITZY group equally, not just one member. -->
+      <p class="bio">
+        Your favorite OT5 Midzy creator. Daily content on every platform,
+        weekly FMOs on <strong>@INOT5</strong> (YouTube only) — join the
+        Discord below. DMs open for ads &amp; promos 🖤
+      </p>
+
+      <!-- Three little pill-shaped tags that show a bit of INO's fandom
+           identity: which members he loves, and which era this page
+           is dressed up for -->
+      <div class="badges">
+        <span class="badge ot5">OT5 MIDZY</span>
+        <span class="badge bias">RYUJIN BIAS</span>
+
+        <!-- ============================================
+             This pill LOOKS like the two badges next to it, but
+             it's secretly a real <select> dropdown — pick a
+             different era from the list and the tiny script down
+             at the bottom of the page repaints the ENTIRE site
+             (glow, badges, link stripes, photocard borders,
+             background blobs, all of it) to match that era's
+             colors. "MOTTO" is selected by default since that's
+             this page's default look.
+             ============================================ -->
+        <!-- Every era is just one flat list now (no little group
+             headers splitting it up) — simpler to scan, and the
+             list is short enough that you don't need sub-sections
+             to find what you're looking for -->
+        <select class="badge era-select" id="era-select" aria-label="Pick an ITZY era to re-theme this page's colors">
+          <option value="dalla-dalla">DALLA DALLA</option>
+          <option value="icy">ICY ERA</option>
+          <option value="wannabe">WANNABE</option>
+          <option value="not-shy">NOT SHY</option>
+          <option value="mafia-in-the-morning">MAFIA IN THE MORNING</option>
+          <option value="loco">LOCO</option>
+          <option value="sneakers">SNEAKERS</option>
+          <option value="cheshire">CHESHIRE</option>
+          <option value="cake">CAKE</option>
+          <option value="untouchable">UNTOUCHABLE</option>
+          <option value="gold">GOLD</option>
+          <option value="imaginary-friend">IMAGINARY FRIEND</option>
+          <option value="yeji-air">YEJI · AIR</option>
+          <option value="girls-will-be-girls">GIRLS WILL BE GIRLS</option>
+          <option value="tunnel-vision">TUNNEL VISION</option>
+          <option value="yuna-ice-cream">YUNA · ICE CREAM</option>
+          <option value="motto" selected>MOTTO</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- This box holds every clickable button on the page, one after another -->
+    <div class="links">
+
+      <!-- ============================================
+           EMAIL BUTTON
+           This is NOT a normal link. When you click it,
+           it doesn't go anywhere by itself — instead, our
+           JS code (down at the bottom of the page) pops
+           open a tiny menu asking "which mail app do you
+           want to use?"
+           ============================================ -->
+      <div class="email-wrap">
+        <button type="button" class="link-card" id="email-button" aria-haspopup="true" aria-expanded="false">
+          <span class="icon email">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+          </span>
+          <span class="link-text">
+            <span class="link-title">Ads, Promos &amp; Business</span>
+            <span class="link-sub">theaceofgenz@gmail.com</span>
+          </span>
+          <!-- This tiny arrow is a hint that says "psst, clicking me
+               opens something!" It points down by default. Our CSS
+               (look for ".email-chevron" up in the <style> section)
+               watches this button's aria-expanded attribute — and
+               our JS down at the bottom already flips that attribute
+               to "true" every time the menu opens — so the SAME
+               arrow spins upside-down automatically the moment the
+               menu pops open, then spins back down when it closes.
+               No extra JavaScript needed for the spinning part! -->
+          <svg class="email-chevron" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M1 1.5l5 5 5-5"/>
+          </svg>
+        </button>
+
+        <!-- This box is hidden until someone clicks the button above -->
+        <div class="email-menu" id="email-menu">
+          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=theaceofgenz@gmail.com" target="_blank" rel="noopener">
+            <span class="dot gmail"></span> Open in Gmail
+          </a>
+          <a href="https://outlook.live.com/mail/0/deeplink/compose?to=theaceofgenz@gmail.com" target="_blank" rel="noopener">
+            <span class="dot outlook"></span> Open in Outlook
+          </a>
+          <a href="mailto:theaceofgenz@gmail.com">
+            <span class="dot default"></span> Use my default mail app
+          </a>
+        </div>
+      </div>
+
+      <!-- DISCORD BUTTON: takes people to INO's community server — as
+           close as the internet gets to an actual "MIDZY" fansign.
+           target="_blank" means "open this in a brand new tab"
+           instead of taking over the tab someone is already on. -->
+      <a class="link-card" href="https://discord.gg/wYDUcKC53" target="_blank" rel="noopener">
+        <span class="icon discord">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.369a19.79 19.79 0 0 0-4.885-1.515.07.07 0 0 0-.076.035c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.6 12.6 0 0 0-.617-1.25.077.077 0 0 0-.076-.035A19.736 19.736 0 0 0 3.68 4.369a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127c-.598.35-1.22.645-1.873.893a.076.076 0 0 0-.041.106c.36.698.772 1.363 1.225 1.994a.077.077 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .031-.055c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.418 2.157-2.418 1.21 0 2.176 1.094 2.157 2.418 0 1.334-.956 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.094 2.157 2.418 0 1.334-.947 2.419-2.157 2.419z"/></svg>
+          </span>
+        <span class="link-text">
+          <span class="link-title">INO-IT-ALLS Discord Server</span>
+          <span class="link-sub">discord.gg/KK93dVyGA</span>
+        </span>
+      </a>
+
+      <!-- LONGFORM YOUTUBE BUTTON: INO's second channel, just for
+           the longer, weekly videos — like settling in for a full
+           "Guess Who" episode instead of a quick teaser -->
+      <a class="link-card" href="https://youtube.com/@inot5" target="_blank" rel="noopener">
+        <span class="icon youtube">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.55A3.02 3.02 0 0 0 .5 6.19 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.81 3.02 3.02 0 0 0 2.12 2.14C4.5 20.5 12 20.5 12 20.5s7.5 0 9.38-.55a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.81zM9.75 15.5v-7l6.25 3.5-6.25 3.5z"/></svg>
+        </span>
+        <span class="link-text">
+          <span class="link-title">Longform YT — @INOT5</span>
+          <span class="link-sub">youtube.com/@inot5</span>
+        </span>
+      </a>
+
+      <!-- TIKTOK BUTTON: quick, catchy clips — kind of like a "LOCO"
+           dance break packed into 15 seconds. The icon here is drawn
+           using 3 copies of the SAME musical-note shape, stacked on
+           top of each other and nudged slightly apart (one cyan copy
+           nudged down-left, one pink copy nudged up-right, then a
+           plain white copy dead-center on top) — that little "glitchy"
+           offset is exactly how TikTok's real logo is made! Using one
+           shared shape for all 3 (instead of three hand-drawn ones)
+           keeps them perfectly matched, so nothing looks lopsided. -->
+      <a class="link-card" href="https://www.tiktok.com/@aceofgenz" target="_blank" rel="noopener">
+        <span class="icon tiktok">
+          <svg viewBox="0 0 24 24">
+            <path fill="#25F4EE" transform="translate(-0.9,0.9)" d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+            <path fill="#FE2C55" transform="translate(0.9,-0.9)" d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+            <path fill="#FFFFFF" d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+          </svg>
+        </span>
+        <span class="link-text">
+          <span class="link-title">TikTok</span>
+          <span class="link-sub">tiktok.com/@aceofgenz</span>
+        </span>
+      </a>
+
+      <!-- MAIN YOUTUBE BUTTON: INO's primary channel, front and
+           center — the "Untouchable" main-stage spot of the lineup -->
+      <a class="link-card" href="https://youtube.com/@aceofgenz" target="_blank" rel="noopener">
+        <span class="icon youtube">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.55A3.02 3.02 0 0 0 .5 6.19 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.81 3.02 3.02 0 0 0 2.12 2.14C4.5 20.5 12 20.5 12 20.5s7.5 0 9.38-.55a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.81zM9.75 15.5v-7l6.25 3.5-6.25 3.5z"/></svg>
+        </span>
+        <span class="link-text">
+          <span class="link-title">Main YouTube</span>
+          <span class="link-sub">youtube.com/@aceofgenz</span>
+        </span>
+      </a>
+
+      <!-- INSTAGRAM BUTTON: the last one in the list, saved for a
+           "Cake"-sweet finish. Its icon square uses a gradient (a
+           smooth blend of colors) to match Instagram's real logo -->
+      <a class="link-card" href="https://www.instagram.com/aceofgenz" target="_blank" rel="noopener">
+        <span class="icon instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg>
+        </span>
+        <span class="link-text">
+          <span class="link-title">Instagram</span>
+          <span class="link-sub">instagram.com/aceofgenz</span>
+        </span>
+      </a>
+
+    </div>
+  </main>
+</div>
+
+  <!-- ============================================
+       "GUESS WHO" MOODBOARD 🖼️
+       Seventeen little picture frames — every ITZY comeback era
+       from debut through the current one, PLUS Yeji's and Yuna's
+       solo debuts slotted into the timeline exactly where they
+       really happened, all in chronological order (oldest first).
+       Every picture below now points at a real era photo living
+       in this same folder. Want to swap one for a different
+       picture later? Just change that <img>'s src="..." to
+       whatever new filename you're using — the frame, tilt, and
+       caption all keep working automatically either way.
+
+       aria-hidden="true" on the two groups below just tells
+       screen readers "these are just decoration, feel free to
+       skip them" — the real content of the page is everything
+       above (the name, bio, and buttons).
+       ============================================ -->
+  <p class="gallery-label">midzy moodboard</p>
+  <div class="gallery gallery-left" aria-hidden="true">
+    <div class="photocard">
+      <img src="dalla-dalla.jpg" alt="" loading="lazy">
+      <span>DALLA DALLA</span>
+    </div>
+    <div class="photocard">
+      <img src="icy.jpg" alt="" loading="lazy">
+      <span>ICY</span>
+    </div>
+    <div class="photocard">
+      <img src="wannabe.jpg" alt="" loading="lazy">
+      <span>WANNABE</span>
+    </div>
+    <div class="photocard">
+      <img src="not-shy.jpg" alt="" loading="lazy">
+      <span>NOT SHY</span>
+    </div>
+    <div class="photocard">
+      <img src="in-the-morning.jpg" alt="" loading="lazy">
+      <span>MAFIA IN THE MORNING</span>
+    </div>
+    <div class="photocard">
+      <img src="loco.jpg" alt="" loading="lazy">
+      <span>LOCO</span>
+    </div>
+    <div class="photocard">
+      <img src="sneakers.jpg" alt="" loading="lazy">
+      <span>SNEAKERS</span>
+    </div>
+    <div class="photocard">
+      <img src="cheshire.jpg" alt="" loading="lazy">
+      <span>CHESHIRE</span>
+    </div>
+    <div class="photocard">
+      <img src="cake.jpeg" alt="" loading="lazy">
+      <span>CAKE</span>
+    </div>
+  </div>
+  <div class="gallery gallery-right" aria-hidden="true">
+    <div class="photocard">
+      <img src="untouchable.jpg" alt="" loading="lazy">
+      <span>UNTOUCHABLE</span>
+    </div>
+    <div class="photocard">
+      <img src="gold.jpg" alt="" loading="lazy">
+      <span>GOLD</span>
+    </div>
+    <div class="photocard">
+      <img src="imaginary-friend.jpeg" alt="" loading="lazy">
+      <span>IMAGINARY FRIEND</span>
+    </div>
+    <div class="photocard">
+      <img src="yeji-air.jpg" alt="" loading="lazy">
+      <span>YEJI · AIR</span>
+    </div>
+    <div class="photocard">
+      <img src="gwbg.jpg" alt="" loading="lazy">
+      <span>GIRLS WILL BE GIRLS</span>
+    </div>
+    <div class="photocard">
+      <img src="tunnel-vision.jpg" alt="" loading="lazy">
+      <span>TUNNEL VISION</span>
+    </div>
+    <div class="photocard">
+      <img src="ice-cream-yuna.jpg" alt="" loading="lazy">
+      <span>YUNA · ICE CREAM</span>
+    </div>
+    <div class="photocard">
+      <img src="motto.webp" alt="" loading="lazy">
+      <span>MOTTO</span>
+    </div>
+  </div>
+
+  <!-- The very last little bit of text at the bottom of the page —
+       written to sound like an ITZY "motto" of its own -->
+  <footer>
+    <p>made for INO by a fellow Midzy <span class="heart">🖤</span> · always in the mood · not affiliated with JYP Entertainment</p>
+  </footer>
+
+<script>
+  // ============================================
+  // TINY HELPER SCRIPT 🧩
+  // This part just makes the email button work like a
+  // light switch: click it once, the little menu pops
+  // open — like a chorus dropping in after the build-up.
+  // Click somewhere else (or click it again), and the
+  // menu closes back up.
+  // ============================================
+
+  // First, we grab (find) the two pieces we need from the page:
+  // the button someone clicks, and the menu box that should open.
+  var emailButton = document.getElementById('email-button');
+  var emailMenu = document.getElementById('email-menu');
+
+  // This little function flips the menu open or closed.
+  function toggleEmailMenu(forceState) {
+    // "is-open" is like a sticker we put on the menu box. If the
+    // sticker is there, CSS shows the menu. If it's not, CSS hides it.
+    var isOpen = emailMenu.classList.contains('is-open');
+    var nextState = (typeof forceState === 'boolean') ? forceState : !isOpen;
+
+    if (nextState) {
+      emailMenu.classList.add('is-open');
+    } else {
+      emailMenu.classList.remove('is-open');
+    }
+
+    // This just tells screen readers (for folks who can't see the
+    // screen) whether the menu is open or closed right now.
+    emailButton.setAttribute('aria-expanded', String(nextState));
+  }
+
+  // When someone clicks the email button...
+  emailButton.addEventListener('click', function (event) {
+    // ...stop the click from also being seen as "clicking outside"
+    // (that would immediately close the menu we just opened!)
+    event.stopPropagation();
+    toggleEmailMenu();
+  });
+
+  // If someone clicks ANYWHERE else on the page, close the menu.
+  document.addEventListener('click', function () {
+    toggleEmailMenu(false);
+  });
+
+  // If someone presses the "Escape" key on their keyboard, close it too.
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+      toggleEmailMenu(false);
+    }
+  });
+
+  // ============================================
+  // ERA THEME SWITCHER 🎨
+  // This is the other half of the "MOTTO" dropdown's magic
+  // trick. All the actual COLORS for each era live over in the
+  // CSS, inside :root[data-era="..."] blocks — this script's only
+  // job is to write whichever era got picked onto the <html> tag
+  // as a data-era attribute. The instant that attribute changes,
+  // the browser's own CSS engine handles the rest automatically.
+  // ============================================
+  var eraSelect = document.getElementById('era-select');
+
+  eraSelect.addEventListener('change', function () {
+    if (eraSelect.value === 'motto') {
+      // "Motto" IS the page's default look (it's what's already
+      // sitting in the COLOR BOX at the very top of the CSS), so
+      // picking it just means "remove any other era's attribute
+      // and go back to normal" rather than needing its own block.
+      document.documentElement.removeAttribute('data-era');
+    } else {
+      document.documentElement.setAttribute('data-era', eraSelect.value);
+    }
+  });
+</script>
+
+</body>
+</html>
