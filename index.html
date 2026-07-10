@@ -574,8 +574,14 @@
     white-space: nowrap;
     /* A little downward chevron, drawn once as an SVG and reused
        as a background image — this is the visual cue that says
-       "I open into a list, try clicking me" */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%234a3f52' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+       "I open into a list, try clicking me". It uses
+       stroke='currentColor' instead of a fixed hex color, so the
+       little arrow always matches this pill's own text color —
+       whatever that happens to be for the currently-picked era.
+       Before this fix, the arrow was a fixed dark gray, which is
+       exactly why it basically disappeared on darker era themes
+       like MOTTO: dark arrow on a dark pill = invisible! */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
     background-size: 9px;
@@ -609,7 +615,7 @@
      email button's arrow could, we swap in a second, upside-down
      arrow picture instead — same trick, different tool */
   .era-select:focus{
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 5l4-4 4 4' fill='none' stroke='%234a3f52' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 5l4-4 4 4' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   }
 
   /* Each option in the open list gets plain, readable colors —
@@ -873,13 +879,28 @@
     margin: 0;
     /* A small frosted "pill" behind the words, same idea as the
        .intro panel above — guarantees this last line stays
-       readable however busy the photo behind it gets */
-    display:inline-block;
+       readable however busy the photo behind it gets. "block" +
+       "width: max-content" (capped by max-width so it can't run
+       off the screen) + "margin: 0 auto" is what keeps each pill
+       hugging its own text AND centered AND on its own separate
+       line — now that there are two <p> lines down here instead
+       of just one */
+    display:block;
+    width: max-content;
+    max-width: 100%;
+    margin: 0 auto;
     background: color-mix(in srgb, var(--bg-card) 60%, transparent);
     -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
     border-radius: 14px;
     padding: 8px 16px;
+  }
+
+  /* A little gap between the two footer lines, so the copyright
+     disclaimer doesn't look glued to the "made by a fellow Midzy"
+     line right above it */
+  footer p + p{
+    margin-top: 8px;
   }
 
   footer .heart{ color: var(--red); }
@@ -1553,6 +1574,23 @@
         </span>
       </a>
 
+      <!-- TEMPORARY YOUTUBE BUTTON: sometimes a YouTube channel gets
+           put in a "time out" and can't post for a while, so INO
+           made this second channel as a backup place to keep
+           posting videos until the main channel is back to normal.
+           It looks just like the other YouTube buttons above (same
+           icon, same shape), but the words say "Temporary" so
+           nobody mixes it up with the real long-term channel -->
+      <a class="link-card" href="https://youtube.com/@aceofgenzy?si=L5hz3yVYqrvIQf_q" target="_blank" rel="noopener">
+        <span class="icon youtube">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.55A3.02 3.02 0 0 0 .5 6.19 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.81 3.02 3.02 0 0 0 2.12 2.14C4.5 20.5 12 20.5 12 20.5s7.5 0 9.38-.55a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.81zM9.75 15.5v-7l6.25 3.5-6.25 3.5z"/></svg>
+        </span>
+        <span class="link-text">
+          <span class="link-title">Temporary YouTube — @aceofgenzy</span>
+          <span class="link-sub">backup channel, for now</span>
+        </span>
+      </a>
+
       <!-- INSTAGRAM BUTTON: the last one in the list, saved for a
            "Cake"-sweet finish. Its icon square uses a gradient (a
            smooth blend of colors) to match Instagram's real logo -->
@@ -1676,9 +1714,16 @@
   </div>
 
   <!-- The very last little bit of text at the bottom of the page —
-       written to sound like an ITZY "motto" of its own -->
+       written to sound like an ITZY "motto" of its own. The second
+       line underneath is a copyright disclaimer: it just tells
+       everyone in plain words that none of the ITZY photos/videos
+       linked on this page belong to this website — they all belong
+       to JYP Entertainment / ITZY / the original creators. This
+       fan page is only borrowing them to celebrate INO's content,
+       not claiming to have made or own any of it */ -->
   <footer>
     <p>made for INO by a fellow Midzy <span class="heart">🖤</span> · always in the mood · not affiliated with JYP Entertainment</p>
+    <p>I do not claim ownership of this content. All rights belong to the respective owner.</p>
   </footer>
 
 <script>
