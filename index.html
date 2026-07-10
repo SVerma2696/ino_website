@@ -6,6 +6,48 @@
 <title>INO · @aceofgenz</title>
 <meta name="description" content="Your favorite OT5 Midzy creator. Daily content @Aceofgenz, weekly FMOs on @INOT5, and the INO-IT-ALLS Discord.">
 
+<!-- This tiny picture shows up in the browser tab up top, and in
+     bookmarks. It's not a separate image file — the whole picture
+     is written directly into this link as text (that's what
+     "data:image/svg+xml" means), so there's nothing extra to
+     download or keep track of. It draws a little 2-color
+     checkerboard square, matching the same checkerboard pattern
+     that ITZY used for their very first "DALLA DALLA" debut era —
+     the same nod already mentioned up in the ITZY EASTER EGG MAP
+     below -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23F3A6C4'/%3E%3Crect x='16' y='0' width='16' height='16' fill='%23C6B6E8'/%3E%3Crect x='0' y='16' width='16' height='16' fill='%23C6B6E8'/%3E%3C/svg%3E">
+
+<!-- This little line tells a phone browser what color to paint its
+     own toolbar/status bar so it blends in with the page instead
+     of staying plain white or black. This starting value matches
+     the default "wall" color (--bg) from the COLOR BOX below. Our
+     theme-switcher script down at the bottom keeps this in sync
+     with whichever era AND whichever light/dark mode is currently
+     active, so even the BROWSER ITSELF gets in on the re-theming,
+     not just the page content -->
+<meta name="theme-color" content="#FAF2ED" id="theme-color-meta">
+
+<!-- ============================================
+     SHARE PREVIEW CARDS 🔗
+     These "og:" (short for "Open Graph") and "twitter:" tags are
+     invisible on the page itself — they only matter to OTHER
+     apps. When someone pastes this page's link into Discord,
+     iMessage, Twitter/X, or Slack, those apps quietly ask this
+     page "hey, what picture/title/description should I show for
+     your little link preview card?" Without these tags, most
+     apps either show nothing or just a plain blue link. With
+     them, the shared link shows INO's photo plus a proper title
+     and description, like a real "card" instead of bare text. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="INO · @aceofgenz">
+<meta property="og:description" content="Your favorite OT5 Midzy creator. Daily content on every platform, weekly FMOs on @INOT5, and the INO-IT-ALLS Discord.">
+<meta property="og:image" content="https://sverma2696.github.io/ino_website/ino-pfp.jpg">
+<meta property="og:url" content="https://sverma2696.github.io/ino_website/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="INO · @aceofgenz">
+<meta name="twitter:description" content="Your favorite OT5 Midzy creator. Daily content on every platform, weekly FMOs on @INOT5, and the INO-IT-ALLS Discord.">
+<meta name="twitter:image" content="https://sverma2696.github.io/ino_website/ino-pfp.jpg">
+
 <!--
   ============================================
   🖤 ITZY EASTER EGG MAP 🖤
@@ -141,12 +183,95 @@
     --bg:#FFF6FA; --pink:#FFB5C2; --lavender:#C9A7EB; --blue:#A0E7E5; --green:#B4F8C8; --red:#FF9F9F;
   }
 
+  /* ============================================
+     LIGHT / DARK MODE 🌙☀️
+     This is a COMPLETELY different toggle from the era dropdown
+     up above — think of it like this: the era picker chooses
+     which 5 CRAYONS are in the box, while this light/dark switch
+     decides whether you're drawing on WHITE paper or BLACK paper.
+     Both can be true at once! Someone could be looking at the
+     LOCO era's neon pink-and-cyan crayons, drawn on dark paper —
+     the JS at the bottom of the page just adds a second attribute,
+     data-theme="dark", onto <html> right alongside data-era, and
+     this block below reacts to THAT one.
+
+     Only --bg, --bg-card, --text, --muted, and --border change
+     here — we deliberately leave --pink/--lavender/--blue/--green/
+     --red alone, so whichever era's 5 crayons are active keep
+     showing up as colorful accents against the dark backdrop,
+     instead of the page losing its "era flavor" in dark mode.
+
+     One important detail: this block is written AFTER all 16 of
+     the data-era blocks above, on purpose. If both an era AND
+     dark mode are active at once, both blocks are equally
+     "specific" as far as CSS is concerned — so when there's a
+     tie, CSS lets whichever one is written LOWER DOWN in the file
+     win. Writing dark mode last is what guarantees the page
+     actually goes dark even when a (normally light, pastel) era
+     is also selected. */
+  :root[data-theme="dark"]{
+    --bg: #1C1720;
+    --bg-card: #2A2430;
+    --text: #F5EEF2;
+    --muted: #B3A3AE;
+    --border: rgba(255,255,255,0.12);
+  }
+
   /* A short, gentle fade whenever any of the theme colors change,
      so picking a new era feels like a smooth mood-shift instead
      of a jarring flash */
-  body, .bg-collage::after, .badge, .era-select, .link-card, .photocard, .glow{
+  body, .bg-collage::after, .badge, .era-select, .link-card, .photocard, .glow, .theme-toggle, .github-link{
     transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease;
   }
+
+  /* ============================================
+     THE TWO LITTLE FLOATING CIRCLES 🐙🌙☀️
+     The GitHub button and the light/dark button are basically
+     twins — same size, same round shape, same "float in a corner
+     forever" behavior — just one sits on the LEFT and one sits on
+     the RIGHT. Writing their shared look ONCE here (instead of
+     copy-pasting it twice) means if we ever want to make both
+     buttons a little bigger, we only have to change it in ONE spot.
+     ============================================ */
+  .github-link, .theme-toggle{
+    /* "fixed" pins this to the actual browser WINDOW, not the
+       page — so it stays in the same corner even while someone
+       scrolls all the way down through the moodboard */
+    position: fixed;
+    top: 16px;
+    z-index: 60;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    text-decoration:none;
+    box-shadow: 0 2px 10px rgba(51,38,46,0.14);
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.15s ease;
+  }
+  .github-link{ left: 16px; }
+  .theme-toggle{ right: 16px; }
+  .github-link:hover, .theme-toggle:hover{ transform: scale(1.07); }
+  .github-link:focus-visible, .theme-toggle:focus-visible{ outline: 2px solid var(--red); outline-offset: 2px; }
+
+  .theme-icon{ width:18px; height:18px; }
+  .github-link svg{ width:18px; height:18px; }
+
+  /* Only ONE of these two little pictures is ever visible at a
+     time — which one depends on the SAME data-theme attribute
+     the CSS above reacts to. Showing the MOON while things are
+     light (click it to go dark) and the SUN once things ARE dark
+     (click it to go back to light) is a common pattern, sort of
+     like how a light switch's position shows you what flipping
+     it will do next */
+  .theme-icon-sun{ display:none; }
+  :root[data-theme="dark"] .theme-icon-moon{ display:none; }
+  :root[data-theme="dark"] .theme-icon-sun{ display:block; }
 
   /* This makes sure every box on the page measures itself the same easy way */
   *{ box-sizing: border-box; }
@@ -201,6 +326,19 @@
        one line keeps that negative stacking contained where we
        actually want it */
     isolation: isolate;
+    /* Instead of the whole page just "popping" into view the
+       instant it's ready, it gently fades in from invisible to
+       fully visible over half a second — like a light slowly
+       being turned up, instead of flicked on all at once */
+    animation: page-fade-in 0.6s ease;
+  }
+
+  /* This is the "fade in" recipe — start completely invisible
+     (opacity 0), end completely visible (opacity 1). The browser
+     smoothly blends every step in between automatically */
+  @keyframes page-fade-in{
+    from{ opacity: 0; }
+    to{ opacity: 1; }
   }
 
   /* This is the whole "phone screen" shaped card that holds everything */
@@ -218,6 +356,54 @@
     flex-direction:column;
     align-items:center;
     text-align:center;
+  }
+
+  /* ============================================
+     COMEBACK COUNTDOWN BANNER 📅 (hidden unless turned on)
+     ============================================ */
+  .comeback-banner{
+    width:100%;
+    max-width:340px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    background: color-mix(in srgb, var(--red) 16%, var(--bg-card));
+    border: 1px solid color-mix(in srgb, var(--red) 40%, transparent);
+    border-radius: 14px;
+    padding: 9px 8px 9px 14px;
+    margin-bottom: 16px;
+  }
+
+  /* The plain HTML "hidden" attribute already stops this from
+     showing up, but spelling it out here too means the banner
+     stays gone even if some other CSS rule ever tried to make
+     every ".comeback-banner" a flex box again by accident */
+  .comeback-banner[hidden]{ display:none; }
+
+  .comeback-text{
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.3px;
+    color: var(--text);
+    text-align:left;
+  }
+
+  .comeback-dismiss{
+    flex-shrink:0;
+    background:none;
+    border:none;
+    color: var(--muted);
+    font-size: 18px;
+    line-height:1;
+    padding: 2px 8px;
+    cursor:pointer;
+    border-radius: 6px;
+  }
+  .comeback-dismiss:hover{ color: var(--text); }
+  .comeback-dismiss:focus-visible{
+    outline: 2px solid var(--red);
+    outline-offset: 1px;
   }
 
   /* The circle behind the profile picture that glows softly,
@@ -531,6 +717,51 @@
     text-overflow:ellipsis; /* shows "..." if the text got cut off */
   }
 
+  /* The email address gets a dotted underline and its own cursor
+     hint, just enough to whisper "psst, this one little bit does
+     something different from the rest of the button" without
+     looking like a whole separate button was bolted on */
+  .copy-email{
+    display:inline-block;
+    cursor:pointer;
+    border-bottom: 1px dotted var(--muted);
+  }
+  .copy-email:hover{ color: var(--text); border-bottom-color: var(--text); }
+  .copy-email:focus-visible{
+    outline: 2px solid var(--red);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* This little "Copied!" pill sits invisible right above the
+     email button until JS adds the "is-visible" sticker to it —
+     then it fades and slides gently into view, waits a second and
+     a half, and fades back out again. "pointer-events: none" makes
+     sure it never gets in the way of actually clicking things
+     underneath it, even while it's showing */
+  .copy-toast{
+    position:absolute;
+    left:50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%) translateY(6px);
+    background: var(--text);
+    color: var(--bg-card);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.4px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    white-space:nowrap;
+    opacity:0;
+    pointer-events:none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 15;
+  }
+  .copy-toast.is-visible{
+    opacity:1;
+    transform: translateX(-50%) translateY(0);
+  }
+
   /* ============================================
      LITTLE DOWN ARROW ⌄
      This is the small "V" shaped arrow that lives at the very
@@ -657,7 +888,7 @@
      "GUESS WHO" MOODBOARD 🖼️
      These are extra little picture frames, like photocards
      scattered on a desk. Right now every single one shows
-     INO's picture (ino-pfp.png) as a placeholder — just a
+     INO's picture (ino-pfp.jpg) as a placeholder — just a
      stand-in until real pictures get dropped in later. On a
      tall phone screen there isn't room to spread them out, so
      they just line up in rows. But on a big laptop screen,
@@ -958,6 +1189,9 @@
     .glow{ animation: none; opacity: 0.55; }
     .link-card{ transition: none; }
     .photocard{ transition: none; }
+    /* The page just appears right away instead of fading in —
+       some people find fading/moving content disorienting */
+    body{ animation: none; }
   }
 
   /* ============================================
@@ -1036,6 +1270,42 @@
 <body>
 
 <!-- ============================================
+     "VIEW SOURCE ON GITHUB" BUTTON 🐙
+     A little round button in the top-LEFT corner (mirroring the
+     light/dark button that floats in the top-RIGHT), linking
+     straight to this whole website's actual code. It's a plain,
+     ordinary link — target="_blank" opens it in a new tab, and
+     rel="noopener" is a small security habit for any link that
+     opens in a new tab, stopping that new tab from being able to
+     mess with THIS tab behind the scenes. -->
+<a class="github-link" href="https://github.com/SVerma2696/ino_website" target="_blank" rel="noopener" aria-label="View this website's source code on GitHub">
+  <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+  </svg>
+</a>
+
+<!-- ============================================
+     LIGHT / DARK MODE BUTTON 🌙☀️
+     This little round button floats in the top-right corner of
+     the screen, always, no matter how far someone scrolls. It
+     holds TWO tiny pictures stacked on top of each other (a moon
+     and a sun) — only one shows at a time, and our CSS decides
+     which one based on data-theme, the same way the chevron
+     arrows swap earlier in this file. aria-pressed tells screen
+     readers whether dark mode is currently "on" or "off", and
+     our JS keeps that (plus the aria-label wording) up to date
+     every time someone clicks it. ============================================ -->
+<button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="false" aria-label="Switch to dark mode">
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M20.354 15.354A9 9 0 0 1 8.646 3.646 9.003 9.003 0 1 0 20.354 15.354z"/>
+  </svg>
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="4"/>
+    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+  </svg>
+</button>
+
+<!-- ============================================
      Nine real pictures, blurred way down and tinted so they
      read as a soft, glowy backdrop instead of a photo gallery.
      aria-hidden="true" tells screen readers to skip right past
@@ -1066,12 +1336,28 @@
 <div class="page">
 
   <main>
+    <!-- ============================================
+         "NEXT COMEBACK" COUNTDOWN BANNER 📅
+         This little bar is OFF by default — right now, there's no
+         real ITZY comeback date to announce, so it stays completely
+         hidden ("hidden" below is a real HTML attribute that means
+         "don't show this, don't take up any space either"). Our JS
+         only reveals it if someone fills in a real future date in
+         the NEXT_COMEBACK_DATE spot at the bottom of this page —
+         search for "NEXT COMEBACK COUNTDOWN" in the <script> to
+         turn it on later. Until then, this is just an empty,
+         invisible little box sitting here, ready to be used. -->
+    <div class="comeback-banner" id="comeback-banner" role="status" hidden>
+      <span class="comeback-text" id="comeback-text"></span>
+      <button type="button" class="comeback-dismiss" id="comeback-dismiss" aria-label="Dismiss this announcement">×</button>
+    </div>
+
     <div class="avatar-wrap">
       <div class="glow"></div>
       <div class="avatar">
         <!-- This is INO's actual profile picture. It lives right next to
-             this index.html file, in a file called ino-pfp.png -->
-        <img src="ino-pfp.png" alt="INO profile photo">
+             this index.html file, in a file called ino-pfp.jpg -->
+        <img src="ino-pfp.jpg" alt="INO profile photo">
       </div>
     </div>
 
@@ -1155,7 +1441,18 @@
           </span>
           <span class="link-text">
             <span class="link-title">Ads, Promos &amp; Business</span>
-            <span class="link-sub">theaceofgenz@gmail.com</span>
+            <!-- This is a little "button hiding inside a button"! The
+                 BIG button (the whole card) opens the mail-app menu
+                 when clicked. But this one small piece of text — just
+                 the email address itself — secretly has its OWN job:
+                 clicking (or tabbing to it and pressing Enter/Space)
+                 copies the address to the clipboard instead, for
+                 anyone who just wants to paste it somewhere rather
+                 than open a whole mail app. role="button" and
+                 tabindex="0" are what let a plain <span> act like a
+                 real button for keyboards and screen readers, even
+                 though it isn't a <button> tag underneath. -->
+            <span class="link-sub copy-email" id="copy-email" role="button" tabindex="0" aria-label="Copy email address theaceofgenz@gmail.com to clipboard">theaceofgenz@gmail.com</span>
           </span>
           <!-- This tiny arrow is a hint that says "psst, clicking me
                opens something!" It points down by default. Our CSS
@@ -1183,6 +1480,15 @@
             <span class="dot default"></span> Use my default mail app
           </a>
         </div>
+
+        <!-- This little pill is hidden almost all the time. Our JS
+             briefly adds an "is-visible" sticker to it (same trick
+             as the email-menu's "is-open" sticker) right after
+             someone copies the address, then peels the sticker
+             back off a second and a half later. aria-live="polite"
+             means a screen reader will calmly announce "Copied!"
+             on its own, without needing anyone to tab over to it. -->
+        <span class="copy-toast" id="copy-toast" aria-live="polite">Copied!</span>
       </div>
 
       <!-- DISCORD BUTTON: takes people to INO's community server — as
@@ -1429,6 +1735,66 @@
   });
 
   // ============================================
+  // COPY EMAIL TO CLIPBOARD 📋
+  // This is the small "button inside a button" from the HTML
+  // above. Clicking (or pressing Enter/Space on) just the email
+  // address copies it to the clipboard and shows a little
+  // "Copied!" pill, instead of opening the mail-app menu.
+  // ============================================
+  var copyEmailSpan = document.getElementById('copy-email');
+  var copyToast = document.getElementById('copy-toast');
+  var copyToastHideTimer = null;
+
+  // Shows the "Copied!" pill, then hides it again a bit later.
+  function showCopyToast() {
+    copyToast.classList.add('is-visible');
+    // If someone copies twice really fast, this cancels the OLD
+    // "go hide yourself" countdown and starts a fresh one, so the
+    // pill doesn't flicker off too early.
+    clearTimeout(copyToastHideTimer);
+    copyToastHideTimer = setTimeout(function () {
+      copyToast.classList.remove('is-visible');
+    }, 1600);
+  }
+
+  // This is the actual "go copy the text" step. navigator.clipboard
+  // is the modern, built-in browser tool for reading/writing the
+  // clipboard — no extra library needed.
+  function copyEmailAddress(event) {
+    // This stops the click from also bubbling up to the big email
+    // BUTTON underneath and popping open its mail-app menu too —
+    // without this, someone copying the address would also see
+    // the menu suddenly appear, which would look like a glitch.
+    event.stopPropagation();
+
+    var email = 'theaceofgenz@gmail.com';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(email).then(showCopyToast).catch(function () {
+        // Some browsers can refuse clipboard access (for example,
+        // if the page isn't loaded over a secure https:// connection).
+        // If that happens, we just quietly do nothing extra — the
+        // click still won't accidentally open the mail-app menu,
+        // it just won't show the "Copied!" pill either.
+      });
+    }
+  }
+
+  copyEmailSpan.addEventListener('click', copyEmailAddress);
+
+  // Because copy-email is a <span> pretending to be a button (see
+  // the big comment on it up in the HTML), it doesn't automatically
+  // respond to the Enter or Space keys the way a real <button> does
+  // — so we have to listen for those keys ourselves.
+  copyEmailSpan.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      // Without this, pressing Space would also scroll the page
+      // down a little, like it normally does everywhere else.
+      event.preventDefault();
+      copyEmailAddress(event);
+    }
+  });
+
+  // ============================================
   // ERA THEME SWITCHER 🎨
   // This is the other half of the "MOTTO" dropdown's magic
   // trick. All the actual COLORS for each era live over in the
@@ -1439,17 +1805,225 @@
   // ============================================
   var eraSelect = document.getElementById('era-select');
 
-  eraSelect.addEventListener('change', function () {
-    if (eraSelect.value === 'motto') {
-      // "Motto" IS the page's default look (it's what's already
-      // sitting in the COLOR BOX at the very top of the CSS), so
-      // picking it just means "remove any other era's attribute
-      // and go back to normal" rather than needing its own block.
+  // Changing the era picks new colors. Picking "Motto" just means
+  // "go back to normal" — it's the page's default look already,
+  // so there's nothing extra to switch ON for it.
+  function applyEra(eraValue) {
+    if (eraValue === 'motto') {
       document.documentElement.removeAttribute('data-era');
     } else {
-      document.documentElement.setAttribute('data-era', eraSelect.value);
+      document.documentElement.setAttribute('data-era', eraValue);
+    }
+  }
+
+  eraSelect.addEventListener('change', function () {
+    applyEra(eraSelect.value);
+    updateThemeColorMeta();
+    updateEraInUrl(eraSelect.value);
+  });
+
+  // ============================================
+  // SHAREABLE ERA LINKS 🔗
+  // This lets someone share a link like
+  // "...index.html?era=loco" that opens the page ALREADY showing
+  // the LOCO colors, instead of everyone always landing on Motto.
+  // ============================================
+
+  // On page load, check the address bar for "?era=something" and,
+  // if it matches a REAL option in the dropdown, apply it right
+  // away and make sure the dropdown itself shows the right pick.
+  function applyEraFromUrl() {
+    var params = new URLSearchParams(window.location.search);
+    var eraFromUrl = params.get('era');
+    if (!eraFromUrl) { return; }
+
+    // Trying to set a <select>'s value to something that ISN'T
+    // one of its real <option>s just quietly fails and leaves the
+    // value unchanged — so checking "did it actually take?" after
+    // trying is a simple, safe way to validate it, with no need
+    // to go searching through every <option> by hand.
+    eraSelect.value = eraFromUrl;
+    if (eraSelect.value === eraFromUrl) {
+      applyEra(eraFromUrl);
+    }
+  }
+
+  // Whenever someone picks a new era from the dropdown, this
+  // quietly rewrites the address bar to match — so if they copy
+  // the link right then, whoever they send it to lands on the
+  // same themed look, without needing to click the dropdown
+  // themselves.
+  function updateEraInUrl(eraValue) {
+    var newUrl = new URL(window.location.href);
+    if (eraValue === 'motto') {
+      newUrl.searchParams.delete('era');
+    } else {
+      newUrl.searchParams.set('era', eraValue);
+    }
+    // "replaceState" (instead of the more common "pushState")
+    // updates the address bar WITHOUT adding a new entry to the
+    // browser's back-button history — so tapping "back" doesn't
+    // just cycle backwards through every era someone tried.
+    window.history.replaceState(null, '', newUrl);
+  }
+
+  // ============================================
+  // KEEP THE BROWSER'S OWN COLOR IN SYNC 🖌️
+  // This updates the <meta name="theme-color"> tag up in <head>
+  // (the one that tints a phone browser's toolbar) so it always
+  // matches whatever the CURRENT --bg wall-color actually is,
+  // even as that changes between eras and between light/dark mode.
+  // ============================================
+  var themeColorMeta = document.getElementById('theme-color-meta');
+
+  function updateThemeColorMeta() {
+    // getComputedStyle asks the browser "okay, after mixing
+    // together every CSS rule that applies right now, what did
+    // you actually land on for this property?" — it's how we read
+    // back the REAL final color instead of guessing it ourselves.
+    var currentBg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+    if (currentBg) {
+      themeColorMeta.setAttribute('content', currentBg);
+    }
+  }
+
+  // ============================================
+  // LIGHT / DARK MODE TOGGLE 🌙☀️
+  // ============================================
+  var themeToggle = document.getElementById('theme-toggle');
+  var THEME_STORAGE_KEY = 'ino-theme';
+
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      themeToggle.setAttribute('aria-pressed', 'true');
+      themeToggle.setAttribute('aria-label', 'Switch to light mode');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      themeToggle.setAttribute('aria-pressed', 'false');
+      themeToggle.setAttribute('aria-label', 'Switch to dark mode');
+    }
+    updateThemeColorMeta();
+  }
+
+  // What theme should we start with? First choice: whatever this
+  // same visitor picked last time (we saved it in localStorage,
+  // which is just a tiny bit of storage a website is allowed to
+  // keep in a visitor's own browser). If we've never saved
+  // anything, fall back to asking the OPERATING SYSTEM whether it
+  // is currently in light or dark mode, via prefers-color-scheme.
+  var savedTheme = null;
+  try {
+    savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+  } catch (err) {
+    // Some browser privacy settings block localStorage completely
+    // (private/incognito windows sometimes do this). If that
+    // happens we simply can't remember a choice between visits —
+    // not a big deal, the toggle still works fine for this visit.
+  }
+  var systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(savedTheme || (systemPrefersDark ? 'dark' : 'light'));
+
+  themeToggle.addEventListener('click', function () {
+    var isCurrentlyDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    var nextTheme = isCurrentlyDark ? 'light' : 'dark';
+    applyTheme(nextTheme);
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    } catch (err) {
+      // Same reasoning as above — if we can't save it, the toggle
+      // still works, it just won't be remembered next visit.
     }
   });
+
+  // Now that both the era system AND the theme-color updater
+  // above are ready, it's finally safe to check the URL for a
+  // shared "?era=..." link and apply it.
+  applyEraFromUrl();
+
+  // ============================================
+  // NEXT COMEBACK COUNTDOWN 📅 (off by default)
+  // Want to turn this banner on someday? Just fill in a real,
+  // FUTURE date + time below, using this exact pattern:
+  // 'YYYY-MM-DDTHH:MM:00' (a 24-hour clock, no AM/PM).
+  // For example: '2026-09-01T00:00:00' means September 1st, 2026,
+  // right at midnight. As long as this stays an empty string (''),
+  // the whole banner quietly does nothing and stays invisible —
+  // nobody will ever know this feature exists unless you use it.
+  // ============================================
+  var NEXT_COMEBACK_DATE = '';
+  var NEXT_COMEBACK_LABEL = "ITZY's next comeback drops in:";
+
+  (function setUpComebackBanner() {
+    // Nothing to count down to? Stop right here, before touching
+    // anything else — this is the "off switch" for the whole feature.
+    if (!NEXT_COMEBACK_DATE) { return; }
+
+    var targetTime = new Date(NEXT_COMEBACK_DATE).getTime();
+    // "isNaN" catches a typo'd date that JavaScript couldn't
+    // understand. The second check makes sure we don't show a
+    // countdown for a date that's already in the past.
+    if (isNaN(targetTime) || targetTime <= Date.now()) { return; }
+
+    // Someone might dismiss this banner, then come back to the
+    // page later — we don't want it popping back up every single
+    // visit. We remember "this exact date was dismissed" using
+    // localStorage. If the date ever changes (a NEW comeback gets
+    // announced), that's a different key, so the banner comes
+    // back for the NEW announcement even if an old one was closed.
+    var dismissKey = 'ino-comeback-dismissed-' + NEXT_COMEBACK_DATE;
+    var alreadyDismissed = false;
+    try {
+      alreadyDismissed = localStorage.getItem(dismissKey) === 'true';
+    } catch (err) {
+      // If localStorage is blocked, we just can't remember a past
+      // dismissal — the banner may show again, which is a small,
+      // harmless side effect rather than a real problem.
+    }
+    if (alreadyDismissed) { return; }
+
+    var banner = document.getElementById('comeback-banner');
+    var bannerText = document.getElementById('comeback-text');
+    var dismissButton = document.getElementById('comeback-dismiss');
+    var tickIntervalId = null;
+
+    // Works out "how many days/hours/minutes from right now until
+    // the target date?" and writes it into the banner as words.
+    function updateCountdownText() {
+      var msRemaining = targetTime - Date.now();
+      if (msRemaining <= 0) {
+        bannerText.textContent = NEXT_COMEBACK_LABEL + " today! 🖤";
+        clearInterval(tickIntervalId);
+        return;
+      }
+      // There are 86,400,000 milliseconds in a day, 3,600,000 in
+      // an hour, and 60,000 in a minute — dividing the remaining
+      // time by each of those (and rounding down) is how we break
+      // one big number of milliseconds into "3d 12h 40m".
+      var days = Math.floor(msRemaining / 86400000);
+      var hours = Math.floor((msRemaining % 86400000) / 3600000);
+      var minutes = Math.floor((msRemaining % 3600000) / 60000);
+      bannerText.textContent = NEXT_COMEBACK_LABEL + ' ' + days + 'd ' + hours + 'h ' + minutes + 'm';
+    }
+
+    banner.hidden = false;
+    updateCountdownText();
+    // Refreshing once a minute is plenty for a countdown made of
+    // days/hours/minutes — no need to recalculate every second
+    // and waste battery on something nobody can even see change.
+    tickIntervalId = setInterval(updateCountdownText, 60000);
+
+    dismissButton.addEventListener('click', function () {
+      banner.hidden = true;
+      clearInterval(tickIntervalId);
+      try {
+        localStorage.setItem(dismissKey, 'true');
+      } catch (err) {
+        // Same as above — worst case, it just doesn't stay
+        // remembered for next time.
+      }
+    });
+  })();
 </script>
 
 </body>
