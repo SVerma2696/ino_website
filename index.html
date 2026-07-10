@@ -45,7 +45,16 @@
   :root{
     /* "Motto" era colors — soft and pastel, like cotton candy */
     --bg: #FAF2ED;          /* the background color, like the color of the wall */
-    --bg-card: #FFFCFA;     /* the color of each little box/card on the page */
+    /* Every little card, badge, and photocard frame on the page
+       uses this color — so instead of writing one FIXED color
+       here, we mix 75% of the WALL color (--bg, right above)
+       with 25% white. That means every card automatically
+       becomes a lighter shade of whatever "wall" color the
+       chosen era is using, sort of like how furniture in a room
+       tends to match the walls — which is exactly what makes
+       picking a new era repaint the WHOLE page instead of just
+       a couple of small accent stripes */
+    --bg-card: color-mix(in srgb, var(--bg) 75%, white);
     --pink: #F3A6C4;        /* candy pink, straight from the Motto photobook */
     --lavender: #C6B6E8;    /* soft purple, a little "Cheshire" mystery mixed in */
     --blue: #8FC3E3;        /* Ryujin's favorite color #1 */
@@ -70,15 +79,18 @@
      onto the <html> tag as data-era="...". The moment that
      attribute changes, ALL of these blocks below "wake up" — CSS
      automatically re-checks which one matches, and swaps out the
-     5 crayon colors (plus the wall color) for that era's palette.
-     Since almost everything on the page — the glow, the badges,
-     the link stripes, the photocard borders, the background
-     blobs — all point at these SAME --pink/--lavender/--blue/
-     --green/--red names instead of hardcoded colors, the WHOLE
-     page re-colors itself in one shot. No era picked yet (or
-     "motto" picked) just means "use the crayons already defined
-     up in the COLOR BOX above" — that's why there's no separate
-     block for Motto down here.
+     5 crayon colors AND the wall color (--bg) for that era's
+     palette. Since almost everything on the page — the glow, the
+     badges, the link stripes, the photocard borders, the
+     background blobs, AND every card's own background color
+     (--bg-card, remember, mixes itself from --bg automatically —
+     see the COLOR BOX above) — all point at these SAME variable
+     names instead of hardcoded colors, the WHOLE page re-colors
+     itself in one shot: not just thin accent lines, but the big
+     wide-open card surfaces too. No era picked yet (or "motto"
+     picked) just means "use the crayons already defined up in
+     the COLOR BOX above" — that's why there's no separate block
+     for Motto down here.
      ============================================ */
   :root[data-era="dalla-dalla"]{
     --bg:#FBEAEA; --pink:#FF8FA3; --lavender:#D4AFB9; --blue:#457B9D; --green:#6B9080; --red:#E63946;
@@ -154,11 +166,15 @@
   body{
     /* This paints some soft, blurry colored circles behind everything,
        kind of like light shining through colored bubbles — or like
-       the dreamy lighting in the "Motto" music video */
+       the dreamy lighting in the "Motto" music video. These are
+       turned up noticeably stronger than a subtle hint (55/50/40
+       instead of 35/32/22) specifically so switching eras is
+       impossible to miss — the whole backdrop washes into the
+       new palette, not just a faint tint */
     background-image:
-      radial-gradient(circle at 12% 6%, color-mix(in srgb, var(--lavender) 35%, transparent), transparent 42%),
-      radial-gradient(circle at 88% 94%, color-mix(in srgb, var(--pink) 32%, transparent), transparent 46%),
-      radial-gradient(circle at 90% 10%, color-mix(in srgb, var(--blue) 22%, transparent), transparent 38%);
+      radial-gradient(circle at 12% 6%, color-mix(in srgb, var(--lavender) 55%, transparent), transparent 42%),
+      radial-gradient(circle at 88% 94%, color-mix(in srgb, var(--pink) 50%, transparent), transparent 46%),
+      radial-gradient(circle at 90% 10%, color-mix(in srgb, var(--blue) 40%, transparent), transparent 38%);
     /* "column" stacks the card, the moodboard label, both photocard
        rows, and the footer top-to-bottom, all centered. Every one
        of those lives directly in <body> now, as plain siblings —
@@ -965,13 +981,16 @@
 
   /* This see-through pastel sheet sits on top of the photos,
      tying their colors back into the rest of the page's palette
-     — like a thin sheet of tinted glass, not a thick fog */
+     — like a thin sheet of tinted glass, not a thick fog. It's
+     turned up a bit stronger than before (0.46 instead of 0.38)
+     so that switching eras visibly re-tints the photo wall too,
+     not just the little UI pieces */
   .bg-collage::after{
     content:'';
     position:absolute;
     inset:0;
     background: var(--bg);
-    opacity: 0.38;
+    opacity: 0.46;
   }
 </style>
 </head>
@@ -981,17 +1000,28 @@
      Nine real pictures, blurred way down and tinted so they
      read as a soft, glowy backdrop instead of a photo gallery.
      aria-hidden="true" tells screen readers to skip right past
-     this — it's pure decoration, not real page content. -->
+     this — it's pure decoration, not real page content.
+
+     Quick note: these pictures do NOT use a loading="lazy"
+     attribute (a browser trick that says "don't bother fetching
+     this picture until it's about to scroll into view"). That
+     trick can get confused on a page like this one, where things
+     move around and resize themselves depending on the screen —
+     the browser can end up thinking a picture is "off-screen"
+     when it's actually front and center, and then never load it
+     at all! Since we'd rather every picture load every time,
+     even if it takes a tiny bit longer, we just let all of them
+     start loading right away instead. -->
 <div class="bg-collage" aria-hidden="true">
-  <img src="IMG_2927.jpg" alt="" loading="lazy">
-  <img src="IMG_2936.jpg" alt="" loading="lazy">
-  <img src="IMG_2937.jpg" alt="" loading="lazy">
-  <img src="IMG_3193.jpg" alt="" loading="lazy">
-  <img src="IMG_3221.jpg" alt="" loading="lazy">
-  <img src="IMG_3282.jpg" alt="" loading="lazy">
-  <img src="IMG_3954.jpg" alt="" loading="lazy">
-  <img src="IMG_5256.jpg" alt="" loading="lazy">
-  <img src="IMG_5257.jpg" alt="" loading="lazy">
+  <img src="IMG_2927.jpg" alt="">
+  <img src="IMG_2936.jpg" alt="">
+  <img src="IMG_2937.jpg" alt="">
+  <img src="IMG_3193.jpg" alt="">
+  <img src="IMG_3221.jpg" alt="">
+  <img src="IMG_3282.jpg" alt="">
+  <img src="IMG_3954.jpg" alt="">
+  <img src="IMG_5256.jpg" alt="">
+  <img src="IMG_5257.jpg" alt="">
 </div>
 
 <div class="page">
@@ -1211,77 +1241,82 @@
        screen readers "these are just decoration, feel free to
        skip them" — the real content of the page is everything
        above (the name, bio, and buttons).
+
+       These 17 photos skip loading="lazy" too, for the exact
+       same reason as the 9 background photos up at the top of
+       the page — see the big comment right before <body> if
+       you want the full explanation.
        ============================================ -->
   <p class="gallery-label">midzy moodboard</p>
   <div class="gallery gallery-left" aria-hidden="true">
     <div class="photocard">
-      <img src="dalla-dalla.jpg" alt="" loading="lazy">
+      <img src="dalla-dalla.jpg" alt="">
       <span>DALLA DALLA</span>
     </div>
     <div class="photocard">
-      <img src="icy.jpg" alt="" loading="lazy">
+      <img src="icy.jpg" alt="">
       <span>ICY</span>
     </div>
     <div class="photocard">
-      <img src="wannabe.jpg" alt="" loading="lazy">
+      <img src="wannabe.jpg" alt="">
       <span>WANNABE</span>
     </div>
     <div class="photocard">
-      <img src="not-shy.jpg" alt="" loading="lazy">
+      <img src="not-shy.jpg" alt="">
       <span>NOT SHY</span>
     </div>
     <div class="photocard">
-      <img src="in-the-morning.jpg" alt="" loading="lazy">
+      <img src="in-the-morning.jpg" alt="">
       <span>MAFIA IN THE MORNING</span>
     </div>
     <div class="photocard">
-      <img src="loco.jpg" alt="" loading="lazy">
+      <img src="loco.jpg" alt="">
       <span>LOCO</span>
     </div>
     <div class="photocard">
-      <img src="sneakers.jpg" alt="" loading="lazy">
+      <img src="sneakers.jpg" alt="">
       <span>SNEAKERS</span>
     </div>
     <div class="photocard">
-      <img src="cheshire.jpg" alt="" loading="lazy">
+      <img src="cheshire.jpg" alt="">
       <span>CHESHIRE</span>
     </div>
     <div class="photocard">
-      <img src="cake.jpeg" alt="" loading="lazy">
+      <img src="cake.jpeg" alt="">
       <span>CAKE</span>
     </div>
   </div>
   <div class="gallery gallery-right" aria-hidden="true">
     <div class="photocard">
-      <img src="untouchable.jpg" alt="" loading="lazy">
+      <img src="untouchable.jpg" alt="">
       <span>UNTOUCHABLE</span>
     </div>
     <div class="photocard">
-      <img src="gold.jpg" alt="" loading="lazy">
+      <img src="gold.jpg" alt="">
       <span>GOLD</span>
     </div>
     <div class="photocard">
-      <img src="imaginary-friend.jpeg" alt="" loading="lazy">
+      <img src="imaginary-friend.jpeg" alt="">
       <span>IMAGINARY FRIEND</span>
     </div>
     <div class="photocard">
-      <img src="yeji-air.jpg" alt="" loading="lazy">
+      <img src="yeji-air.jpg" alt="">
       <span>YEJI · AIR</span>
     </div>
     <div class="photocard">
-      <img src="gwbg.jpg" alt="" loading="lazy">
+      <img src="gwbg.jpg" alt="">
       <span>GIRLS WILL BE GIRLS</span>
     </div>
     <div class="photocard">
-      <img src="tunnel-vision.jpg" alt="" loading="lazy">
+      <img src="tunnel-vision.jpg" alt="">
       <span>TUNNEL VISION</span>
     </div>
     <div class="photocard">
-      <img src="ice-cream-yuna.jpg" alt="" loading="lazy">
+      <img src="ice-cream-yuna.jpg" alt="">
       <span>YUNA · ICE CREAM</span>
     </div>
     <div class="photocard">
-      <img src="motto.webp" alt="" loading="lazy">
+      <img src="motto.webp" alt="">
       <span>MOTTO</span>
     </div>
   </div>
