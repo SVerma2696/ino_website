@@ -410,6 +410,22 @@
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--lavender) 40%, transparent);
   }
 
+  /* This is what makes the little arrow flip upside-down while
+     the dropdown list is open, just like the email button's
+     arrow does. Browsers don't give us a clean, reliable way to
+     ask a <select> "hey, is your list currently popped open?" —
+     but clicking (or tabbing) into ANY dropdown always focuses
+     it first, and that focus goes away again the moment it
+     closes. So instead of swapping the arrow's true "is it open"
+     state, we swap it based on FOCUS, which lines up with "open"
+     closely enough to feel right in practice. Since a background
+     image can't be spun around with a simple rotate like the
+     email button's arrow could, we swap in a second, upside-down
+     arrow picture instead — same trick, different tool */
+  .era-select:focus{
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 5l4-4 4 4' fill='none' stroke='%234a3f52' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+
   /* Each option in the open list gets plain, readable colors —
      browsers render this native dropdown popup themselves, so we
      keep its styling simple rather than fighting the OS/browser */
@@ -682,8 +698,17 @@
      Polaroid picture, plus a caption underneath naming an ITZY
      title track. The card is wide enough, and the caption is
      allowed to wrap onto a second line, so even the longest era
-     names ("MAFIA IN THE MORNING", "GIRLS WILL BE GIRLS") show
-     in full instead of getting cut off with "..." */
+     names ("GIRLS WILL BE GIRLS") show in full instead of
+     getting cut off with "...".
+
+     Every photocard is a real link now (an <a> tag) that opens
+     that era's music video on YouTube — so besides the usual
+     "frame" look, we also need a couple of link-specific fixes:
+     "display: block" makes it behave like a normal box again
+     (links are naturally shaped around just their text/pictures
+     otherwise), and "text-decoration/color" turn off the blue
+     underlined "I'm a link!" look browsers give links by default,
+     so it still looks exactly like a photocard, not a hyperlink */
   .photocard{
     width: 84px;
     background: var(--bg-card);
@@ -692,9 +717,23 @@
     padding: 5px 5px 8px;
     box-shadow: 0 6px 16px rgba(51,38,46,0.14);
     text-align:center;
+    display:block;
+    text-decoration:none;
+    color:inherit;
+    cursor:pointer;
     /* This makes the little "lift up" wiggle on hover feel smooth
        instead of snapping instantly */
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  /* Since these are real, clickable links now, someone tabbing
+     through the page with just a keyboard (no mouse) needs to be
+     able to SEE which photocard is currently selected — this
+     draws the same red outline the link buttons up above use,
+     so the whole page feels consistent */
+  .photocard:focus-visible{
+    outline: 2px solid var(--red);
+    outline-offset: 3px;
   }
 
   .photocard img{
@@ -1231,16 +1270,25 @@
        from debut through the current one, PLUS Yeji's and Yuna's
        solo debuts slotted into the timeline exactly where they
        really happened, all in chronological order (oldest first).
-       Every picture below now points at a real era photo living
-       in this same folder. Want to swap one for a different
-       picture later? Just change that <img>'s src="..." to
-       whatever new filename you're using — the frame, tilt, and
-       caption all keep working automatically either way.
 
-       aria-hidden="true" on the two groups below just tells
-       screen readers "these are just decoration, feel free to
-       skip them" — the real content of the page is everything
-       above (the name, bio, and buttons).
+       Each photocard is now a real, clickable link — tapping or
+       clicking one opens that era's music video on YouTube in a
+       brand new tab (target="_blank"), just like the social
+       buttons up above. Because these are genuinely useful links
+       now (not just decoration), we removed the aria-hidden="true"
+       that used to sit on the two <div class="gallery"> wrappers
+       below — that attribute used to tell screen readers "skip
+       this, it's just pretty pictures," which wouldn't be true
+       anymore now that clicking these actually goes somewhere!
+       Each link also gets its own aria-label describing exactly
+       where it goes, so a screen reader announces something like
+       "Watch the DALLA DALLA music video on YouTube" instead of
+       just reading out the filename of a picture.
+
+       Want to swap a picture for a different one later? Just
+       change that <img>'s src="..." to whatever new filename
+       you're using — the frame, tilt, caption, and link all keep
+       working automatically either way.
 
        These 17 photos skip loading="lazy" too, for the exact
        same reason as the 9 background photos up at the top of
@@ -1248,77 +1296,77 @@
        you want the full explanation.
        ============================================ -->
   <p class="gallery-label">midzy moodboard</p>
-  <div class="gallery gallery-left" aria-hidden="true">
-    <div class="photocard">
+  <div class="gallery gallery-left">
+    <a class="photocard" href="https://youtu.be/pNfTK39k55U?si=nHOgXk-fqp5W-4QO" target="_blank" rel="noopener" aria-label="Watch the DALLA DALLA music video on YouTube">
       <img src="dalla-dalla.jpg" alt="">
       <span>DALLA DALLA</span>
-    </div>
-    <div class="photocard">
+    </a>
+    <a class="photocard" href="https://youtu.be/zndvqTc4P9I?si=Qi1NhEE9CAjOak7E" target="_blank" rel="noopener" aria-label="Watch the ICY music video on YouTube">
       <img src="icy.jpg" alt="">
       <span>ICY</span>
-    </div>
-    <div class="photocard">
+    </a>
+    <a class="photocard" href="https://youtu.be/fE2h3lGlOsk?si=7Zr_3uOwpnBuOaYc" target="_blank" rel="noopener" aria-label="Watch the WANNABE music video on YouTube">
       <img src="wannabe.jpg" alt="">
       <span>WANNABE</span>
-    </div>
-    <div class="photocard">
+    </a>
+    <a class="photocard" href="https://youtu.be/wTowEKjDGkU?si=4Y7ydKsB7CEonD_D" target="_blank" rel="noopener" aria-label="Watch the NOT SHY music video on YouTube">
       <img src="not-shy.jpg" alt="">
       <span>NOT SHY</span>
-    </div>
-    <div class="photocard">
+    </a>
+    <a class="photocard" href="https://youtu.be/_ysomCGaZLw?si=3yONa0XtE9ffcCeM" target="_blank" rel="noopener" aria-label="Watch the IN THE MORNING music video on YouTube">
       <img src="in-the-morning.jpg" alt="">
-      <span>MAFIA IN THE MORNING</span>
-    </div>
-    <div class="photocard">
+      <span>IN THE MORNING</span>
+    </a>
+    <a class="photocard" href="https://youtu.be/MjCZfZfucEc?si=csQZdnST-kx5zu_r" target="_blank" rel="noopener" aria-label="Watch the LOCO music video on YouTube">
       <img src="loco.jpg" alt="">
       <span>LOCO</span>
-    </div>
-    <div class="photocard">
+    </a>
+    <a class="photocard" href="https://youtu.be/Hbb5GPxXF1w?si=cmsftHZMR7TjXLR_" target="_blank" rel="noopener" aria-label="Watch the SNEAKERS music video on YouTube">
       <img src="sneakers.jpg" alt="">
       <span>SNEAKERS</span>
-    </div>
-    <div class="photocard">
+    </a>
+    <a class="photocard" href="https://youtu.be/zugAhfd2r0g?si=zzROUaiKAGqlWPLV" target="_blank" rel="noopener" aria-label="Watch the CHESHIRE music video on YouTube">
       <img src="cheshire.jpg" alt="">
       <span>CHESHIRE</span>
-    </div>
-    <div class="photocard">
+    </a>
+    <a class="photocard" href="https://youtu.be/0bIRwBpBcZQ?si=jx-MLbdMnVoxzzii" target="_blank" rel="noopener" aria-label="Watch the CAKE music video on YouTube">
       <img src="cake.jpeg" alt="">
       <span>CAKE</span>
-    </div>
+    </a>
   </div>
-  <div class="gallery gallery-right" aria-hidden="true">
-    <div class="photocard">
+  <div class="gallery gallery-right">
+    <a class="photocard" href="https://youtu.be/5e3rKInegeU?si=8cWIORUHGKOUoee8" target="_blank" rel="noopener" aria-label="Watch the UNTOUCHABLE music video on YouTube">
       <img src="untouchable.jpg" alt="">
       <span>UNTOUCHABLE</span>
-    </div>
-    <div class="photocard">
+    </a>
+    <a class="photocard" href="https://youtu.be/eMk_0svqsnI?si=zRNjb8-PeWg5Vnyp" target="_blank" rel="noopener" aria-label="Watch the GOLD music video on YouTube">
       <img src="gold.jpg" alt="">
       <span>GOLD</span>
-    </div>
-    <div class="photocard">
+    </a>
+    <a class="photocard" href="https://youtu.be/NrUlydECU-8?si=TWx9owwSaircjsQb" target="_blank" rel="noopener" aria-label="Watch the IMAGINARY FRIEND music video on YouTube">
       <img src="imaginary-friend.jpeg" alt="">
       <span>IMAGINARY FRIEND</span>
-    </div>
-    <div class="photocard">
+    </a>
+    <a class="photocard" href="https://youtu.be/TamDOXponnM?si=x46dQQC6peI6EN2p" target="_blank" rel="noopener" aria-label="Watch the YEJI AIR music video on YouTube">
       <img src="yeji-air.jpg" alt="">
       <span>YEJI · AIR</span>
-    </div>
-    <div class="photocard">
+    </a>
+    <a class="photocard" href="https://youtu.be/1KhOhW_O8-k?si=DP-36xPCLHnVCgDj" target="_blank" rel="noopener" aria-label="Watch the GIRLS WILL BE GIRLS music video on YouTube">
       <img src="gwbg.jpg" alt="">
       <span>GIRLS WILL BE GIRLS</span>
-    </div>
-    <div class="photocard">
+    </a>
+    <a class="photocard" href="https://youtu.be/piSq8IioghU?si=ZGIax98tS1ORQEpP" target="_blank" rel="noopener" aria-label="Watch the TUNNEL VISION music video on YouTube">
       <img src="tunnel-vision.jpg" alt="">
       <span>TUNNEL VISION</span>
-    </div>
-    <div class="photocard">
+    </a>
+    <a class="photocard" href="https://youtu.be/x0FwbTiD3iA?si=L8siHaaFLjH2UbR9" target="_blank" rel="noopener" aria-label="Watch the YUNA ICE CREAM music video on YouTube">
       <img src="ice-cream-yuna.jpg" alt="">
       <span>YUNA · ICE CREAM</span>
-    </div>
-    <div class="photocard">
+    </a>
+    <a class="photocard" href="https://youtu.be/1jKnI_ib8c8?si=x3RfEtwExcLeP7tZ" target="_blank" rel="noopener" aria-label="Watch the MOTTO music video on YouTube">
       <img src="motto.webp" alt="">
       <span>MOTTO</span>
-    </div>
+    </a>
   </div>
 
   <!-- The very last little bit of text at the bottom of the page —
