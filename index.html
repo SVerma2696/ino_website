@@ -79,18 +79,34 @@
      change it in ONE spot instead of a hundred spots!
      ============================================ */
   :root{
-    /* "Motto" era colors — soft and pastel, like cotton candy */
-    --bg: #FAF2ED;          /* the background color, like the color of the wall */
+    /* "Motto" era colors — this is the page's default/home look
+       (nobody has to pick anything from the dropdown to see this),
+       so it gets its own bold "Vibrant Orange" wall now too,
+       matching the same punchy-crayon treatment every other era
+       got further down in this file */
+    --bg: #FF5F1F;          /* the background color, like the color of the wall */
+    /* This is a plain COPY of --bg, saved under a second name. Why
+       keep two names for the same color? Because down in the DARK
+       MODE block further below, we need to mix a bit of the
+       CURRENT era's color into the dark background — but a CSS
+       variable can't be defined in terms of ITSELF (that's called
+       a "circular reference" and browsers just refuse to do it).
+       Having a second, never-changed-by-dark-mode copy of the
+       era's true color to mix FROM is what makes that possible.
+       Every era block below sets both --bg AND --wall to the exact
+       same color, together, like two names on one nametag */
+    --wall: #FF5F1F;
     /* Every little card, badge, and photocard frame on the page
        uses this color — so instead of writing one FIXED color
-       here, we mix 75% of the WALL color (--bg, right above)
-       with 25% white. That means every card automatically
-       becomes a lighter shade of whatever "wall" color the
-       chosen era is using, sort of like how furniture in a room
-       tends to match the walls — which is exactly what makes
-       picking a new era repaint the WHOLE page instead of just
-       a couple of small accent stripes */
-    --bg-card: color-mix(in srgb, var(--bg) 75%, white);
+       here, we mix 55% of the WALL color (--bg, right above)
+       with 45% white. That's LESS white than this used to mix in
+       (it used to be 75% wall / 25% white), on purpose — the more
+       white gets mixed in, the more every era starts looking like
+       the same pale off-white regardless of its actual color, which
+       was exactly why switching eras used to feel so subtle. Less
+       white mixed in means the card keeps a lot more of each era's
+       real color, so it reads as a much bigger, more obvious swing */
+    --bg-card: color-mix(in srgb, var(--bg) 55%, white);
     --pink: #F3A6C4;        /* candy pink, straight from the Motto photobook */
     --lavender: #C6B6E8;    /* soft purple, a little "Cheshire" mystery mixed in */
     --blue: #8FC3E3;        /* Ryujin's favorite color #1 */
@@ -128,53 +144,75 @@
      the COLOR BOX above" — that's why there's no separate block
      for Motto down here.
      ============================================ */
+  /* Every "--bg" value below is now one exact, punchy, named
+     crayon color (like "Crimson Red" or "Pure Gold") instead of a
+     barely-there pastel tint — picking a bold, fully-saturated
+     color instead of a pale hint of it is what makes switching
+     eras look like a real, obvious change instead of "did
+     anything happen?" Each block also sets "--wall" to that exact
+     same color, purely so the DARK MODE block further down can
+     safely mix a bit of it in (see the big comment on "--wall" up
+     in the COLOR BOX for why that needs its own separate variable
+     name instead of just reusing --bg). */
   :root[data-era="dalla-dalla"]{
-    --bg:#FBEAEA; --pink:#FF8FA3; --lavender:#D4AFB9; --blue:#457B9D; --green:#6B9080; --red:#E63946;
+    /* Magenta Pink */
+    --bg:#FF00FF; --wall:#FF00FF; --pink:#FF8FA3; --lavender:#D4AFB9; --blue:#457B9D; --green:#6B9080; --red:#E63946;
   }
   :root[data-era="icy"]{
-    --bg:#EAF7FA; --pink:#B8F2E6; --lavender:#AED9E0; --blue:#7FD8E8; --green:#8ECAE6; --red:#5DA9C7;
+    /* Frost Blue */
+    --bg:#8EE5EE; --wall:#8EE5EE; --pink:#B8F2E6; --lavender:#AED9E0; --blue:#7FD8E8; --green:#8ECAE6; --red:#5DA9C7;
   }
   :root[data-era="wannabe"]{
-    --bg:#FFF0F4; --pink:#FF4D8D; --lavender:#FFB3C6; --blue:#FF8FB1; --green:#FFD6E0; --red:#E8305A;
+    /* Midnight Blue */
+    --bg:#191970; --wall:#191970; --pink:#FF4D8D; --lavender:#FFB3C6; --blue:#FF8FB1; --green:#FFD6E0; --red:#E8305A;
   }
   :root[data-era="not-shy"]{
-    --bg:#FAF0E6; --pink:#E29578; --lavender:#CB997E; --blue:#A47148; --green:#B08968; --red:#C1440E;
+    /* Desert Orange */
+    --bg:#CC7722; --wall:#CC7722; --pink:#E29578; --lavender:#CB997E; --blue:#A47148; --green:#B08968; --red:#C1440E;
   }
   :root[data-era="in-the-morning"]{
-    --bg:#EDE7E3; --pink:#9A8C98; --lavender:#4A4E69; --blue:#22223B; --green:#5C5470; --red:#8B0000;
+    /* Crimson Red */
+    --bg:#DC143C; --wall:#DC143C; --pink:#9A8C98; --lavender:#4A4E69; --blue:#22223B; --green:#5C5470; --red:#8B0000;
   }
   :root[data-era="loco"]{
-    --bg:#F3E8FF; --pink:#FF2DAF; --lavender:#B983FF; --blue:#00B8D9; --green:#7CFFCB; --red:#FF3860;
+    /* Neon Pink */
+    --bg:#FF1493; --wall:#FF1493; --pink:#FF2DAF; --lavender:#B983FF; --blue:#00B8D9; --green:#7CFFCB; --red:#FF3860;
   }
   :root[data-era="sneakers"]{
-    --bg:#FFF8E7; --pink:#F4C95D; --lavender:#C9B458; --blue:#1D4ED8; --green:#2E8B57; --red:#B22222;
+    /* Cyan */
+    --bg:#00FFFF; --wall:#00FFFF; --pink:#F4C95D; --lavender:#C9B458; --blue:#1D4ED8; --green:#2E8B57; --red:#B22222;
   }
   :root[data-era="cheshire"]{
-    --bg:#F5EAFB; --pink:#F15BB5; --lavender:#9B5DE5; --blue:#5E60CE; --green:#8AA399; --red:#D62839;
+    /* Deep Purple */
+    --bg:#4B0082; --wall:#4B0082; --pink:#F15BB5; --lavender:#9B5DE5; --blue:#5E60CE; --green:#8AA399; --red:#D62839;
   }
   :root[data-era="cake"]{
-    --bg:#FFF5F7; --pink:#FF9FB2; --lavender:#DAB6FC; --blue:#C7CEEA; --green:#B5EAD7; --red:#FF6F91;
+    /* Cherry Red */
+    --bg:#D2042D; --wall:#D2042D; --pink:#FF9FB2; --lavender:#DAB6FC; --blue:#C7CEEA; --green:#B5EAD7; --red:#FF6F91;
   }
   :root[data-era="untouchable"]{
-    --bg:#F5EDED; --pink:#EF233C; --lavender:#8D99AE; --blue:#2B2D42; --green:#5C677D; --red:#C1121F;
+    /* Scarlet */
+    --bg:#FF2400; --wall:#FF2400; --pink:#EF233C; --lavender:#8D99AE; --blue:#2B2D42; --green:#5C677D; --red:#C1121F;
   }
   :root[data-era="gold"]{
-    --bg:#FFF9EC; --pink:#E5C687; --lavender:#CBB279; --blue:#B08D57; --green:#A98B4F; --red:#8C6A3F;
-  }
-  :root[data-era="imaginary-friend"]{
-    --bg:#F5F1FB; --pink:#F6C9D6; --lavender:#C8B6E2; --blue:#A0C4E2; --green:#B8E0D2; --red:#E6A4B4;
+    /* Pure Gold */
+    --bg:#FFD700; --wall:#FFD700; --pink:#E5C687; --lavender:#CBB279; --blue:#B08D57; --green:#A98B4F; --red:#8C6A3F;
   }
   :root[data-era="yeji-air"]{
-    --bg:#F0FBFF; --pink:#FCF6BD; --lavender:#D0F4DE; --blue:#A9DEF9; --green:#CDEAC0; --red:#FF99C8;
+    /* Sky Blue */
+    --bg:#87CEEB; --wall:#87CEEB; --pink:#FCF6BD; --lavender:#D0F4DE; --blue:#A9DEF9; --green:#CDEAC0; --red:#FF99C8;
   }
   :root[data-era="girls-will-be-girls"]{
-    --bg:#F4FBEF; --pink:#FF595E; --lavender:#6A4C93; --blue:#1982C4; --green:#8AC926; --red:#E63946;
+    /* Neon Violet */
+    --bg:#9400D3; --wall:#9400D3; --pink:#FF595E; --lavender:#6A4C93; --blue:#1982C4; --green:#8AC926; --red:#E63946;
   }
   :root[data-era="tunnel-vision"]{
-    --bg:#EFF0FF; --pink:#FF006E; --lavender:#8338EC; --blue:#3A86FF; --green:#06D6A0; --red:#EF233C;
+    /* Deep Teal */
+    --bg:#008080; --wall:#008080; --pink:#FF006E; --lavender:#8338EC; --blue:#3A86FF; --green:#06D6A0; --red:#EF233C;
   }
   :root[data-era="yuna-ice-cream"]{
-    --bg:#FFF6FA; --pink:#FFB5C2; --lavender:#C9A7EB; --blue:#A0E7E5; --green:#B4F8C8; --red:#FF9F9F;
+    /* Strawberry Pink */
+    --bg:#FC5A8D; --wall:#FC5A8D; --pink:#FFB5C2; --lavender:#C9A7EB; --blue:#A0E7E5; --green:#B4F8C8; --red:#FF9F9F;
   }
 
   /* ============================================
@@ -195,7 +233,20 @@
      showing up as colorful accents against the dark backdrop,
      instead of the page losing its "era flavor" in dark mode.
 
-     One important detail: this block is written AFTER all 16 of
+     Here's the important upgrade: --bg and --bg-card used to be
+     just TWO fixed dark colors, always the exact same charcoal no
+     matter which era was picked — which meant flipping through
+     eras in dark mode barely looked any different at all, since
+     the two biggest surfaces on the page (the wall and the cards)
+     never actually changed! Now they're mixed FROM that era's own
+     "--wall" color (see the COLOR BOX up top for why we need a
+     second "--wall" copy instead of just reusing --bg) blended
+     into a near-black base with color-mix() — so every era still
+     gets its own clearly tinted dark backdrop instead of one
+     identical grey for all of them, while staying dark enough to
+     genuinely feel like "dark mode" and not just "a dim light mode."
+
+     One important detail: this block is written AFTER all 15 of
      the data-era blocks above, on purpose. If both an era AND
      dark mode are active at once, both blocks are equally
      "specific" as far as CSS is concerned — so when there's a
@@ -204,8 +255,8 @@
      actually goes dark even when a (normally light, pastel) era
      is also selected. */
   :root[data-theme="dark"]{
-    --bg: #1C1720;
-    --bg-card: #2A2430;
+    --bg: color-mix(in srgb, var(--wall) 38%, #120E16);
+    --bg-card: color-mix(in srgb, var(--wall) 26%, #241E29);
     --text: #F5EEF2;
     --muted: #B3A3AE;
     --border: rgba(255,255,255,0.12);
@@ -213,9 +264,25 @@
 
   /* A short, gentle fade whenever any of the theme colors change,
      so picking a new era feels like a smooth mood-shift instead
-     of a jarring flash */
+     of a jarring flash.
+
+     IMPORTANT: "background-color" is deliberately left OUT of this
+     fade list — only "border-color" and "color" animate smoothly.
+     Here's why: --bg and --bg-card, in dark mode, are now computed
+     with color-mix() FROM another custom property (--wall, which
+     changes per era — see the COLOR BOX and the dark mode block
+     for the full story). Browsers can get confused animating a
+     background-color that's built this way: instead of smoothly
+     fading to the NEW era's color, it would sometimes get visually
+     "stuck" showing a stale, wrong color mixed from the PREVIOUS
+     era instead — a real rendering bug that only bit when TWO
+     custom properties changed together (era + dark mode). Turning
+     the background-color fade off avoids that bug entirely: the
+     wall and card colors now switch instantly instead of fading,
+     which is a small visual trade worth making for "always shows
+     the right color." */
   body, .bg-collage::after, .badge, .era-select, .link-card, .photocard, .glow, .theme-select, .github-link{
-    transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease;
+    transition: border-color 0.5s ease, color 0.5s ease;
   }
 
   /* ============================================
@@ -1551,7 +1618,7 @@
         <span class="select-wrap">
           <select class="badge era-select" id="era-select" aria-label="Pick an ITZY era to re-theme this page's colors">
             <option value="dalla-dalla">DALLA DALLA</option>
-            <option value="icy">ICY ERA</option>
+            <option value="icy">ICY</option>
             <option value="wannabe">WANNABE</option>
             <option value="not-shy">NOT SHY</option>
             <option value="in-the-morning">IN THE MORNING</option>
@@ -1561,7 +1628,6 @@
             <option value="cake">CAKE</option>
             <option value="untouchable">UNTOUCHABLE</option>
             <option value="gold">GOLD</option>
-            <option value="imaginary-friend">IMAGINARY FRIEND</option>
             <option value="yeji-air">YEJI · AIR</option>
             <option value="girls-will-be-girls">GIRLS WILL BE GIRLS</option>
             <option value="tunnel-vision">TUNNEL VISION</option>
