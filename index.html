@@ -7,15 +7,9 @@
 <meta name="description" content="Your favorite OT5 Midzy creator. Daily content @Aceofgenz, weekly FMOs on @INOT5, and the INO-IT-ALLS Discord.">
 
 <!-- This tiny picture shows up in the browser tab up top, and in
-     bookmarks. It's not a separate image file — the whole picture
-     is written directly into this link as text (that's what
-     "data:image/svg+xml" means), so there's nothing extra to
-     download or keep track of. It draws a little 2-color
-     checkerboard square, matching the same checkerboard pattern
-     that ITZY used for their very first "DALLA DALLA" debut era —
-     the same nod already mentioned up in the ITZY EASTER EGG MAP
-     below -->
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23F3A6C4'/%3E%3Crect x='16' y='0' width='16' height='16' fill='%23C6B6E8'/%3E%3Crect x='0' y='16' width='16' height='16' fill='%23C6B6E8'/%3E%3C/svg%3E">
+     bookmarks — it's INO's little crown picture (crown.png), sitting
+     right here in the project folder next to index.html -->
+<link rel="icon" type="image/png" href="crown.png">
 
 <!-- This little line tells a phone browser what color to paint its
      own toolbar/status bar so it blends in with the page instead
@@ -220,25 +214,20 @@
   /* A short, gentle fade whenever any of the theme colors change,
      so picking a new era feels like a smooth mood-shift instead
      of a jarring flash */
-  body, .bg-collage::after, .badge, .era-select, .link-card, .photocard, .glow, .theme-toggle, .github-link{
+  body, .bg-collage::after, .badge, .era-select, .link-card, .photocard, .glow, .theme-select, .github-link{
     transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease;
   }
 
   /* ============================================
-     THE TWO LITTLE FLOATING CIRCLES 🐙🌙☀️
-     The GitHub button and the light/dark button are basically
-     twins — same size, same round shape, same "float in a corner
-     forever" behavior — just one sits on the LEFT and one sits on
-     the RIGHT. Writing their shared look ONCE here (instead of
-     copy-pasting it twice) means if we ever want to make both
-     buttons a little bigger, we only have to change it in ONE spot.
+     THE GITHUB CIRCLE 🐙
+     A little round button, pinned to the top-left corner of the
+     browser window forever (position: fixed), no matter how far
+     someone scrolls down the page.
      ============================================ */
-  .github-link, .theme-toggle{
-    /* "fixed" pins this to the actual browser WINDOW, not the
-       page — so it stays in the same corner even while someone
-       scrolls all the way down through the moodboard */
+  .github-link{
     position: fixed;
     top: 16px;
+    left: 16px;
     z-index: 60;
     width: 40px;
     height: 40px;
@@ -254,24 +243,75 @@
     box-shadow: 0 2px 10px rgba(51,38,46,0.14);
     transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.15s ease;
   }
-  .github-link{ left: 16px; }
-  .theme-toggle{ right: 16px; }
-  .github-link:hover, .theme-toggle:hover{ transform: scale(1.07); }
-  .github-link:focus-visible, .theme-toggle:focus-visible{ outline: 2px solid var(--red); outline-offset: 2px; }
-
-  .theme-icon{ width:18px; height:18px; }
+  .github-link:hover{ transform: scale(1.07); }
+  .github-link:focus-visible{ outline: 2px solid var(--red); outline-offset: 2px; }
   .github-link svg{ width:18px; height:18px; }
 
-  /* Only ONE of these two little pictures is ever visible at a
-     time — which one depends on the SAME data-theme attribute
-     the CSS above reacts to. Showing the MOON while things are
-     light (click it to go dark) and the SUN once things ARE dark
-     (click it to go back to light) is a common pattern, sort of
-     like how a light switch's position shows you what flipping
-     it will do next */
-  .theme-icon-sun{ display:none; }
-  :root[data-theme="dark"] .theme-icon-moon{ display:none; }
-  :root[data-theme="dark"] .theme-icon-sun{ display:block; }
+  /* ============================================
+     SHARED DROPDOWN ARROW 🔽🔼
+     Both little dropdowns on this page — the era picker AND the
+     light/dark/system picker — share this exact same "chevron
+     that flips upside-down while open" trick, so it only gets
+     written once here instead of twice. Both little arrow
+     pictures use stroke="currentColor" instead of a fixed color,
+     so the arrow always matches whichever text color its own
+     dropdown already has — that's what keeps it visible no
+     matter how light or dark the current era/theme is.
+
+     The ".is-open" class is added and removed by JavaScript (look
+     for "setUpDropdownArrow" near the bottom of the page), NOT by
+     a plain CSS :focus. Here's why: a real <select> box usually
+     KEEPS its "focus" even after someone closes its popup list by
+     clicking somewhere else on the page — so watching :focus alone
+     made the arrow flip up once and then get stuck pointing up
+     forever. The JavaScript instead listens for every single way
+     the popup can actually close (picking an option, pressing
+     Escape, tabbing away, OR clicking anywhere else on the page)
+     and removes ".is-open" each time, so the arrow reliably flips
+     back down again no matter how it gets closed.
+     ============================================ */
+  .has-arrow{
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 9px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+  .has-arrow.is-open{
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 5l4-4 4 4' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+
+  /* ============================================
+     LIGHT / DARK / SYSTEM DROPDOWN 🌙☀️🖥️
+     This used to be a single round button you'd click to just
+     flip between light and dark. Now it's a real <select> dropdown
+     (just like the era picker) with a third option — "System" —
+     that means "whatever my phone/computer is already set to."
+     It floats in the same top-right corner spot the old button
+     used to sit in. ============================================ */
+  .theme-select{
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 60;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    color: var(--text);
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 10px 28px 10px 14px;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(51,38,46,0.14);
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.15s ease, color 0.3s ease;
+  }
+  .theme-select:hover{ transform: scale(1.05); }
+  .theme-select:focus-visible{ outline: 2px solid var(--red); outline-offset: 2px; }
+  .theme-select option{ color: var(--text); background: var(--bg-card); }
 
   /* This makes sure every box on the page measures itself the same easy way */
   *{ box-sizing: border-box; }
@@ -543,9 +583,6 @@
      re-colors the ENTIRE site to match (see "ERA THEME SWITCHER"
      up in the COLOR BOX for how) */
   .era-select{
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
     font-family: var(--mono);
     font-size: 11px;
     font-weight: 500;
@@ -572,19 +609,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    /* A little downward chevron, drawn once as an SVG and reused
-       as a background image — this is the visual cue that says
-       "I open into a list, try clicking me". It uses
-       stroke='currentColor' instead of a fixed hex color, so the
-       little arrow always matches this pill's own text color —
-       whatever that happens to be for the currently-picked era.
-       Before this fix, the arrow was a fixed dark gray, which is
-       exactly why it basically disappeared on darker era themes
-       like MOTTO: dark arrow on a dark pill = invisible! */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 9px;
+    /* The chevron arrow itself (appearance:none, the little arrow
+       picture, and the flip-when-open trick) all live in the
+       shared ".has-arrow" class up above now, since the light/
+       dark/system dropdown needs that exact same trick too */
     box-shadow: 0 1px 3px rgba(51,38,46,0.06);
     transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
   }
@@ -600,22 +628,6 @@
   .era-select:focus-visible{
     outline: none;
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--lavender) 40%, transparent);
-  }
-
-  /* This is what makes the little arrow flip upside-down while
-     the dropdown list is open, just like the email button's
-     arrow does. Browsers don't give us a clean, reliable way to
-     ask a <select> "hey, is your list currently popped open?" —
-     but clicking (or tabbing) into ANY dropdown always focuses
-     it first, and that focus goes away again the moment it
-     closes. So instead of swapping the arrow's true "is it open"
-     state, we swap it based on FOCUS, which lines up with "open"
-     closely enough to feel right in practice. Since a background
-     image can't be spun around with a simple rotate like the
-     email button's arrow could, we swap in a second, upside-down
-     arrow picture instead — same trick, different tool */
-  .era-select:focus{
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 5l4-4 4 4' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   }
 
   /* Each option in the open list gets plain, readable colors —
@@ -1017,6 +1029,33 @@
     word-break: break-word;
   }
 
+  /* ============================================
+     PLACEHOLDER PHOTOCARDS 🎬
+     Some of ITZY's songs on this timeline don't have a real photo
+     saved in this project folder yet — instead of showing a
+     broken picture icon (which looks like something is wrong),
+     this draws a plain dashed box with a little clapperboard
+     emoji inside, standing in for "a real photo goes here later."
+     The link still works right now, though — it points to a
+     YouTube SEARCH for the song's name instead of one exact video,
+     since we don't know the exact video's web address yet. Once
+     someone finds the real photo + the real video link for one of
+     these, swap this <span class="placeholder-frame"> out for a
+     normal <img>, and swap the search link for the real one —
+     everything else (the frame, tilt, hover) keeps working the
+     exact same way automatically. */
+  .placeholder-frame{
+    width:100%;
+    aspect-ratio: 1 / 1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: color-mix(in srgb, var(--bg-card) 70%, var(--muted) 20%);
+    border: 1.5px dashed var(--border);
+    border-radius:2px;
+    font-size: 22px;
+  }
+
   /* A gentle "scattered on a desk" look: every photocard tilts
      a tiny bit, alternating left and right, like a stack that
      got playfully shuffled */
@@ -1165,25 +1204,43 @@
        them down the column), a different "left" nudge (scattering
        them sideways), and a different tilt — no two cards share
        the exact same recipe, which is what sells the "jumbled"
-       feeling instead of a repeating pattern */
-    .gallery-left .photocard:nth-child(1){ top:0%;  left:60px; transform:rotate(-7deg); }
-    .gallery-left .photocard:nth-child(2){ top:10%; left:4px;  transform:rotate(5deg); }
-    .gallery-left .photocard:nth-child(3){ top:20%; left:92px; transform:rotate(-4deg); }
-    .gallery-left .photocard:nth-child(4){ top:30%; left:20px; transform:rotate(6deg); }
-    .gallery-left .photocard:nth-child(5){ top:40%; left:76px; transform:rotate(-6deg); }
-    .gallery-left .photocard:nth-child(6){ top:50%; left:0px;  transform:rotate(4deg); }
-    .gallery-left .photocard:nth-child(7){ top:60%; left:96px; transform:rotate(-5deg); }
-    .gallery-left .photocard:nth-child(8){ top:70%; left:32px; transform:rotate(7deg); }
-    .gallery-left .photocard:nth-child(9){ top:80%; left:58px; transform:rotate(-3deg); }
+       feeling instead of a repeating pattern. There are 16 cards
+       in the left column and 15 in the right column now (31 songs
+       total, split down the middle), so the "top" percentages step
+       up in smaller slices than before (80% ÷ 15 gaps, and 80% ÷ 14
+       gaps) to fit all of them evenly between 0% and 80% */
+    .gallery-left .photocard:nth-child(1){  top:0%;    left:60px; transform:rotate(-7deg); }
+    .gallery-left .photocard:nth-child(2){  top:5.3%;  left:4px;  transform:rotate(5deg); }
+    .gallery-left .photocard:nth-child(3){  top:10.7%; left:92px; transform:rotate(-4deg); }
+    .gallery-left .photocard:nth-child(4){  top:16%;   left:20px; transform:rotate(6deg); }
+    .gallery-left .photocard:nth-child(5){  top:21.3%; left:76px; transform:rotate(-6deg); }
+    .gallery-left .photocard:nth-child(6){  top:26.7%; left:0px;  transform:rotate(4deg); }
+    .gallery-left .photocard:nth-child(7){  top:32%;   left:96px; transform:rotate(-5deg); }
+    .gallery-left .photocard:nth-child(8){  top:37.3%; left:32px; transform:rotate(7deg); }
+    .gallery-left .photocard:nth-child(9){  top:42.7%; left:58px; transform:rotate(-3deg); }
+    .gallery-left .photocard:nth-child(10){ top:48%;   left:86px; transform:rotate(-8deg); }
+    .gallery-left .photocard:nth-child(11){ top:53.3%; left:14px; transform:rotate(6deg); }
+    .gallery-left .photocard:nth-child(12){ top:58.7%; left:70px; transform:rotate(-5deg); }
+    .gallery-left .photocard:nth-child(13){ top:64%;   left:44px; transform:rotate(7deg); }
+    .gallery-left .photocard:nth-child(14){ top:69.3%; left:8px;  transform:rotate(-6deg); }
+    .gallery-left .photocard:nth-child(15){ top:74.7%; left:64px; transform:rotate(5deg); }
+    .gallery-left .photocard:nth-child(16){ top:80%;   left:26px; transform:rotate(-4deg); }
 
-    .gallery-right .photocard:nth-child(1){ top:0%;    left:22px; transform:rotate(5deg); }
-    .gallery-right .photocard:nth-child(2){ top:11.5%; left:82px; transform:rotate(-6deg); }
-    .gallery-right .photocard:nth-child(3){ top:23%;   left:0px;  transform:rotate(4deg); }
-    .gallery-right .photocard:nth-child(4){ top:34.5%; left:60px; transform:rotate(-7deg); }
-    .gallery-right .photocard:nth-child(5){ top:46%;   left:96px; transform:rotate(6deg); }
-    .gallery-right .photocard:nth-child(6){ top:57.5%; left:12px; transform:rotate(-4deg); }
-    .gallery-right .photocard:nth-child(7){ top:69%;   left:70px; transform:rotate(5deg); }
-    .gallery-right .photocard:nth-child(8){ top:80%;   left:36px; transform:rotate(-6deg); }
+    .gallery-right .photocard:nth-child(1){  top:0%;    left:22px; transform:rotate(5deg); }
+    .gallery-right .photocard:nth-child(2){  top:5.7%;  left:82px; transform:rotate(-6deg); }
+    .gallery-right .photocard:nth-child(3){  top:11.4%; left:0px;  transform:rotate(4deg); }
+    .gallery-right .photocard:nth-child(4){  top:17.1%; left:60px; transform:rotate(-7deg); }
+    .gallery-right .photocard:nth-child(5){  top:22.9%; left:96px; transform:rotate(6deg); }
+    .gallery-right .photocard:nth-child(6){  top:28.6%; left:12px; transform:rotate(-4deg); }
+    .gallery-right .photocard:nth-child(7){  top:34.3%; left:70px; transform:rotate(5deg); }
+    .gallery-right .photocard:nth-child(8){  top:40%;   left:36px; transform:rotate(-6deg); }
+    .gallery-right .photocard:nth-child(9){  top:45.7%; left:50px; transform:rotate(4deg); }
+    .gallery-right .photocard:nth-child(10){ top:51.4%; left:90px; transform:rotate(-7deg); }
+    .gallery-right .photocard:nth-child(11){ top:57.1%; left:6px;  transform:rotate(5deg); }
+    .gallery-right .photocard:nth-child(12){ top:62.9%; left:78px; transform:rotate(-6deg); }
+    .gallery-right .photocard:nth-child(13){ top:68.6%; left:30px; transform:rotate(4deg); }
+    .gallery-right .photocard:nth-child(14){ top:74.3%; left:62px; transform:rotate(-7deg); }
+    .gallery-right .photocard:nth-child(15){ top:80%;   left:10px; transform:rotate(6deg); }
 
     /* Hovering still straightens a card and lifts it up, exactly
        like the tidy version did — it just starts from a scattered
@@ -1306,25 +1363,24 @@
 </a>
 
 <!-- ============================================
-     LIGHT / DARK MODE BUTTON 🌙☀️
-     This little round button floats in the top-right corner of
-     the screen, always, no matter how far someone scrolls. It
-     holds TWO tiny pictures stacked on top of each other (a moon
-     and a sun) — only one shows at a time, and our CSS decides
-     which one based on data-theme, the same way the chevron
-     arrows swap earlier in this file. aria-pressed tells screen
-     readers whether dark mode is currently "on" or "off", and
-     our JS keeps that (plus the aria-label wording) up to date
-     every time someone clicks it. ============================================ -->
-<button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="false" aria-label="Switch to dark mode">
-  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <path d="M20.354 15.354A9 9 0 0 1 8.646 3.646 9.003 9.003 0 1 0 20.354 15.354z"/>
-  </svg>
-  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-    <circle cx="12" cy="12" r="4"/>
-    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
-  </svg>
-</button>
+     LIGHT / DARK / SYSTEM DROPDOWN 🌙☀️🖥️
+     This floats in the top-right corner of the screen forever,
+     just like the old button it replaced — except now it's a
+     real <select> dropdown with THREE choices instead of a
+     button you could only flip back and forth between two. The
+     "System" option means "just copy whatever light/dark setting
+     my phone or computer already has" — the JavaScript at the
+     bottom of the page checks that automatically AND keeps
+     watching it, so if someone's device switches from light to
+     dark (like a phone that goes dark automatically at sunset)
+     while "System" is picked, this page follows along live. It
+     shares the exact same flip-up-when-open arrow trick as the
+     era dropdown above (see ".has-arrow" in the <style> section). ============================================ -->
+<select class="theme-select has-arrow" id="theme-select" aria-label="Choose light, dark, or match-system color theme">
+  <option value="system">System</option>
+  <option value="light">Light</option>
+  <option value="dark">Dark</option>
+</select>
 
 <!-- ============================================
      Nine real pictures, blurred way down and tinted so they
@@ -1422,7 +1478,7 @@
              headers splitting it up) — simpler to scan, and the
              list is short enough that you don't need sub-sections
              to find what you're looking for -->
-        <select class="badge era-select" id="era-select" aria-label="Pick an ITZY era to re-theme this page's colors">
+        <select class="badge era-select has-arrow" id="era-select" aria-label="Pick an ITZY era to re-theme this page's colors">
           <option value="dalla-dalla">DALLA DALLA</option>
           <option value="icy">ICY ERA</option>
           <option value="wannabe">WANNABE</option>
@@ -1610,103 +1666,197 @@
 
   <!-- ============================================
        "GUESS WHO" MOODBOARD 🖼️
-       Seventeen little picture frames — every ITZY comeback era
-       from debut through the current one, PLUS Yeji's and Yuna's
-       solo debuts slotted into the timeline exactly where they
-       really happened, all in chronological order (oldest first).
+       Thirty-one little picture frames now — not just the 17 main
+       comebacks, but every single track ITZY has ever put out (title
+       tracks, pre-releases, Japanese versions, collabs, all of it),
+       all in chronological order (oldest first) from their 2019
+       debut all the way to "MOTTO."
 
-       Each photocard is now a real, clickable link — tapping or
-       clicking one opens that era's music video on YouTube in a
+       Each photocard is a real, clickable link — tapping or
+       clicking one opens that song's music video (or a YouTube
+       SEARCH for it, for the newer placeholder ones below) in a
        brand new tab (target="_blank"), just like the social
-       buttons up above. Because these are genuinely useful links
-       now (not just decoration), we removed the aria-hidden="true"
-       that used to sit on the two <div class="gallery"> wrappers
-       below — that attribute used to tell screen readers "skip
-       this, it's just pretty pictures," which wouldn't be true
-       anymore now that clicking these actually goes somewhere!
-       Each link also gets its own aria-label describing exactly
-       where it goes, so a screen reader announces something like
-       "Watch the DALLA DALLA music video on YouTube" instead of
-       just reading out the filename of a picture.
+       buttons up above. Because these are genuinely useful links,
+       the two <div class="gallery"> wrappers below don't have
+       aria-hidden="true" on them — that attribute would tell
+       screen readers "skip this, it's just pretty pictures," which
+       wouldn't be true now that clicking these actually goes
+       somewhere. Each link also gets its own aria-label describing
+       exactly where it goes.
 
-       Want to swap a picture for a different one later? Just
-       change that <img>'s src="..." to whatever new filename
-       you're using — the frame, tilt, caption, and link all keep
-       working automatically either way.
+       14 of these 31 don't have a real photo saved in the project
+       folder yet — those use a little dashed "placeholder frame"
+       (see ".placeholder-frame" up in the <style> section) instead
+       of a broken picture, and their link points to a YouTube
+       SEARCH for the song's name rather than one exact video,
+       since the real video link isn't known yet either. Swapping
+       either one in later is simple: turn the <span
+       class="placeholder-frame"> back into a normal <img
+       src="...">, and swap the search link for the real one.
 
-       These 17 photos skip loading="lazy" too, for the exact
-       same reason as the 9 background photos up at the top of
-       the page — see the big comment right before <body> if
-       you want the full explanation.
+       These photos skip loading="lazy" too, for the exact same
+       reason as the 9 background photos up at the top of the page
+       — see the big comment right before <body> if you want the
+       full explanation.
        ============================================ -->
   <p class="gallery-label">midzy moodboard</p>
   <div class="gallery gallery-left">
+    <!-- 1. DALLA DALLA (2019) — ITZY's actual debut song, so we
+         spell that out right in the caption -->
     <a class="photocard" href="https://youtu.be/pNfTK39k55U?si=nHOgXk-fqp5W-4QO" target="_blank" rel="noopener" aria-label="Watch the DALLA DALLA music video on YouTube">
       <img src="dalla-dalla.jpg" alt="">
-      <span>DALLA DALLA</span>
+      <span>DALLA DALLA (DEBUT)</span>
     </a>
+    <!-- 2. ICY (2019) -->
     <a class="photocard" href="https://youtu.be/zndvqTc4P9I?si=Qi1NhEE9CAjOak7E" target="_blank" rel="noopener" aria-label="Watch the ICY music video on YouTube">
       <img src="icy.jpg" alt="">
       <span>ICY</span>
     </a>
+    <!-- 3. WANNABE (2020) -->
     <a class="photocard" href="https://youtu.be/fE2h3lGlOsk?si=7Zr_3uOwpnBuOaYc" target="_blank" rel="noopener" aria-label="Watch the WANNABE music video on YouTube">
       <img src="wannabe.jpg" alt="">
       <span>WANNABE</span>
     </a>
+    <!-- 4. NOBODY LIKE YOU (2020) — a "Selfie Music Video" ITZY
+         filmed themselves. No photo saved for this one yet, so it
+         gets the dashed placeholder frame instead of a picture -->
+    <a class="photocard photocard-placeholder" href="https://www.youtube.com/results?search_query=ITZY+Nobody+Like+You+Selfie+Music+Video" target="_blank" rel="noopener" aria-label="Search YouTube for the NOBODY LIKE YOU music video — placeholder link, a real photo and official video link haven't been added yet">
+      <span class="placeholder-frame" aria-hidden="true">🎬</span>
+      <span>NOBODY LIKE YOU (SELFIE MUSIC VIDEO)</span>
+    </a>
+    <!-- 5. NOT SHY (2020) -->
     <a class="photocard" href="https://youtu.be/wTowEKjDGkU?si=4Y7ydKsB7CEonD_D" target="_blank" rel="noopener" aria-label="Watch the NOT SHY music video on YouTube">
       <img src="not-shy.jpg" alt="">
       <span>NOT SHY</span>
     </a>
+    <!-- 6. IN THE MORNING (2021) -->
     <a class="photocard" href="https://youtu.be/_ysomCGaZLw?si=3yONa0XtE9ffcCeM" target="_blank" rel="noopener" aria-label="Watch the IN THE MORNING music video on YouTube">
       <img src="in-the-morning.jpg" alt="">
       <span>IN THE MORNING</span>
     </a>
+    <!-- 7. BREAK ICE (2021) — a collab track, no photo saved yet -->
+    <a class="photocard photocard-placeholder" href="https://www.youtube.com/results?search_query=ITZY+Break+Ice+KimDaVi" target="_blank" rel="noopener" aria-label="Search YouTube for the BREAK ICE music video — placeholder link, a real photo and official video link haven't been added yet">
+      <span class="placeholder-frame" aria-hidden="true">🎬</span>
+      <span>BREAK ICE (COLLAB WITH KIMDAVI)</span>
+    </a>
+    <!-- 8. LOCO (2021) -->
     <a class="photocard" href="https://youtu.be/MjCZfZfucEc?si=csQZdnST-kx5zu_r" target="_blank" rel="noopener" aria-label="Watch the LOCO music video on YouTube">
       <img src="loco.jpg" alt="">
       <span>LOCO</span>
     </a>
+    <!-- 9. SWIPE (2021) — no photo saved yet -->
+    <a class="photocard photocard-placeholder" href="https://www.youtube.com/results?search_query=ITZY+Swipe" target="_blank" rel="noopener" aria-label="Search YouTube for the SWIPE music video — placeholder link, a real photo and official video link haven't been added yet">
+      <span class="placeholder-frame" aria-hidden="true">🎬</span>
+      <span>SWIPE</span>
+    </a>
+    <!-- 10. WANNABE, Japanese version (2021) — no photo saved yet -->
+    <a class="photocard photocard-placeholder" href="https://www.youtube.com/results?search_query=ITZY+Wannabe+Japanese+Version" target="_blank" rel="noopener" aria-label="Search YouTube for the Japanese-version WANNABE music video — placeholder link, a real photo and official video link haven't been added yet">
+      <span class="placeholder-frame" aria-hidden="true">🎬</span>
+      <span>WANNABE (JAPANESE VERSION)</span>
+    </a>
+    <!-- 11. VOLTAGE (2022) — ITZY's Japanese debut, no photo yet -->
+    <a class="photocard photocard-placeholder" href="https://www.youtube.com/results?search_query=ITZY+Voltage+Japanese+Debut" target="_blank" rel="noopener" aria-label="Search YouTube for the VOLTAGE music video — placeholder link, a real photo and official video link haven't been added yet">
+      <span class="placeholder-frame" aria-hidden="true">🎬</span>
+      <span>VOLTAGE (JAPANESE DEBUT)</span>
+    </a>
+    <!-- 12. SNEAKERS (2022) -->
     <a class="photocard" href="https://youtu.be/Hbb5GPxXF1w?si=cmsftHZMR7TjXLR_" target="_blank" rel="noopener" aria-label="Watch the SNEAKERS music video on YouTube">
       <img src="sneakers.jpg" alt="">
       <span>SNEAKERS</span>
     </a>
+    <!-- 13. BLAH BLAH BLAH (2022) — no photo saved yet -->
+    <a class="photocard photocard-placeholder" href="https://www.youtube.com/results?search_query=ITZY+Blah+Blah+Blah" target="_blank" rel="noopener" aria-label="Search YouTube for the BLAH BLAH BLAH music video — placeholder link, a real photo and official video link haven't been added yet">
+      <span class="placeholder-frame" aria-hidden="true">🎬</span>
+      <span>BLAH BLAH BLAH</span>
+    </a>
+    <!-- 14. BOYS LIKE YOU (2022) — English pre-release, no photo yet -->
+    <a class="photocard photocard-placeholder" href="https://www.youtube.com/results?search_query=ITZY+Boys+Like+You" target="_blank" rel="noopener" aria-label="Search YouTube for the BOYS LIKE YOU music video — placeholder link, a real photo and official video link haven't been added yet">
+      <span class="placeholder-frame" aria-hidden="true">🎬</span>
+      <span>BOYS LIKE YOU (ENGLISH PRE-RELEASE)</span>
+    </a>
+    <!-- 15. CHESHIRE (2022) -->
     <a class="photocard" href="https://youtu.be/zugAhfd2r0g?si=zzROUaiKAGqlWPLV" target="_blank" rel="noopener" aria-label="Watch the CHESHIRE music video on YouTube">
       <img src="cheshire.jpg" alt="">
       <span>CHESHIRE</span>
     </a>
+    <!-- 16. BET ON ME (2023) — pre-release, no photo saved yet -->
+    <a class="photocard photocard-placeholder" href="https://www.youtube.com/results?search_query=ITZY+Bet+On+Me" target="_blank" rel="noopener" aria-label="Search YouTube for the BET ON ME music video — placeholder link, a real photo and official video link haven't been added yet">
+      <span class="placeholder-frame" aria-hidden="true">🎬</span>
+      <span>BET ON ME (PRE-RELEASE)</span>
+    </a>
+  </div>
+  <div class="gallery gallery-right">
+    <!-- 17. CAKE (2023) -->
     <a class="photocard" href="https://youtu.be/0bIRwBpBcZQ?si=jx-MLbdMnVoxzzii" target="_blank" rel="noopener" aria-label="Watch the CAKE music video on YouTube">
       <img src="cake.jpeg" alt="">
       <span>CAKE</span>
     </a>
-  </div>
-  <div class="gallery gallery-right">
+    <!-- 18. NONE OF MY BUSINESS (2023) — no photo saved yet -->
+    <a class="photocard photocard-placeholder" href="https://www.youtube.com/results?search_query=ITZY+None+Of+My+Business" target="_blank" rel="noopener" aria-label="Search YouTube for the NONE OF MY BUSINESS music video — placeholder link, a real photo and official video link haven't been added yet">
+      <span class="placeholder-frame" aria-hidden="true">🎬</span>
+      <span>NONE OF MY BUSINESS</span>
+    </a>
+    <!-- 19. RINGO (2023) — Japanese release, no photo saved yet -->
+    <a class="photocard photocard-placeholder" href="https://www.youtube.com/results?search_query=ITZY+Ringo+Japanese" target="_blank" rel="noopener" aria-label="Search YouTube for the RINGO music video — placeholder link, a real photo and official video link haven't been added yet">
+      <span class="placeholder-frame" aria-hidden="true">🎬</span>
+      <span>RINGO (JAPANESE)</span>
+    </a>
+    <!-- 20. BORN TO BE (2023) — pre-release, no photo saved yet -->
+    <a class="photocard photocard-placeholder" href="https://www.youtube.com/results?search_query=ITZY+Born+To+Be" target="_blank" rel="noopener" aria-label="Search YouTube for the BORN TO BE music video — placeholder link, a real photo and official video link haven't been added yet">
+      <span class="placeholder-frame" aria-hidden="true">🎬</span>
+      <span>BORN TO BE (PRE-RELEASE)</span>
+    </a>
+    <!-- 21. MR. VAMPIRE (2024) — pre-release, no photo saved yet -->
+    <a class="photocard photocard-placeholder" href="https://www.youtube.com/results?search_query=ITZY+Mr+Vampire" target="_blank" rel="noopener" aria-label="Search YouTube for the MR. VAMPIRE music video — placeholder link, a real photo and official video link haven't been added yet">
+      <span class="placeholder-frame" aria-hidden="true">🎬</span>
+      <span>MR. VAMPIRE (PRE-RELEASE)</span>
+    </a>
+    <!-- 22. UNTOUCHABLE (2024) -->
     <a class="photocard" href="https://youtu.be/5e3rKInegeU?si=8cWIORUHGKOUoee8" target="_blank" rel="noopener" aria-label="Watch the UNTOUCHABLE music video on YouTube">
       <img src="untouchable.jpg" alt="">
       <span>UNTOUCHABLE</span>
     </a>
+    <!-- 23. LIKE MAGIC (2024) — a big collab track, no photo yet -->
+    <a class="photocard photocard-placeholder" href="https://www.youtube.com/results?search_query=ITZY+Like+Magic+J.Y.+Park+Stray+Kids+NMIXX" target="_blank" rel="noopener" aria-label="Search YouTube for the LIKE MAGIC music video — placeholder link, a real photo and official video link haven't been added yet">
+      <span class="placeholder-frame" aria-hidden="true">🎬</span>
+      <span>LIKE MAGIC (COLLAB: J.Y. PARK, STRAY KIDS, NMIXX)</span>
+    </a>
+    <!-- 24. ALGORHYTHM (2024) — Japanese release, no photo yet -->
+    <a class="photocard photocard-placeholder" href="https://www.youtube.com/results?search_query=ITZY+Algorhythm+Japanese" target="_blank" rel="noopener" aria-label="Search YouTube for the ALGORHYTHM music video — placeholder link, a real photo and official video link haven't been added yet">
+      <span class="placeholder-frame" aria-hidden="true">🎬</span>
+      <span>ALGORHYTHM (JAPANESE)</span>
+    </a>
+    <!-- 25. GOLD (2024) -->
     <a class="photocard" href="https://youtu.be/eMk_0svqsnI?si=zRNjb8-PeWg5Vnyp" target="_blank" rel="noopener" aria-label="Watch the GOLD music video on YouTube">
       <img src="gold.jpg" alt="">
       <span>GOLD</span>
     </a>
+    <!-- 26. IMAGINARY FRIEND (2024) -->
     <a class="photocard" href="https://youtu.be/NrUlydECU-8?si=TWx9owwSaircjsQb" target="_blank" rel="noopener" aria-label="Watch the IMAGINARY FRIEND music video on YouTube">
       <img src="imaginary-friend.jpeg" alt="">
       <span>IMAGINARY FRIEND</span>
     </a>
+    <!-- 27. AIR, Yeji's solo debut (2025) -->
     <a class="photocard" href="https://youtu.be/TamDOXponnM?si=x46dQQC6peI6EN2p" target="_blank" rel="noopener" aria-label="Watch the YEJI AIR music video on YouTube">
       <img src="yeji-air.jpg" alt="">
       <span>YEJI · AIR</span>
     </a>
+    <!-- 28. GIRLS WILL BE GIRLS (2025) -->
     <a class="photocard" href="https://youtu.be/1KhOhW_O8-k?si=DP-36xPCLHnVCgDj" target="_blank" rel="noopener" aria-label="Watch the GIRLS WILL BE GIRLS music video on YouTube">
       <img src="gwbg.jpg" alt="">
       <span>GIRLS WILL BE GIRLS</span>
     </a>
+    <!-- 29. TUNNEL VISION (2025) -->
     <a class="photocard" href="https://youtu.be/piSq8IioghU?si=ZGIax98tS1ORQEpP" target="_blank" rel="noopener" aria-label="Watch the TUNNEL VISION music video on YouTube">
       <img src="tunnel-vision.jpg" alt="">
       <span>TUNNEL VISION</span>
     </a>
+    <!-- 30. ICE CREAM, Yuna's solo debut (2026) -->
     <a class="photocard" href="https://youtu.be/x0FwbTiD3iA?si=L8siHaaFLjH2UbR9" target="_blank" rel="noopener" aria-label="Watch the YUNA ICE CREAM music video on YouTube">
       <img src="ice-cream-yuna.jpg" alt="">
       <span>YUNA · ICE CREAM</span>
     </a>
+    <!-- 31. MOTTO (2026) — the current era -->
     <a class="photocard" href="https://youtu.be/1jKnI_ib8c8?si=x3RfEtwExcLeP7tZ" target="_blank" rel="noopener" aria-label="Watch the MOTTO music video on YouTube">
       <img src="motto.webp" alt="">
       <span>MOTTO</span>
@@ -1722,8 +1872,8 @@
        fan page is only borrowing them to celebrate INO's content,
        not claiming to have made or own any of it */ -->
   <footer>
-    <p>made for INO by a fellow Midzy <span class="heart">🖤</span> · always in the mood · not affiliated with JYP Entertainment</p>
-    <p>I do not claim ownership of this content. All rights belong to the respective owners.</p>
+    <p>Made for INO by a fellow Midzy <span class="heart">🖤</span> · ALL IN US · not affiliated with JYP Entertainment</p>
+    <p>I do not claim ownership of the content (images and videos). All rights belong to the respective owners.</p>
   </footer>
 
 <script>
@@ -1933,53 +2083,126 @@
   }
 
   // ============================================
-  // LIGHT / DARK MODE TOGGLE 🌙☀️
+  // LIGHT / DARK / SYSTEM DROPDOWN 🌙☀️🖥️
+  // Picking "Light" or "Dark" pins the page to exactly that. Picking
+  // "System" means "keep copying whatever my device's own setting
+  // is" — including LIVE, if that device setting changes while
+  // this tab is still open (like a phone that automatically goes
+  // dark at sunset).
   // ============================================
-  var themeToggle = document.getElementById('theme-toggle');
+  var themeSelect = document.getElementById('theme-select');
   var THEME_STORAGE_KEY = 'ino-theme';
 
-  function applyTheme(theme) {
-    if (theme === 'dark') {
+  // This is a live "phone line" to the operating system's own
+  // light/dark switch. ".matches" tells us its CURRENT answer, and
+  // (further down) we can also ask it to tell us the moment that
+  // answer changes, instead of only checking once on page load.
+  var darkMediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+  function systemPrefersDark() {
+    return !!(darkMediaQuery && darkMediaQuery.matches);
+  }
+
+  // "mode" is whatever the dropdown is currently set to: 'light',
+  // 'dark', or 'system'. Only 'dark' OR ('system' while the device
+  // itself is dark) actually turns dark mode on — everything else
+  // means light.
+  function applyTheme(mode) {
+    var shouldBeDark = mode === 'dark' || (mode === 'system' && systemPrefersDark());
+    if (shouldBeDark) {
       document.documentElement.setAttribute('data-theme', 'dark');
-      themeToggle.setAttribute('aria-pressed', 'true');
-      themeToggle.setAttribute('aria-label', 'Switch to light mode');
     } else {
       document.documentElement.removeAttribute('data-theme');
-      themeToggle.setAttribute('aria-pressed', 'false');
-      themeToggle.setAttribute('aria-label', 'Switch to dark mode');
     }
     updateThemeColorMeta();
   }
 
-  // What theme should we start with? First choice: whatever this
-  // same visitor picked last time (we saved it in localStorage,
-  // which is just a tiny bit of storage a website is allowed to
-  // keep in a visitor's own browser). If we've never saved
-  // anything, fall back to asking the OPERATING SYSTEM whether it
-  // is currently in light or dark mode, via prefers-color-scheme.
-  var savedTheme = null;
+  // What should the dropdown start on? First choice: whatever this
+  // same visitor picked last time (saved in localStorage, a tiny
+  // bit of storage a website is allowed to keep in a visitor's own
+  // browser). If nobody's ever picked anything yet, default to
+  // "System" — that way a brand new visitor automatically sees
+  // whatever their own device already prefers, without needing to
+  // touch the dropdown at all.
+  var savedThemeMode = null;
   try {
-    savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    savedThemeMode = localStorage.getItem(THEME_STORAGE_KEY);
   } catch (err) {
     // Some browser privacy settings block localStorage completely
     // (private/incognito windows sometimes do this). If that
     // happens we simply can't remember a choice between visits —
-    // not a big deal, the toggle still works fine for this visit.
+    // not a big deal, the dropdown still works fine for this visit.
   }
-  var systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  applyTheme(savedTheme || (systemPrefersDark ? 'dark' : 'light'));
+  var startingThemeMode = savedThemeMode || 'system';
+  themeSelect.value = startingThemeMode;
+  applyTheme(startingThemeMode);
 
-  themeToggle.addEventListener('click', function () {
-    var isCurrentlyDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    var nextTheme = isCurrentlyDark ? 'light' : 'dark';
-    applyTheme(nextTheme);
+  themeSelect.addEventListener('change', function () {
+    applyTheme(themeSelect.value);
     try {
-      localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+      localStorage.setItem(THEME_STORAGE_KEY, themeSelect.value);
     } catch (err) {
-      // Same reasoning as above — if we can't save it, the toggle
+      // Same reasoning as above — if we can't save it, the dropdown
       // still works, it just won't be remembered next visit.
     }
   });
+
+  // While "System" is picked, keep watching the device's own
+  // light/dark setting and re-apply the theme the instant it
+  // changes — without this, someone would have to manually re-pick
+  // "System" from the dropdown to notice their phone just switched
+  // to dark mode at sunset.
+  if (darkMediaQuery && darkMediaQuery.addEventListener) {
+    darkMediaQuery.addEventListener('change', function () {
+      if (themeSelect.value === 'system') {
+        applyTheme('system');
+      }
+    });
+  }
+
+  // ============================================
+  // SHARED DROPDOWN ARROW LOGIC 🔽🔼
+  // Both dropdowns (era picker + this light/dark/system picker)
+  // need their little chevron arrow to flip upside-down while
+  // open, and flip back down once closed. A native <select> gives
+  // JavaScript no direct "the popup just closed" event to listen
+  // for, so instead this watches every DIFFERENT way a dropdown
+  // can close and treats all of them the same:
+  //   - picking an option        -> "change" fires
+  //   - pressing Escape          -> our own "keydown" check catches it
+  //   - tabbing away to another element -> "blur" fires
+  //   - clicking ANYWHERE ELSE on the page -> the "click" listener
+  //     on the whole document catches it
+  // That last one is the important fix: a <select> often keeps its
+  // focus even after its popup list closes, so watching "focus"/
+  // "blur" alone isn't enough — clicking outside to dismiss the
+  // list doesn't necessarily blur it, which is exactly why the
+  // arrow used to get stuck pointing up.
+  // ============================================
+  function setUpDropdownArrow(selectElement) {
+    function openArrow() { selectElement.classList.add('is-open'); }
+    function closeArrow() { selectElement.classList.remove('is-open'); }
+
+    // "mousedown" fires the instant a click begins, even if this
+    // element already had focus from before (like from a previous
+    // Tab press) — that edge case is why "focus" alone isn't quite
+    // enough to always catch the "just opened" moment.
+    selectElement.addEventListener('mousedown', openArrow);
+    selectElement.addEventListener('focus', openArrow);
+
+    selectElement.addEventListener('change', closeArrow);
+    selectElement.addEventListener('blur', closeArrow);
+    selectElement.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') { closeArrow(); }
+    });
+
+    document.addEventListener('click', function (event) {
+      if (event.target !== selectElement) { closeArrow(); }
+    });
+  }
+
+  setUpDropdownArrow(eraSelect);
+  setUpDropdownArrow(themeSelect);
 
   // Now that both the era system AND the theme-color updater
   // above are ready, it's finally safe to check the URL for a
