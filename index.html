@@ -165,6 +165,15 @@
   :root[data-era="wannabe"]{
     /* Midnight Blue */
     --bg:#191970; --wall:#191970; --pink:#FF4D8D; --lavender:#FFB3C6; --blue:#FF8FB1; --green:#FFD6E0; --red:#E8305A;
+    /* Midnight Blue is a very dark, deep color — mixing it with the
+       usual 55% still leaves the card too close in darkness to the
+       page's regular dark text, making everyday words (the bio, the
+       link titles) harder to read than every other era. Giving
+       THIS one era's card a bit more white than usual (40% wall
+       instead of 55%) fixes that, without changing Midnight Blue
+       itself at all — the wall color, and every other era's card
+       formula, stay exactly the same */
+    --bg-card: color-mix(in srgb, var(--bg) 40%, white);
   }
   :root[data-era="not-shy"]{
     /* Desert Orange */
@@ -266,23 +275,26 @@
      so picking a new era feels like a smooth mood-shift instead
      of a jarring flash.
 
-     IMPORTANT: "background-color" is deliberately left OUT of this
-     fade list — only "border-color" and "color" animate smoothly.
-     Here's why: --bg and --bg-card, in dark mode, are now computed
-     with color-mix() FROM another custom property (--wall, which
-     changes per era — see the COLOR BOX and the dark mode block
-     for the full story). Browsers can get confused animating a
-     background-color that's built this way: instead of smoothly
-     fading to the NEW era's color, it would sometimes get visually
-     "stuck" showing a stale, wrong color mixed from the PREVIOUS
-     era instead — a real rendering bug that only bit when TWO
-     custom properties changed together (era + dark mode). Turning
-     the background-color fade off avoids that bug entirely: the
-     wall and card colors now switch instantly instead of fading,
+     IMPORTANT: "background-color" AND "color" are both deliberately
+     left OUT of this fade list now — only "border-color" still
+     animates smoothly. Here's why: quite a few colors on this page
+     (--bg/--bg-card in dark mode, and the OT5/RYUJIN badge text
+     colors) are built with color-mix() that reads FROM another
+     custom property that can ALSO change at the same moment (era
+     changing, or dark mode toggling, or both together). Browsers
+     can get visibly confused animating a color built this way —
+     instead of smoothly fading to the correct new color, it can
+     get "stuck" showing a stale, wrong color mixed from whatever
+     was active a moment ago (this bit background-color first, then
+     bit the badge text's "color" the exact same way once THAT also
+     switched to a mode-aware color-mix() formula for readability —
+     see the COLOR BOX and the badge CSS for both stories). Turning
+     the fade off for both of those properties avoids the bug
+     entirely: those colors now switch instantly instead of fading,
      which is a small visual trade worth making for "always shows
-     the right color." */
+     the right, readable color." */
   body, .bg-collage::after, .badge, .era-select, .link-card, .photocard, .glow, .theme-select, .github-link{
-    transition: border-color 0.5s ease, color 0.5s ease;
+    transition: border-color 0.5s ease;
   }
 
   /* ============================================
@@ -504,6 +516,15 @@
 
   /* ============================================
      COMEBACK COUNTDOWN BANNER 📅 (hidden unless turned on)
+     A small, clean two-line widget: a tiny muted label on top
+     ("NEXT COMEBACK IN"), and the actual weeks/days/hours/minutes/
+     seconds countdown right underneath it in bolder text — instead
+     of trying to cram a whole sentence PLUS five numbers onto one
+     line, which would either overflow this little banner's width
+     or wrap in an ugly spot. It sits right at the very top of the
+     card, above the profile photo, so when it's off (which is the
+     default — see the JS for why) it takes up zero space and
+     doesn't push anything else down or interrupt the page at all.
      ============================================ */
   .comeback-banner{
     width:100%;
@@ -515,7 +536,7 @@
     background: color-mix(in srgb, var(--red) 16%, var(--bg-card));
     border: 1px solid color-mix(in srgb, var(--red) 40%, transparent);
     border-radius: 14px;
-    padding: 9px 8px 9px 14px;
+    padding: 10px 8px 10px 14px;
     margin-bottom: 16px;
   }
 
@@ -525,12 +546,42 @@
      every ".comeback-banner" a flex box again by accident */
   .comeback-banner[hidden]{ display:none; }
 
-  .comeback-text{
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.3px;
-    color: var(--text);
+  /* Stacks the small label and the bigger timer digits directly
+     on top of each other, both left-aligned */
+  .comeback-info{
+    display:flex;
+    flex-direction:column;
+    gap: 2px;
     text-align:left;
+    /* Without this, a long flex child is sometimes stubbornly
+       forced to stay as wide as its content demands, which can
+       shove the little × dismiss button half off the banner's
+       edge — "min-width:0" gives this permission to shrink and
+       let its own text wrap onto a second line instead */
+    min-width:0;
+  }
+
+  .comeback-label{
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .comeback-timer{
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--text);
+    /* This tells the browser "please make every digit (0-9) take
+       up the exact same amount of width" — without it, a skinny
+       number like "1" and a wide number like "8" would each take
+       up a slightly different amount of space, making the whole
+       countdown line visibly jiggle left and right every second
+       as the digits change. Tabular numbers keep it rock-steady */
+    font-variant-numeric: tabular-nums;
   }
 
   .comeback-dismiss{
@@ -629,9 +680,17 @@
   .handle{
     font-family: var(--mono);
     font-size: 13px;
-    color: var(--red);
+    /* Same fix as the OT5 MIDZY / RYUJIN BIAS badges just above:
+       mixing --red toward black (light mode) or white (dark mode)
+       instead of showing it completely raw, so "@aceofgenz" never
+       accidentally blends into a card that happens to be a similar
+       shade of red/pink/purple */
+    color: color-mix(in srgb, var(--red) 25%, black);
     letter-spacing: 0.5px;
     margin-bottom: 18px;
+  }
+  :root[data-theme="dark"] .handle{
+    color: color-mix(in srgb, var(--red) 35%, white);
   }
 
   .bio{
@@ -665,14 +724,32 @@
     background: var(--bg-card);
   }
 
+  /* These two little name-tag badges used to just show their
+     crayon color STRAIGHT, with no mixing at all ("color: var(--red)")
+     — which worked fine back when every era's wall color was a
+     pale, barely-there pastel, but broke once the wall colors
+     became bold, fully-saturated crayon colors: a bright red badge
+     sitting on a similarly bright, similarly-colored card can
+     practically disappear into it, like red crayon on red paper.
+     Mixing the badge's own color toward BLACK (in light mode) or
+     WHITE (in dark mode) keeps its true color recognizable while
+     guaranteeing it's always noticeably darker or lighter than
+     whatever card color is sitting behind it — which is exactly
+     what actually keeps text readable, in any color combination */
   .badge.ot5{
     border-color: color-mix(in srgb, var(--red) 45%, transparent);
-    color: var(--red);
+    color: color-mix(in srgb, var(--red) 25%, black);
+  }
+  :root[data-theme="dark"] .badge.ot5{
+    color: color-mix(in srgb, var(--red) 35%, white);
   }
   .badge.bias{
     border-color: color-mix(in srgb, var(--blue) 60%, transparent);
-    color: color-mix(in srgb, var(--blue) 65%, black);
+    color: color-mix(in srgb, var(--blue) 25%, black);
     background: color-mix(in srgb, var(--blue) 14%, transparent);
+  }
+  :root[data-theme="dark"] .badge.bias{
+    color: color-mix(in srgb, var(--blue) 35%, white);
   }
 
   /* ============================================
@@ -1553,16 +1630,27 @@
     <!-- ============================================
          "NEXT COMEBACK" COUNTDOWN BANNER 📅
          This little bar is OFF by default — right now, there's no
-         real ITZY comeback date to announce, so it stays completely
-         hidden ("hidden" below is a real HTML attribute that means
-         "don't show this, don't take up any space either"). Our JS
-         only reveals it if someone fills in a real future date in
-         the NEXT_COMEBACK_DATE spot at the bottom of this page —
-         search for "NEXT COMEBACK COUNTDOWN" in the <script> to
-         turn it on later. Until then, this is just an empty,
-         invisible little box sitting here, ready to be used. -->
+         real, announced ITZY comeback date to count down to, so it
+         stays completely hidden ("hidden" below is a real HTML
+         attribute that means "don't show this, don't take up any
+         space either" — so this doesn't push the profile photo
+         down or interrupt anything else on the page while it's
+         off). Our JS only reveals it if someone fills in a real
+         future date in the NEXT_COMEBACK_DATE spot at the bottom
+         of this page — search for "NEXT COMEBACK COUNTDOWN" in the
+         <script> to turn it on later. Until then, this is just an
+         empty, invisible little box sitting here, ready to be used.
+
+         Once it IS turned on, it's a small two-line widget: a tiny
+         label ("NEXT COMEBACK IN") on top, and the live weeks/
+         days/hours/minutes/seconds countdown right underneath —
+         see ".comeback-timer" up in the <style> section for why
+         it's split into two lines instead of one long sentence. -->
     <div class="comeback-banner" id="comeback-banner" role="status" hidden>
-      <span class="comeback-text" id="comeback-text"></span>
+      <div class="comeback-info">
+        <span class="comeback-label" id="comeback-label"></span>
+        <span class="comeback-timer" id="comeback-timer"></span>
+      </div>
       <button type="button" class="comeback-dismiss" id="comeback-dismiss" aria-label="Dismiss this announcement">×</button>
     </div>
 
@@ -2358,6 +2446,10 @@
 
   // ============================================
   // NEXT COMEBACK COUNTDOWN 📅 (off by default)
+  // Shows a small live countdown — weeks, days, hours, minutes,
+  // AND seconds — ticking down to ITZY's next comeback, right in
+  // its own little banner up near the top of the page.
+  //
   // Want to turn this banner on someday? Just fill in a real,
   // FUTURE date + time below, using this exact pattern:
   // 'YYYY-MM-DDTHH:MM:00' (a 24-hour clock, no AM/PM).
@@ -2365,9 +2457,12 @@
   // right at midnight. As long as this stays an empty string (''),
   // the whole banner quietly does nothing and stays invisible —
   // nobody will ever know this feature exists unless you use it.
+  // There's no real, announced comeback date to count down to
+  // right now, which is exactly why this stays off by default
+  // instead of showing a made-up date.
   // ============================================
   var NEXT_COMEBACK_DATE = '';
-  var NEXT_COMEBACK_LABEL = "ITZY's next comeback drops in:";
+  var NEXT_COMEBACK_LABEL = "ITZY's next comeback in";
 
   (function setUpComebackBanner() {
     // Nothing to count down to? Stop right here, before touching
@@ -2398,35 +2493,59 @@
     if (alreadyDismissed) { return; }
 
     var banner = document.getElementById('comeback-banner');
-    var bannerText = document.getElementById('comeback-text');
+    var bannerLabel = document.getElementById('comeback-label');
+    var bannerTimer = document.getElementById('comeback-timer');
     var dismissButton = document.getElementById('comeback-dismiss');
     var tickIntervalId = null;
 
-    // Works out "how many days/hours/minutes from right now until
-    // the target date?" and writes it into the banner as words.
+    // A tiny helper: turns a plain number into a 2-digit string,
+    // like turning "5" into "05" — so the countdown always reads
+    // "05s" instead of jumping between "5s" and "05s" as it ticks,
+    // which keeps the whole line from jittering side to side.
+    function twoDigits(number) {
+      return number < 10 ? '0' + number : String(number);
+    }
+
+    // Works out "how many weeks/days/hours/minutes/seconds from
+    // right now until the target date?" and writes it into the
+    // timer line as words. This is the FULL breakdown (down to the
+    // second) instead of just days/hours/minutes, so the little
+    // countdown visibly ticks every second instead of only
+    // changing once a minute. The small label above it (set once,
+    // further down) never needs to change, so only this timer line
+    // gets touched every tick — a little more efficient than
+    // rewriting the whole sentence from scratch every second.
     function updateCountdownText() {
       var msRemaining = targetTime - Date.now();
       if (msRemaining <= 0) {
-        bannerText.textContent = NEXT_COMEBACK_LABEL + " today! 🖤";
+        bannerTimer.textContent = "today! 🖤";
         clearInterval(tickIntervalId);
         return;
       }
-      // There are 86,400,000 milliseconds in a day, 3,600,000 in
-      // an hour, and 60,000 in a minute — dividing the remaining
-      // time by each of those (and rounding down) is how we break
-      // one big number of milliseconds into "3d 12h 40m".
-      var days = Math.floor(msRemaining / 86400000);
+      // There are 604,800,000 milliseconds in a week, 86,400,000 in
+      // a day, 3,600,000 in an hour, 60,000 in a minute, and 1,000
+      // in a second — dividing the remaining time by each of those
+      // (using the leftover "remainder" each time, via %) is how we
+      // break one big number of milliseconds into "2w 3d 14h 22m 05s".
+      var weeks = Math.floor(msRemaining / 604800000);
+      var days = Math.floor((msRemaining % 604800000) / 86400000);
       var hours = Math.floor((msRemaining % 86400000) / 3600000);
       var minutes = Math.floor((msRemaining % 3600000) / 60000);
-      bannerText.textContent = NEXT_COMEBACK_LABEL + ' ' + days + 'd ' + hours + 'h ' + minutes + 'm';
+      var seconds = Math.floor((msRemaining % 60000) / 1000);
+      bannerTimer.textContent =
+        weeks + 'w ' + days + 'd ' + twoDigits(hours) + 'h ' +
+        twoDigits(minutes) + 'm ' + twoDigits(seconds) + 's';
     }
 
     banner.hidden = false;
+    bannerLabel.textContent = NEXT_COMEBACK_LABEL;
     updateCountdownText();
-    // Refreshing once a minute is plenty for a countdown made of
-    // days/hours/minutes — no need to recalculate every second
-    // and waste battery on something nobody can even see change.
-    tickIntervalId = setInterval(updateCountdownText, 60000);
+    // Ticking every second (instead of once a minute) is what
+    // makes the seconds digit actually count down live in front of
+    // someone's eyes, like a real countdown clock — a plain
+    // setInterval is plenty lightweight for updating one small
+    // line of text once per second.
+    tickIntervalId = setInterval(updateCountdownText, 1000);
 
     dismissButton.addEventListener('click', function () {
       banner.hidden = true;
