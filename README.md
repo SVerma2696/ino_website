@@ -177,6 +177,16 @@ Each step's `%` (remainder) is what stops the units from double-counting — wit
 
 ---
 
+## 🔒 Privacy & Security
+
+This is a public repository — anyone can read every file and every past commit. Here's what that means for what's inside it:
+
+* **The Discord invite, the `theaceofgenz@gmail.com` address, and every social link are meant to be public.** This whole site is a "link in bio" page — sharing those links out in the open is the entire point of it, exactly the same as they already appear on the live site anyone can visit. There's nothing to hide here on purpose.
+* **No secrets live in this repo.** No API keys, passwords, tokens, or `.env` files — this is a plain static site with no backend, so there's nothing like that to accidentally leak in the first place. `.gitignore` also keeps out OS junk files, editor settings, and any `.env`-style file, just in case one ever gets added later.
+* **Commits use a GitHub "no-reply" identity, not a real personal email.** Every commit made in this project (from here on) is signed with `SVerma2696@users.noreply.github.com` instead of a real inbox — GitHub automatically understands this special address and still credits the commit to the right account, but it means nobody can copy a real personal email address out of the commit history (something spam bots regularly scrape public repos looking for). This is set as a *repo-only* Git setting (`git config user.email` without `--global`), so it doesn't change the identity used for any other, unrelated project on the same computer.
+
+---
+
 ## 🎓 Credits & Professional Attributions
 
 This project was built as a personal "link in bio" page for INO, demonstrating dependency-free frontend development, CSS-driven theming, and accessible UI patterns.
