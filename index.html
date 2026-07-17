@@ -1355,7 +1355,7 @@
      a jarring pop */
   .member-track{
     position:relative;
-    min-height: 54px;
+    min-height: 190px;
   }
   .member-slide{
     position:absolute;
@@ -1364,7 +1364,7 @@
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    gap:4px;
+    gap:6px;
     opacity:0;
     pointer-events:none;
     transition: opacity 0.4s ease;
@@ -1373,21 +1373,47 @@
     opacity:1;
     pointer-events:auto;
   }
+  /* Every member photo is a different shape (some tall, some
+     wide) straight out of the folder, so instead of stretching or
+     cropping any of them to fit, this box is a fixed square and
+     "object-fit: contain" shrinks each photo down to fit fully
+     INSIDE that square, letterboxed if needed, but never cut off. */
+  .member-photo{
+    width: 84px;
+    height: 84px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--bg-card) 60%, transparent);
+  }
   .member-name{
     font-family: var(--display);
-    font-size: 20px;
-    letter-spacing: 1px;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+    text-align:center;
   }
   /* Each member gets her own little crayon color via a
      "data-accent" attribute right on her slide, instead of every
      name showing up in the same one fixed color — small touch,
      but it's what makes this feel like 5 different people instead
-     of 5 copies of the same template */
-  .member-slide[data-accent="red"] .member-name{ color: var(--red); }
-  .member-slide[data-accent="blue"] .member-name{ color: var(--blue); }
-  .member-slide[data-accent="green"] .member-name{ color: var(--green); }
-  .member-slide[data-accent="pink"] .member-name{ color: var(--pink); }
-  .member-slide[data-accent="lavender"] .member-name{ color: var(--lavender); }
+     of 5 copies of the same template. The color is mixed with a
+     little bit of black (light mode) or white (dark mode) instead
+     of using the raw crayon color plain — some eras have a
+     background close to one of these exact colors, and a raw color
+     on a same-colored background is hard to read. Mixing in some
+     black/white keeps the color recognizable while staying readable
+     no matter what era or light/dark mode is active (the same trick
+     used on the badges up in the profile card). */
+  .member-slide[data-accent="red"] .member-name{ color: color-mix(in srgb, var(--red) 25%, black); }
+  .member-slide[data-accent="blue"] .member-name{ color: color-mix(in srgb, var(--blue) 25%, black); }
+  .member-slide[data-accent="green"] .member-name{ color: color-mix(in srgb, var(--green) 25%, black); }
+  .member-slide[data-accent="pink"] .member-name{ color: color-mix(in srgb, var(--pink) 25%, black); }
+  .member-slide[data-accent="lavender"] .member-name{ color: color-mix(in srgb, var(--lavender) 25%, black); }
+  :root[data-theme="dark"] .member-slide[data-accent="red"] .member-name{ color: color-mix(in srgb, var(--red) 35%, white); }
+  :root[data-theme="dark"] .member-slide[data-accent="blue"] .member-name{ color: color-mix(in srgb, var(--blue) 35%, white); }
+  :root[data-theme="dark"] .member-slide[data-accent="green"] .member-name{ color: color-mix(in srgb, var(--green) 35%, white); }
+  :root[data-theme="dark"] .member-slide[data-accent="pink"] .member-name{ color: color-mix(in srgb, var(--pink) 35%, white); }
+  :root[data-theme="dark"] .member-slide[data-accent="lavender"] .member-name{ color: color-mix(in srgb, var(--lavender) 35%, white); }
 
   .member-role{
     font-family: var(--mono);
@@ -1755,6 +1781,12 @@
     .glow{ inset: -18px; }
     .badge{ font-size: 10px; padding: 6px 10px; }
     .photocard{ width: 68px; }
+    /* The full member names (like "LEE CHAE-RYEONG") are longer
+       than the old first-name-only ones — a little less letter
+       spacing and a slightly smaller photo keeps everything from
+       feeling cramped on the smallest phone screens. */
+    .member-photo{ width: 72px; height: 72px; }
+    .member-name{ font-size: 16px; letter-spacing: 0.2px; }
   }
 
   /* ============================================
@@ -2575,26 +2607,35 @@
            spot — only the one wearing the ".is-active" class (set
            by JavaScript) is actually visible at any moment. Facts
            here are just each member's well-known, publicly
-           documented position(s) in the group. -->
+           documented position(s) in the group. Each slide also
+           shows a real photo of her (the "alt" text says her name
+           out loud for anyone using a screen reader, since the
+           picture itself is the whole point of this bit, not just
+           decoration). -->
       <div class="member-track" id="member-track">
         <div class="member-slide is-active" data-accent="red">
-          <span class="member-name">YEJI</span>
+          <img class="member-photo" src="yeji.jpg" alt="Hwang Ye-ji">
+          <span class="member-name">HWANG YE-JI</span>
           <span class="member-role">Leader · Main Dancer · Sub Vocalist</span>
         </div>
         <div class="member-slide" data-accent="blue">
-          <span class="member-name">LIA</span>
+          <img class="member-photo" src="lia.jpg" alt="Lia (Choi Ji-su)">
+          <span class="member-name">LIA (CHOI JI-SU)</span>
           <span class="member-role">Main Vocalist</span>
         </div>
         <div class="member-slide" data-accent="green">
-          <span class="member-name">RYUJIN</span>
+          <img class="member-photo" src="ryujin.jpg" alt="Shin Ryu-jin">
+          <span class="member-name">SHIN RYU-JIN</span>
           <span class="member-role">Main Rapper · Main Dancer</span>
         </div>
         <div class="member-slide" data-accent="pink">
-          <span class="member-name">CHAERYEONG</span>
+          <img class="member-photo" src="chaeryeong.jpg" alt="Lee Chae-ryeong">
+          <span class="member-name">LEE CHAE-RYEONG</span>
           <span class="member-role">Main Dancer · Sub Rapper · Sub Vocalist</span>
         </div>
         <div class="member-slide" data-accent="lavender">
-          <span class="member-name">YUNA</span>
+          <img class="member-photo" src="yuna.jpg" alt="Shin Yu-na">
+          <span class="member-name">SHIN YU-NA</span>
           <span class="member-role">Vocalist · Dancer · Maknae</span>
         </div>
       </div>
