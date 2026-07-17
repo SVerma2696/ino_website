@@ -1355,7 +1355,7 @@
      a jarring pop */
   .member-track{
     position:relative;
-    min-height: 190px;
+    min-height: 300px;
   }
   .member-slide{
     position:absolute;
@@ -1373,14 +1373,18 @@
     opacity:1;
     pointer-events:auto;
   }
-  /* Every member photo is a different shape (some tall, some
+  /* ELI5: it's like shrinking a photo to fit inside a picture
+     frame without cutting any of it off, even if the photo isn't
+     a perfect square. This frame is nice and big on purpose, so
+     her face is actually easy to see, not a tiny postage stamp.
+     Every member photo is a different shape (some tall, some
      wide) straight out of the folder, so instead of stretching or
      cropping any of them to fit, this box is a fixed square and
      "object-fit: contain" shrinks each photo down to fit fully
      INSIDE that square, letterboxed if needed, but never cut off. */
   .member-photo{
-    width: 84px;
-    height: 84px;
+    width: 176px;
+    height: 176px;
     object-fit: contain;
     border-radius: 12px;
     border: 1px solid var(--border);
@@ -1783,10 +1787,13 @@
     .photocard{ width: 68px; }
     /* The full member names (like "LEE CHAE-RYEONG") are longer
        than the old first-name-only ones — a little less letter
-       spacing and a slightly smaller photo keeps everything from
-       feeling cramped on the smallest phone screens. */
-    .member-photo{ width: 72px; height: 72px; }
+       spacing keeps everything from feeling cramped on the
+       smallest phone screens. The photo itself only shrinks a
+       little here (not back down to the old tiny size), so it
+       still reads clearly even on a small screen. */
+    .member-photo{ width: 140px; height: 140px; }
     .member-name{ font-size: 16px; letter-spacing: 0.2px; }
+    .member-track{ min-height: 260px; }
   }
 
   /* ============================================
@@ -2603,6 +2610,10 @@
   <div class="fandom-corner">
     <div class="spotlight-card" id="member-spotlight">
       <p class="spotlight-label">meet the members</p>
+      <!-- ELI5: think of this like 5 trading cards stacked in one
+           pile — only the top card shows at a time. Each card has
+           a girl's picture, her whole name, and her job in the
+           band. -->
       <!-- Every member "slide" sits stacked in the exact same
            spot — only the one wearing the ".is-active" class (set
            by JavaScript) is actually visible at any moment. Facts
