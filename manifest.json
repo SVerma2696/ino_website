@@ -1,0 +1,14 @@
+{
+  "name": "INO · @aceofgenz",
+  "short_name": "INO",
+  "description": "Your favorite OT5 Midzy creator. Daily content on every platform, weekly FMOs on @INOT5, and the INO-IT-ALLS Discord.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FAF2ED",
+  "theme_color": "#FAF2ED",
+  "icons": [
+    { "src": "crown.png", "sizes": "any", "type": "image/png", "purpose": "any" },
+    { "src": "ino-pfp.jpg", "sizes": "any", "type": "image/jpeg", "purpose": "any" }
+  ]
+}

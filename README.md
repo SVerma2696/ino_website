@@ -1,6 +1,8 @@
-A fan-made, single-file "link in bio" page for ITZY content creator INO, styled after ITZY's discography — no trackers, no build step, no third-party link tool required, a live dropdown that reskins the whole site to any of ITZY's 16 main comeback eras in bold, named-crayon colors, and its own independent light/dark/system theme dropdown.
+A fan-made, single-file "link in bio" page for ITZY content creator INO, styled after ITZY's discography — no trackers, no build step, no third-party link tool required, a live dropdown that reskins the whole site to any of ITZY's 16 main comeback eras in bold, named-crayon colors, its own independent light/dark/system theme dropdown, and now a fully installable, offline-capable PWA with a photo lightbox, a "meet the members" carousel, and a Ryujin bias corner.
 
 # INO's Link Page 🖤📱
+
+**🔗 Live site: [sverma2696.github.io/ino_website](https://sverma2696.github.io/ino_website/)**
 
 A lightweight, single-file website that works like Linktree or Solo.to, but fully custom-built and self-hosted. Built with plain HTML, CSS, and vanilla JavaScript — no frameworks, no bundler, no `npm install`. It presents INO's profile photo, bio, and every social link (Discord, YouTube x3, TikTok, Instagram, and a smart email button) inside a frosted-glass card floating over a blurred photo backdrop, flanked on wide screens by a "moodboard" of 31 photocards spanning ITZY's entire discography in chronological order — every title track, pre-release, Japanese release, and collab from "DALLA DALLA" (2019) through "MOTTO" (2026), plus Yeji's and Yuna's solo debuts. Every photocard has a real photo and doubles as a link straight to that song's official music video on YouTube.
 
@@ -12,11 +14,15 @@ A lightweight, single-file website that works like Linktree or Solo.to, but full
 ino_website/
 ├── index.html                 # The whole site: HTML structure, CSS styling, and JS logic, all in one file
 ├── ino-pfp.jpg                  # INO's profile picture, shown inside the glowing circle avatar
-├── crown.png                    # Browser tab favicon
+├── crown.png                    # Browser tab favicon (and the PWA app icon — see manifest.json)
 ├── IMG_2927.jpg … IMG_5257.jpg  # 9 photos tiled into the blurred background "photo wall" behind the card
 ├── dalla-dalla.jpg … motto.webp # 31 real photos, one per song in the moodboard timeline (filenames roughly
 │                                 # match each song's name — pre-releases, Japanese versions, and collabs
 │                                 # included, not just the 16 main comeback eras)
+├── manifest.json                # Tells a phone/computer how to install this site as an app (name, icon, colors)
+├── service-worker.js            # Lets the page keep working offline once it's been visited once — see PWA below
+├── robots.txt                   # Tells search engines "everything here is fine to read and list"
+├── sitemap.xml                  # A one-URL "table of contents" for search engines (this is a single-page site)
 ├── README.md                   # Project documentation (this file)
 └── .gitignore                  # Ignores OS junk files, editor folders, and node/env leftovers — images are tracked, not hidden
 ```
@@ -48,6 +54,20 @@ There is no `package.json`, build step, or dependency install — `index.html` i
 * **Real Brand Colors:** Every platform icon (Discord, YouTube, TikTok, Instagram, Gmail) uses that brand's actual logo colors rather than a generic icon set, including a 3-layer TikTok mark built from one shared SVG path (offset via `transform: translate()`) to accurately mimic its real chromatic-aberration logo.
 * **Third YouTube Link for the Temporary Backup Channel:** A third YouTube-styled link card (`@aceofgenzy`) sits alongside the main and longform channel buttons, clearly labeled "Temporary YouTube" with a "backup channel, for now" subtitle, for whenever INO is posting from a backup channel instead of the main one.
 * **Copyright / Ownership Disclaimer:** A second line in the footer states plainly that this fan page doesn't own any of the linked ITZY photos or videos — "I do not claim ownership of this content. All rights belong to the respective owner." — right below the existing "not affiliated with JYP Entertainment" line.
+* **Native Share Button:** A circular button stacked right under the GitHub button calls `navigator.share()` — on a phone or tablet, that pops up the device's own REAL "Share" sheet (Messages, Instagram DM, AirDrop, whatever's installed), not a custom one built from scratch. On browsers without that API (mostly desktop), it falls back to copying the page's link to the clipboard instead, with its own small "Link copied!" toast.
+* **Photocard Lightbox:** Clicking a photocard used to jump straight to YouTube in a new tab. Now it opens a shared pop-up showing that photo full-size first, with its own "Watch Music Video" button inside — so browsing the whole 31-song moodboard doesn't mean leaving (and re-finding your place on) the page 31 separate times. Holding Ctrl/Cmd/Shift, or a middle-click, still opens the link normally instead — the lightbox only intercepts a plain, ordinary click.
+* **Random Era Shuffle Button:** A little dice-shaped button next to the era dropdown jumps to a random era from the SAME `<option>` list the dropdown already has (no separate hardcoded list to keep in sync) — a fun, zero-effort way to flip through every color theme without opening the dropdown each time.
+* **Keyboard Shortcuts:** The Left/Right arrow keys jump to the previous/next era from anywhere on the page (as long as focus isn't already inside a different form control, so it never fights with a dropdown's own native arrow-key behavior). `Escape` already closed every pop-up on the page (the email menu, both dropdowns, and now the lightbox too).
+* **Installable, Offline-Capable PWA:** A `manifest.json` (name, icon, colors) plus a `service-worker.js` (which caches the page's core files the first time they're loaded) let a phone or computer install this site as a real app — with its own home-screen icon and standalone window — that still opens even with no internet connection, instead of just LOOKING installable.
+* **Print Stylesheet:** Hitting Ctrl/Cmd+P used to print out the full glowing-screen experience: the blurry photo background, all 31 scattered photocards, floating circle buttons nobody can click on paper. A `@media print` block now hides everything screen-only and prints a clean, single, plain black-on-white page instead — INO's name, bio, and every link, each with its real web address printed right underneath it (since paper obviously can't be clicked).
+* **SEO Basics — `robots.txt`, `sitemap.xml`, and JSON-LD:** `robots.txt` tells search engines they're welcome to read and list everything here; `sitemap.xml` is a one-URL "table of contents" for this single-page site; and a `<script type="application/ld+json">` block in `<head>` describes INO as a schema.org `Person` (name, photo, and every social profile via `"sameAs"`) — the standard, structured way to help a Google search result show a richer card instead of a plain blue link.
+* **"Meet the Members" Carousel:** A small rotating card cycles through all 5 ITZY members one at a time (name + well-known position(s), each in her own accent color), auto-advancing every 5 seconds with Prev/Next arrows and dot navigation for manual browsing. Auto-advancing is skipped entirely for anyone with `prefers-reduced-motion` set — it only ever moves when they click it themselves.
+* **Ryujin Bias Spotlight:** A small standing card (matching the existing "RYUJIN BIAS" badge) rotates through a short list of plain-text facts about her every 6 seconds — her positions, her "God of Destruction" nickname, her point choreography, her member color. Same reduced-motion respect as the member carousel.
+* **RYUJIN BIAS Badge Easter Egg:** The "RYUJIN BIAS" badge is secretly clickable (and keyboard-accessible — Tab to it, press Enter/Space) — clicking it sets off a small burst of confetti squares in her three ITZY colors (red, blue, green), positioned exactly at the badge and cleaned back out of the page once the animation finishes. Skipped entirely under `prefers-reduced-motion`.
+* **"Ryujin Focus" Moodboard Filter:** A toggle button above the moodboard flips a `data-ryujin-focus` attribute on `<html>` (the same pattern the era/theme switchers use) — while it's on, every photocard WITHOUT a `data-ryujin="true"` marker fades down and loses its color, while the handful that DO have it stay full-strength with a small red ring, turning the general discography timeline into a highlight reel of her most iconic eras. The starting set of tagged songs is just one fan's best guess — easy to retag by hand.
+* **"Latest Upload" Link Card:** Points at INO's channel's own "Videos" tab (which YouTube already keeps sorted newest-first for most channels) — a real, always-roughly-current answer to "what's his newest video?" with zero API key and zero backend needed. Swapping the href for one exact video's URL later (the same "update it by hand" pattern the Temporary YouTube button already uses) makes it fully precise instead of just close.
+* **Back to Top Button:** A small floating circle in the bottom-right corner stays invisible until scrolling past a real distance (this page has genuine scroll depth now, between the main card and 31 photocards) — then fades in as a one-click shortcut back to the very top.
+* **Visit Counter:** A quiet "🖤 X Midzys have visited" line in the footer, backed by a real Firebase project (`ino-website-55ab0`) that goes up by 1 every page load. It's still gated behind a `FIREBASE_CONFIG` constant (same feature-flag pattern as the countdown banner) — setting that constant back to `null` is the instant off switch, hiding the line completely and stopping the Firebase SDK from even being downloaded. **Requires the Firestore database's security rules to actually be set** (see "Countdown Math"'s neighbor, "Visit Counter's Lazy-Loaded Firebase SDK," below, and the big rules comment sitting directly above `setUpVisitCounter()` in `index.html`) — without real rules limiting it to "read the count, or increment it by exactly 1," the database stays wide open to anyone.
 
 ---
 
@@ -90,6 +110,9 @@ The theme `<select>` stores one of three values — `'light'`, `'dark'`, or `'sy
 
 ### A Real Browser Bug: Transitioning a `color-mix()` That Depends on Another Changing Variable
 This one took real digging to track down. `background-color` used to be included in the page's "smooth fade between themes" transition, alongside `border-color` and `color`. That worked fine for months — until dark mode's `--bg`/`--bg-card` became `color-mix()` formulas that pull from `--wall` (an era-specific value). The bug: when BOTH `data-era` and `data-theme` change together (or even just one, if the color-mix() dependency chain is already active), the browser's transition engine sometimes locks onto a *stale* target color — as if it captured the "end color" using the *previous* era's `--wall` value, then never re-checks it, even though `getComputedStyle()` correctly reports the right color as a string the entire time. It's specifically a *painting* bug, not a cascade or specificity bug — confirmed by checking that `getComputedStyle(html).getPropertyValue('--bg')` and `getComputedStyle(body).getPropertyValue('--bg')` both showed the exact correct `color-mix(...)` string, while the actual rendered pixel color didn't match that string at all. Disabling the transition entirely (`transition: none`) made the color paint correctly every time — confirming the transition mechanism itself was the culprit. The fix: `background-color` was removed from the shared transition list (`border-color` and `color` still fade smoothly); wall/card colors now switch instantly on an era or theme change instead of fading, which is a small visual trade for "always paints the correct color."
+
+### The Invisible GitHub Button: One Wrong Comment Closer
+For a while, the GitHub and Share buttons rendered as plain, unstyled blue text-link — none of their circular-pill CSS was taking effect, even though the rule looked completely correct sitting right there in the file. The cause: a decorative CSS comment right above that rule was accidentally closed with `-->` (the HTML comment closer) instead of `*/` (the CSS one). CSS doesn't recognize `-->` as anything special, so that comment never actually closed — it just kept "eating" everything after it as comment text, including the entire `.github-link, .share-link{ position: fixed; ...}` rule, right up until the *next* real `*/` showed up several lines later (the closer of a different, unrelated comment). The browser wasn't ignoring the rule or overriding it — it never even saw it; that rule simply didn't exist as far as the CSS parser was concerned. Confirmed by enumerating `document.styleSheets[0].cssRules` directly in the browser and finding the rule genuinely absent from the parsed stylesheet. The fix was a single character: `-->` back to `*/`.
 
 ### Shared Dropdown Arrow State
 Both `<select>` dropdowns call a shared `setUpDropdownArrow(selectElement)` function, which adds/removes a `.is-open` CSS class on the select's wrapping `<span class="select-wrap">` (rather than relying on `:focus`):
@@ -144,6 +167,57 @@ seconds = floor((msRemaining % 60000) / 1000)         // leftover after minutes,
 ```
 Each step's `%` (remainder) is what stops the units from double-counting — without it, "days" would include the time already counted in "weeks" too. Hours/minutes/seconds are padded to 2 digits (`5` → `05`) so the line's width stays constant as it ticks, and the whole thing re-runs once per second via `setInterval(updateCountdownText, 1000)`.
 
+### Photocard Lightbox
+Every `.photocard` gets one shared click handler (not 31 separate ones):
+```
+Plain left-click          -> event.preventDefault() -> openLightbox(card)
+Ctrl/Cmd/Shift/middle-click -> handler returns early, real link behavior proceeds normally
+```
+`openLightbox()` reads the clicked card's own `<img src/alt>`, its caption `<span>`, and its `href`, and writes all three into the ONE lightbox element's image/caption/"Watch Music Video" link — so there's a single reusable pop-up instead of 31 near-identical hidden ones sitting unused in the page. Closing it (via the × button, clicking the dark backdrop, or `Escape`) returns keyboard focus to whichever photocard originally opened it, so a keyboard user's focus never just vanishes into thin air.
+
+### Installable, Offline PWA
+```
+<link rel="manifest" href="manifest.json">     -> browser knows how to install this as an app
+navigator.serviceWorker.register('service-worker.js') -> browser starts caching core files
+```
+`service-worker.js` implements a classic 3-step cache-first strategy: `install` saves a short list of core files (the HTML, the favicon, the profile photo) into a named cache; `activate` deletes any OLD cache left behind by a previous version (identified by `CACHE_NAME` no longer matching); `fetch` checks that cache FIRST for every single request the page makes, only reaching out to the real internet if that exact file isn't saved yet. That's the entire mechanism that makes offline loading possible — no special "offline mode" logic anywhere, just "check local storage before the network, every time."
+
+### Visit Counter's Lazy-Loaded Firebase SDK
+```javascript
+if (!FIREBASE_CONFIG) { return; }   // feature-flag check, same pattern as NEXT_COMEBACK_DATE
+Promise.all([
+  import('https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js'),
+  import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js')
+]).then(/* initializeApp, then increment(1) on a single shared "stats/visits" doc */);
+```
+`import()` used as a *function call* (not the more familiar `import ... from '...'` line at the top of a file) is a dynamic import — it's allowed to run from the middle of an ordinary classic `<script>` (no `type="module"` needed anywhere on the page), and critically, it doesn't fetch anything at all until that exact line actually executes. Since it's guarded behind the `FIREBASE_CONFIG` check, the entire Firebase SDK — a real, non-trivial amount of JavaScript — never gets downloaded for the vast majority of visitors who haven't turned the counter on.
+
+### Visit Counter's Firestore Security Rules
+The `FIREBASE_CONFIG` object being public is fine (that's how Firebase web configs work by design), but the *database* still needs its own rules set in the Firebase console (Firestore Database → Rules) — otherwise "test mode" leaves it wide open to anyone:
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /stats/visits {
+      allow read: if true;
+      allow create: if request.resource.data.count == 1;
+      allow update: if request.resource.data.count is int
+                    && request.resource.data.count == resource.data.count + 1;
+      allow delete: if false;
+    }
+  }
+}
+```
+This is deliberately split into `create` and `update` rather than one combined `write` rule — the very FIRST visit ever is creating this document from nothing, so there's no existing `resource.data.count` yet to compare against. A single rule that always checks `resource.data.count + 1` would actually reject that first visit outright, since reading `.data` off a document that doesn't exist is an error, and Firestore treats a rule-evaluation error as "deny." `create` only requires the brand new document to start at exactly `1`; `update` is what mathematically requires every later visit to be EXACTLY "the current count plus one" — so even though writes are allowed at all, nobody can abuse that to set the counter to an arbitrary number, wipe it, or write unrelated data into that document. This same comment (with the exact rules to paste in) also lives directly above `setUpVisitCounter()` in `index.html`.
+
+### Ryujin Focus Filter
+```
+Click toggle -> <html data-ryujin-focus="true">
+  -> :root[data-ryujin-focus="true"] .photocard:not([data-ryujin]) { opacity: 0.28; filter: grayscale(60%); }
+  -> :root[data-ryujin-focus="true"] .photocard[data-ryujin]       { box-shadow: 0 0 0 2px var(--red), ...; }
+```
+Same "one attribute on `<html>`, let CSS attribute selectors do the rest" pattern the era and light/dark switchers already use — `data-ryujin` is a plain marker attribute added by hand to a chosen subset of photocards in the HTML, and the toggle button's own `aria-pressed` attribute doubles as its visual "on" state, so there's only one piece of state instead of two that could fall out of sync.
+
 ---
 
 ## 📘 Concepts Demonstrated
@@ -167,13 +241,19 @@ Each step's `%` (remainder) is what stops the units from double-counting — wit
 * **Backdrop Filters for Legibility Without Sacrificing Visuals:** `backdrop-filter: blur()` panels keep text readable over busy photos without needing to dim or desaturate the photos themselves.
 * **Semantic, Dependency-Free HTML/CSS/JS:** No frameworks or libraries — every interaction is built from plain DOM APIs (`classList`, `addEventListener`, `getAttribute`/`setAttribute`, `URL`/`URLSearchParams`, `history.replaceState`).
 * **Brand-Accurate Iconography:** Hand-coded inline SVGs matching each platform's real logo colors and shapes, including a multi-layer TikTok mark built from one reused path and the standard GitHub octocat mark.
+* **Progressive Web App Fundamentals:** A web manifest plus a cache-first service worker are the entire mechanism behind "installable, works offline" — no framework, no build-time PWA plugin, just two small files and one `navigator.serviceWorker.register()` call, guarded behind a feature check the same way every other optional browser API on this page is.
+* **Lazy-Loading an Optional Dependency:** The visit counter's Firebase SDK is only ever fetched via a dynamic `import()` INSIDE the feature's own off-switch check — meaning a real third-party dependency can sit fully wired up in the source code while costing zero bytes of network traffic for anyone who hasn't turned that specific feature on.
+* **CSS Custom Properties as an Animation "Payload," Set Per-Element From JS:** Each confetti piece gets its OWN random `--confetti-x`/`--confetti-y`/`--confetti-rot` custom properties set directly via `element.style.setProperty()`, which a single shared `@keyframes` rule then reads — letting 18 elements all run the exact same named animation while each one still flies off in a completely different, individually-randomized direction.
+* **Structured Data for Search Engines:** A JSON-LD `<script type="application/ld+json">` block describes the page using schema.org's shared vocabulary (a `Person` with `sameAs` links to every social profile) — the same machine-readable format Google and other search engines already know how to parse into a richer search result card, without requiring any special server-side integration.
+* **Accessible Easter Eggs:** The confetti-triggering badge isn't just click-only decoration — `role="button"`, `tabindex="0"`, a real keyboard handler for Enter/Space, and a descriptive `aria-label` ("RYUJIN BIAS — click for a surprise") mean a keyboard or screen-reader user can discover and trigger it too, not just a mouse user who happens to hover over it.
 
 ---
 
 ## 🔧 Requirements
 
-* **To use the site:** A modern browser with `backdrop-filter` and `color-mix()` support (Chrome/Edge 111+, Safari 16.2+, Firefox 113+ — anything from 2023 onward). No internet connection is required after the initial load, aside from the Google Fonts CDN request. Copy-to-clipboard additionally requires a browser granting Clipboard API access, which normally happens automatically on a real click in a secure (`https://`) context.
+* **To use the site:** A modern browser with `backdrop-filter` and `color-mix()` support (Chrome/Edge 111+, Safari 16.2+, Firefox 113+ — anything from 2023 onward). No internet connection is required after the initial load, aside from the Google Fonts CDN request (and, if the visit counter's ever turned on, the Firebase CDN). Copy-to-clipboard additionally requires a browser granting Clipboard API access, which normally happens automatically on a real click in a secure (`https://`) context.
 * **To edit or host it:** Nothing beyond a text editor and, optionally, Git/GitHub for hosting — there's no `npm install`, no build command, and nothing to compile.
+* **For the newer browser-feature-dependent bits:** `navigator.share()` (the native Share button) is mainly a phone/tablet feature — desktop browsers automatically get the clipboard-copy fallback instead, so nothing breaks there. The service worker (offline/installable support) requires being served over `https://` — GitHub Pages already serves this site that way, but it won't register at all if opened directly from a local file (`file://`) instead of a real local/live server; that's a standard browser security rule for service workers, not a bug in this project.
 
 ---
 
@@ -182,7 +262,8 @@ Each step's `%` (remainder) is what stops the units from double-counting — wit
 This is a public repository — anyone can read every file and every past commit. Here's what that means for what's inside it:
 
 * **The Discord invite, the `theaceofgenz@gmail.com` address, and every social link are meant to be public.** This whole site is a "link in bio" page — sharing those links out in the open is the entire point of it, exactly the same as they already appear on the live site anyone can visit. There's nothing to hide here on purpose.
-* **No secrets live in this repo.** No API keys, passwords, tokens, or `.env` files — this is a plain static site with no backend, so there's nothing like that to accidentally leak in the first place. `.gitignore` also keeps out OS junk files, editor settings, and any `.env`-style file, just in case one ever gets added later.
+* **No *secret* secrets live in this repo.** No passwords, tokens, or `.env` files — this is still a static site with no server of its own, so there's no traditional backend secret to accidentally leak. `.gitignore` also keeps out OS junk files, editor settings, and any `.env`-style file, just in case one ever gets added later.
+* **The visit counter's `FIREBASE_CONFIG` object IS visible in `index.html`, and that's intentional, not an oversight.** Firebase's own documentation is explicit that a web app's config (`apiKey`, `projectId`, etc.) isn't a secret — it just tells a visitor's browser which Firebase project to talk to, the same way a phone number identifies which phone to call without being a "secret" itself. The actual security boundary lives entirely in that project's Firestore *security rules* (set on firebase.google.com, not in this repo — see "Visit Counter's Firestore Security Rules" further up), which are what actually decide whether a given read/write is allowed. **This only holds as long as those rules are actually set correctly** — an unrestricted "test mode" database paired with a public config would genuinely be an open door, so the rules are the one real to-do item here, not the config being visible.
 * **Commits use a GitHub "no-reply" identity, not a real personal email.** Every commit made in this project (from here on) is signed with `SVerma2696@users.noreply.github.com` instead of a real inbox — GitHub automatically understands this special address and still credits the commit to the right account, but it means nobody can copy a real personal email address out of the commit history (something spam bots regularly scrape public repos looking for). This is set as a *repo-only* Git setting (`git config user.email` without `--global`), so it doesn't change the identity used for any other, unrelated project on the same computer.
 
 ---

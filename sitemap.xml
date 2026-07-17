@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This is the OTHER note mentioned in robots.txt — a "table of
+     contents" for search engines. Since this whole website is just
+     ONE single page (index.html does everything), this list only
+     ever has one address in it. A bigger, multi-page site would
+     list one <url> block per page instead.
+
+     "lastmod" just means "the last time this page's content
+     changed" — search engines use it as a hint for how often to
+     bother re-checking the page. It's fine if this drifts out of
+     date a little; nothing breaks, it just stops being a perfectly
+     fresh hint. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://sverma2696.github.io/ino_website/</loc>
+    <lastmod>2026-07-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

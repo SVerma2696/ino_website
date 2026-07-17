@@ -11,6 +11,28 @@
      right here in the project folder next to index.html -->
 <link rel="icon" type="image/png" href="crown.png">
 
+<!-- ============================================
+     INSTALLABLE APP (PWA) SETUP 📲
+     These few lines are what let a phone or computer treat this
+     website almost like a real, installable app — with its own
+     icon on the home screen, its own little standalone window
+     (no browser address bar), and (thanks to service-worker.js,
+     registered down in the <script> at the bottom of the page)
+     the ability to still open even with no internet connection.
+
+     "manifest.json" is a tiny separate file that answers "if
+     someone installs this, what should its name/icon/colors be?" —
+     browsers go looking for it automatically once they see this
+     <link> tag. The "apple-mobile-web-app-*" tags exist because
+     Safari on iPhone/iPad historically ignores the manifest file
+     for some of these details and wants its own separate,
+     Apple-specific tags instead. -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="crown.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="INO">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 <!-- This little line tells a phone browser what color to paint its
      own toolbar/status bar so it blends in with the page instead
      of staying plain white or black. This starting value matches
@@ -41,6 +63,41 @@
 <meta name="twitter:title" content="INO · @aceofgenz">
 <meta name="twitter:description" content="Your favorite OT5 Midzy creator. Daily content on every platform, weekly FMOs on @INOT5, and the INO-IT-ALLS Discord.">
 <meta name="twitter:image" content="https://sverma2696.github.io/ino_website/ino-pfp.jpg">
+
+<!-- ============================================
+     STRUCTURED DATA FOR SEARCH ENGINES 🔍
+     This <script> block is invisible on the page too, just like
+     the "og:"/"twitter:" tags above — but instead of talking to
+     Discord/iMessage/Twitter, this one is a note written directly
+     to SEARCH ENGINES like Google. "JSON-LD" is just a fancy name
+     for "a plain JSON object, sitting inside a <script> tag,
+     following a shared vocabulary search engines already know how
+     to read" (that shared vocabulary is called "schema.org" — see
+     the "@context" line below). Filling this out is what lets a
+     Google search result show a richer little card (a photo, an
+     official name, links to social profiles) instead of just a
+     plain blue link with a one-line description underneath it.
+     "sameAs" specifically is schema.org's way of saying "this
+     Person is ALSO the same person as whoever owns these other
+     profile pages," which is what ties INO's YouTube/Instagram/
+     TikTok all together as belonging to one real identity. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "INO",
+  "alternateName": "@aceofgenz",
+  "description": "Your favorite OT5 Midzy creator. Daily content on every platform, weekly FMOs on @INOT5, and the INO-IT-ALLS Discord.",
+  "url": "https://sverma2696.github.io/ino_website/",
+  "image": "https://sverma2696.github.io/ino_website/ino-pfp.jpg",
+  "sameAs": [
+    "https://youtube.com/@aceofgenz",
+    "https://youtube.com/@inot5",
+    "https://www.instagram.com/aceofgenz",
+    "https://tiktok.com/@aceofgenz"
+  ]
+}
+</script>
 
 <!--
   ============================================
@@ -293,19 +350,20 @@
      entirely: those colors now switch instantly instead of fading,
      which is a small visual trade worth making for "always shows
      the right, readable color." */
-  body, .bg-collage::after, .badge, .era-select, .link-card, .photocard, .glow, .theme-select, .github-link{
+  body, .bg-collage::after, .badge, .era-select, .link-card, .photocard, .glow, .theme-select, .github-link, .share-link{
     transition: border-color 0.5s ease;
   }
 
   /* ============================================
-     THE GITHUB CIRCLE 🐙
-     A little round button, pinned to the top-left corner of the
-     browser window forever (position: fixed), no matter how far
-     someone scrolls down the page.
-     ============================================ */
-  .github-link{
+     THE GITHUB CIRCLE 🐙 (and its little sibling, the SHARE CIRCLE)
+     Two little round buttons, both pinned to the top-left corner
+     of the browser window forever (position: fixed), no matter how
+     far someone scrolls down the page — the GitHub one on top, and
+     a second "Share" button stacked right underneath it. They
+     share this exact same look (round, same size, same hover
+     "pop"), so both get styled together in one place. */
+  .github-link, .share-link{
     position: fixed;
-    top: 16px;
     left: 16px;
     z-index: 60;
     width: 40px;
@@ -322,9 +380,57 @@
     box-shadow: 0 2px 10px rgba(51,38,46,0.14);
     transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.15s ease;
   }
-  .github-link:hover{ transform: scale(1.07); }
-  .github-link:focus-visible{ outline: 2px solid var(--red); outline-offset: 2px; }
-  .github-link svg{ width:18px; height:18px; }
+  .github-link{ top: 16px; }
+  /* "64px" is just "16px (the GitHub button's own top spot) + 40px
+     (how tall that button is) + 8px (a little breathing room in
+     between)" — stacking it directly below instead of guessing */
+  .share-link{ top: 64px; }
+  .github-link:hover, .share-link:hover{ transform: scale(1.07); }
+  .github-link:focus-visible, .share-link:focus-visible{ outline: 2px solid var(--red); outline-offset: 2px; }
+  .github-link svg, .share-link svg{ width:18px; height:18px; }
+
+  /* ============================================
+     BACK TO TOP BUTTON ⬆️
+     A little floating circle in the bottom-right corner — but
+     unlike the GitHub/Share circles up top, this one starts
+     completely invisible AND un-clickable ("pointer-events: none"
+     on top of "opacity: 0"), only fading into view once someone's
+     actually scrolled down far enough that jumping back to the top
+     by hand would be annoying. With 31 photocards plus the main
+     card, this page has real scroll depth now, especially on a
+     phone — this button's the shortcut back up to the start. */
+  .back-to-top{
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 60;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    box-shadow: 0 2px 10px rgba(51,38,46,0.14);
+    opacity:0;
+    pointer-events:none;
+    transform: translateY(8px);
+    transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.3s ease, border-color 0.3s ease;
+  }
+  /* JavaScript adds/removes this one class as someone scrolls up
+     and down — the actual fade/slide animation is all still plain
+     CSS, watching for that one class to show up */
+  .back-to-top.is-visible{
+    opacity:1;
+    pointer-events:auto;
+    transform: translateY(0);
+  }
+  .back-to-top.is-visible:hover{ transform: translateY(-3px); }
+  .back-to-top:focus-visible{ outline: 2px solid var(--red); outline-offset: 2px; }
+  .back-to-top svg{ width:18px; height:18px; }
 
   /* ============================================
      SHARED DROPDOWN ARROW 🔽🔼
@@ -747,9 +853,51 @@
     border-color: color-mix(in srgb, var(--blue) 60%, transparent);
     color: color-mix(in srgb, var(--blue) 25%, black);
     background: color-mix(in srgb, var(--blue) 14%, transparent);
+    /* A tiny hidden easter egg — clicking this badge sets off a
+       little confetti burst (see "RYUJIN BIAS BADGE EASTER EGG" in
+       the <script> section). "cursor:pointer" is the one small
+       visual hint that something's clickable here at all, since
+       otherwise this looks exactly like the plain, non-interactive
+       "OT5 MIDZY" badge right next to it */
+    cursor:pointer;
+    transition: transform 0.15s ease;
+  }
+  .badge.bias:hover{ transform: scale(1.05); }
+  .badge.bias:focus-visible{
+    outline: 2px solid var(--red);
+    outline-offset: 2px;
   }
   :root[data-theme="dark"] .badge.bias{
     color: color-mix(in srgb, var(--blue) 35%, white);
+  }
+
+  /* Each little square that goes flying when the RYUJIN BIAS badge
+     gets clicked — "position:fixed" (not "absolute") is what lets
+     JavaScript place each one at an exact spot on the SCREEN
+     (right where the badge was clicked), regardless of how far
+     down the page someone has scrolled */
+  .confetti-piece{
+    position: fixed;
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    pointer-events:none;
+    z-index: 250;
+    opacity: 1;
+    animation: confetti-burst 900ms ease-out forwards;
+  }
+
+  /* "--confetti-x/-y/-rot" are custom properties too, exactly like
+     --bg or --red — except JavaScript sets a fresh, RANDOM value
+     for these three on every single confetti piece individually
+     (see the <script>), which is what makes every piece fly off
+     in its own unique direction instead of all 18 of them moving
+     in perfect unison like one big, boring, single blob */
+  @keyframes confetti-burst{
+    to{
+      transform: translate(var(--confetti-x), var(--confetti-y)) rotate(var(--confetti-rot));
+      opacity: 0;
+    }
   }
 
   /* ============================================
@@ -817,6 +965,39 @@
   .era-select option{
     color: var(--text);
     background: var(--bg-card);
+  }
+
+  /* A tiny round "dice" button sitting right next to the era
+     dropdown — same pill-family colors as the RYUJIN BIAS badge
+     (a blue tint), just shaped like a circle instead of a pill so
+     it visually reads as its own separate little button */
+  .shuffle-button{
+    flex-shrink:0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid color-mix(in srgb, var(--lavender) 75%, transparent);
+    background: color-mix(in srgb, var(--lavender) 18%, var(--bg-card));
+    color: color-mix(in srgb, var(--lavender) 25%, black);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    padding:0;
+    box-shadow: 0 1px 3px rgba(51,38,46,0.06);
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+  }
+  :root[data-theme="dark"] .shuffle-button{
+    color: color-mix(in srgb, var(--lavender) 35%, white);
+  }
+  .shuffle-button svg{ width:15px; height:15px; }
+  .shuffle-button:hover{
+    transform: translateY(-1px) rotate(45deg);
+    box-shadow: 0 4px 12px rgba(51,38,46,0.14);
+  }
+  .shuffle-button:focus-visible{
+    outline: 2px solid var(--red);
+    outline-offset: 2px;
   }
 
   /* The stack of clickable link buttons */
@@ -961,6 +1142,34 @@
     transform: translateX(-50%) translateY(0);
   }
 
+  /* Same "fades and slides gently into view" trick as the
+     "Copied!" pill above, just parked next to the Share button
+     instead of the email button (that button floats fixed in a
+     screen corner rather than sitting inside the card, so this
+     toast is "position: fixed" too, instead of "absolute") */
+  .share-toast{
+    position: fixed;
+    top: 74px;
+    left: 64px;
+    z-index: 61;
+    background: var(--text);
+    color: var(--bg-card);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.4px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    white-space:nowrap;
+    opacity:0;
+    transform: translateX(-6px);
+    pointer-events:none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .share-toast.is-visible{
+    opacity:1;
+    transform: translateX(0);
+  }
+
   /* ============================================
      LITTLE DOWN ARROW ⌄
      This is the small "V" shaped arrow that lives at the very
@@ -1099,6 +1308,258 @@
   footer .heart{ color: var(--red); }
 
   /* ============================================
+     FANDOM CORNER 🖤
+     Two small extra cards, sitting right underneath the main card
+     — the first introduces all 5 ITZY members one at a time, and
+     the second is a standing spotlight just for Ryujin, since
+     she's already INO's stated bias up in the "RYUJIN BIAS" badge.
+     Just like the footer and moodboard, this is a direct child of
+     <body> (not nested inside .page), which is what lets it get
+     its own slot in the desktop grid layout alongside everything
+     else instead of getting trapped inside the smaller card. */
+  .fandom-corner{
+    width:100%;
+    max-width:480px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    margin: 0 0 24px;
+  }
+
+  .spotlight-card{
+    background: color-mix(in srgb, var(--bg-card) 88%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 18px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  .spotlight-label{
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 10px;
+    text-align:center;
+  }
+
+  /* MEMBER SPOTLIGHT CAROUSEL — every member's little "slide" sits
+     stacked exactly on top of every other one ("position:
+     absolute; inset:0" on each), and JavaScript just switches
+     which ONE has the ".is-active" class at any given moment. The
+     ones that aren't active fade all the way down to invisible
+     instead of actually being removed, which is what makes
+     swapping between them feel like a smooth crossfade instead of
+     a jarring pop */
+  .member-track{
+    position:relative;
+    min-height: 54px;
+  }
+  .member-slide{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    opacity:0;
+    pointer-events:none;
+    transition: opacity 0.4s ease;
+  }
+  .member-slide.is-active{
+    opacity:1;
+    pointer-events:auto;
+  }
+  .member-name{
+    font-family: var(--display);
+    font-size: 20px;
+    letter-spacing: 1px;
+  }
+  /* Each member gets her own little crayon color via a
+     "data-accent" attribute right on her slide, instead of every
+     name showing up in the same one fixed color — small touch,
+     but it's what makes this feel like 5 different people instead
+     of 5 copies of the same template */
+  .member-slide[data-accent="red"] .member-name{ color: var(--red); }
+  .member-slide[data-accent="blue"] .member-name{ color: var(--blue); }
+  .member-slide[data-accent="green"] .member-name{ color: var(--green); }
+  .member-slide[data-accent="pink"] .member-name{ color: var(--pink); }
+  .member-slide[data-accent="lavender"] .member-name{ color: var(--lavender); }
+
+  .member-role{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    text-align:center;
+  }
+
+  .member-controls{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    margin-top:10px;
+  }
+  .member-nav{
+    background:none;
+    border:none;
+    color: var(--muted);
+    font-size: 20px;
+    line-height:1;
+    cursor:pointer;
+    padding: 4px 10px;
+    border-radius:6px;
+  }
+  .member-nav:hover{ color: var(--text); }
+  .member-nav:focus-visible{ outline: 2px solid var(--red); outline-offset:2px; }
+
+  /* The little row of dots underneath — one per member — gets
+     built entirely by JavaScript (see "MEMBER SPOTLIGHT CAROUSEL"
+     in the <script>), so this page never has to remember to keep
+     a hardcoded dot count in sync with a hardcoded member count */
+  .member-dots{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .member-dot{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    border:none;
+    background: var(--border);
+    cursor:pointer;
+    padding:0;
+  }
+  .member-dot.is-active{ background: var(--muted); }
+
+  /* BIAS SPOTLIGHT — one line of text that quietly swaps itself
+     out for a different fun fact every few seconds. "min-height"
+     stops the little card from changing height (and everything
+     below it jiggling up/down) just because a longer or shorter
+     fact happens to be showing right now */
+  .bias-fact{
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height:1.5;
+    color: var(--text);
+    text-align:center;
+    margin:0;
+    min-height: 2.4em;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+  .bias-fact.is-fading{ opacity: 0; }
+
+  /* ============================================
+     PHOTOCARD LIGHTBOX 🔍
+     Clicking a photocard used to jump STRAIGHT to YouTube in a
+     new tab — useful, but a little jarring if someone just wanted
+     to browse the pictures for a minute. Now, clicking one instead
+     opens this little pop-up "lightbox" showing that one photo
+     full-size, with its own "Watch Music Video" button inside —
+     so looking through the whole moodboard doesn't mean leaving
+     the page (and re-finding your place) 31 separate times.
+
+     This is one single lightbox element, reused for every single
+     photocard — the JavaScript just swaps out its picture, caption,
+     and video link each time a different card gets clicked, rather
+     than building 31 separate hidden pop-ups that all do the same
+     job. "role="dialog" aria-modal="true"" tells screen readers
+     "everything outside this box is temporarily off-limits until
+     it closes," which is the standard, accessible way to mark up
+     a pop-up like this one. */
+  .lightbox{
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 24px;
+    /* A solid dark backdrop, on purpose — no matter which pastel
+       or bold era color is active, the photo inside always needs
+       to stand out clearly against whatever's behind it */
+    background: rgba(10,8,12,0.86);
+  }
+  /* Same "hidden means REALLY hidden" belt-and-suspenders trick
+     used elsewhere on this page: the HTML "hidden" attribute
+     already does this, but spelling it out in CSS too means
+     nothing can accidentally turn this back into a flex box */
+  .lightbox[hidden]{ display:none; }
+
+  .lightbox-card{
+    position:relative;
+    width:100%;
+    max-width: 380px;
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  .lightbox-img{
+    width:100%;
+    max-height: 50vh;
+    /* "contain" (not "cover") again, same reasoning as every other
+       photo on this page — the whole picture stays visible, never
+       cropped, whatever shape it happens to be */
+    object-fit:contain;
+    border-radius: 10px;
+    background: var(--bg);
+    display:block;
+  }
+
+  .lightbox-caption{
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.6px;
+    color: var(--text);
+    text-align:center;
+  }
+
+  .lightbox-watch{
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight:600;
+    letter-spacing:0.4px;
+    color: white;
+    background: var(--red);
+    border: none;
+    border-radius: 999px;
+    padding: 10px 22px;
+    text-decoration:none;
+    cursor:pointer;
+    transition: transform 0.15s ease;
+  }
+  .lightbox-watch:hover{ transform: translateY(-1px); }
+  .lightbox-watch:focus-visible{ outline: 2px solid var(--text); outline-offset: 2px; }
+
+  .lightbox-close{
+    position:absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius:50%;
+    border: none;
+    background: color-mix(in srgb, var(--bg) 60%, transparent);
+    color: var(--text);
+    font-size: 18px;
+    line-height:1;
+    cursor:pointer;
+  }
+  .lightbox-close:hover{ background: var(--bg); }
+  .lightbox-close:focus-visible{ outline: 2px solid var(--red); outline-offset:2px; }
+
+  /* ============================================
      "GUESS WHO" MOODBOARD 🖼️
      These are extra little picture frames, like photocards
      scattered on a desk. Right now every single one shows
@@ -1124,6 +1585,47 @@
     color: var(--muted);
     margin: 4px 0 12px;
     text-shadow: 0 0 10px var(--bg-card), 0 0 4px var(--bg-card);
+  }
+
+  .ryujin-focus-toggle{
+    display:block;
+    margin: 0 auto 16px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 7px 16px;
+    cursor:pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  }
+  /* "aria-pressed" isn't just for screen readers here — the JS
+     flips this same attribute for the visual "is it turned on"
+     look too, so there's only ONE piece of state to keep track of
+     (no separate ".is-active" CSS class needed alongside it) */
+  .ryujin-focus-toggle[aria-pressed="true"]{
+    color: var(--red);
+    border-color: color-mix(in srgb, var(--red) 60%, transparent);
+    background: color-mix(in srgb, var(--red) 14%, var(--bg-card));
+  }
+  .ryujin-focus-toggle:focus-visible{
+    outline: 2px solid var(--red);
+    outline-offset: 2px;
+  }
+
+  /* While Ryujin Focus is switched on, every photocard WITHOUT a
+     "data-ryujin" attribute fades down and loses its color —
+     while the ones WITH it stay at full strength and get a little
+     red ring, so they visually jump forward from the crowd */
+  :root[data-ryujin-focus="true"] .photocard:not([data-ryujin]){
+    opacity: 0.28;
+    filter: grayscale(60%);
+  }
+  :root[data-ryujin-focus="true"] .photocard[data-ryujin]{
+    box-shadow: 0 0 0 2px var(--red), 0 6px 16px rgba(51,38,46,0.14);
   }
 
   /* Both rows of picture frames share this same recipe */
@@ -1167,8 +1669,10 @@
     color:inherit;
     cursor:pointer;
     /* This makes the little "lift up" wiggle on hover feel smooth
-       instead of snapping instantly */
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+       instead of snapping instantly, AND makes the Ryujin Focus
+       toggle's dim/undim effect fade gently too, instead of
+       instantly popping between "normal" and "faded out" */
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease, filter 0.3s ease;
   }
 
   /* Since these are real, clickable links now, someone tabbing
@@ -1309,21 +1813,24 @@
     /* "grid-template-areas" is basically a little map drawn with
        words — each row of quotes is one row of the page, and
        each word is which element goes in that square. Writing
-       "left" in both rows tells the grid "this one column spans
-       both rows," which is exactly how the tall photocard stacks
-       end up running alongside both the card AND the footer */
+       "left" in all three rows tells the grid "this one column
+       spans all three rows," which is exactly how the tall
+       photocard stacks end up running alongside the card, the new
+       Fandom Corner cards, AND the footer, all at once */
     body{
       display:grid;
       grid-template-columns: auto minmax(0, 480px) auto;
       grid-template-areas:
-        "left page  right"
-        "left foot  right";
+        "left page   right"
+        "left fandom right"
+        "left foot   right";
       column-gap: 40px;
       justify-content:center;
       align-items:start;
     }
 
     .page{ grid-area: page; }
+    .fandom-corner{ grid-area: fandom; align-self:start; }
     footer{ grid-area: foot; align-self:start; }
 
     /* ============================================
@@ -1350,7 +1857,11 @@
        pinned every card to an exact pixel spot by hand and started
        overlapping once the timeline grew past 17 songs. */
     .gallery-left, .gallery-right{
-      grid-row: 1 / 3;
+      /* "1 / 4" spans all three named rows now (page, fandom, and
+         foot) instead of just the first two — since a fourth row
+         line always exists automatically right after the last
+         named row, "4" here means "all the way to the bottom" */
+      grid-row: 1 / 4;
       align-self: start;
       /* ".gallery-left"/".gallery-right" also carry the plain
          ".gallery" class (for the mobile/tablet flex-wrap row
@@ -1427,6 +1938,86 @@
     /* The page just appears right away instead of fading in —
        some people find fading/moving content disorienting */
     body{ animation: none; }
+    /* The member carousel and bias fact card still WORK the same
+       for someone with reduced-motion turned on (the JS still
+       swaps which member/fact is showing) — they just swap
+       instantly now instead of crossfading, and (see the JS)
+       the member carousel stops auto-advancing on its own too,
+       so nothing on the page moves without someone asking it to */
+    .member-slide{ transition: none; }
+    .bias-fact{ transition: none; }
+    .back-to-top{ transition: none; }
+  }
+
+  /* ============================================
+     PRINT STYLESHEET 🖨️
+     Everything above this point was designed for a glowing
+     screen — hitting Ctrl+P (or Cmd+P) used to print out ALL of
+     that literally: the blurry photo background, all 31 scattered
+     photocards, floating circle buttons nobody can click on paper,
+     all of it, spread across a messy pile of pages. This block
+     only turns on for an ACTUAL print job (or print preview) and
+     hides everything that only makes sense on a screen, leaving
+     just a clean, single, readable page: INO's name, bio, and the
+     list of links — plus each link's real web address printed
+     right next to it, since a piece of paper obviously can't be
+     clicked. */
+  @media print{
+    /* Anything that's purely decorative, purely interactive, or
+       just doesn't make sense outside a browser tab gets hidden
+       completely for print */
+    .bg-collage,
+    .github-link,
+    .share-link,
+    .share-toast,
+    .theme-select-wrap,
+    .shuffle-button,
+    .ryujin-focus-toggle,
+    .gallery-label,
+    .gallery,
+    .fandom-corner,
+    .comeback-banner,
+    .lightbox,
+    .back-to-top,
+    .select-arrow{
+      display:none !important;
+    }
+
+    /* Printing usually means "I want to actually READ this," not
+       "I want to admire today's era colors" — plain black text on
+       plain white paper uses far less ink and stays readable no
+       matter which wildly-different color combination happened to
+       be on screen the moment someone hit print */
+    html, body, .intro, .link-card, .badge{
+      background: white !important;
+      color: black !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
+      border-color: #ccc !important;
+    }
+
+    /* Forces the simple single-column phone layout even if the
+       browser printing this happens to have a really wide window
+       open (the desktop 3-column grid layout is built for a
+       screen, not a printed page) */
+    body{ display:block !important; }
+    .page{ max-width: 100% !important; }
+
+    .link-card{
+      break-inside: avoid;
+    }
+    /* This is the actual trick: CSS can print the value of an
+       HTML attribute as if it were regular text, using
+       "attr(href)" — so every link button also prints its real,
+       plain-text web address directly underneath its title,
+       exactly like this page had a working link the whole time,
+       even once it's sitting on a desk instead of a screen */
+    .link-card[href]::after{
+      content: " — " attr(href);
+      display:block;
+      font-size: 9px;
+      color: #555;
+    }
   }
 
   /* ============================================
@@ -1550,6 +2141,47 @@
     <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
   </svg>
 </a>
+
+<!-- ============================================
+     SHARE BUTTON 📤
+     A little round button stacked right underneath the GitHub one.
+     Clicking it asks the DEVICE ITSELF to share this page — on a
+     phone, that pops up the real native "Share" sheet (Messages,
+     Instagram DM, AirDrop, whatever's installed), the exact same
+     one every other app on the phone uses. That's a browser
+     feature called the "Web Share API," and not every browser
+     supports it (mostly a phone/tablet thing) — the JS at the
+     bottom of the page checks for it, and quietly falls back to
+     just copying the page's link to the clipboard on browsers
+     (mostly desktop ones) that don't have a real share sheet to
+     offer. Either way, clicking this button always DOES something
+     useful, it just adapts to whatever the visitor's own browser
+     can actually do. -->
+<button type="button" class="share-link" id="share-button" aria-label="Share this page">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 15V3"/>
+    <path d="M7 8l5-5 5 5"/>
+    <path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/>
+  </svg>
+</button>
+<!-- This little pill only shows up for a second or two, right
+     after clicking Share on a browser that had to fall back to
+     copying the link — same idea as the "Copied!" pill on the
+     email button further down the page. aria-live="polite" makes
+     a screen reader calmly announce it on its own. -->
+<span class="share-toast" id="share-toast" aria-live="polite">Link copied!</span>
+
+<!-- ============================================
+     BACK TO TOP BUTTON ⬆️
+     Starts invisible, fades into view once JavaScript notices
+     someone has scrolled down a real distance — see "BACK TO TOP
+     BUTTON" in the <script> section. -->
+<button type="button" class="back-to-top" id="back-to-top" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 19V5"/>
+    <path d="M5 12l7-7 7 7"/>
+  </svg>
+</button>
 
 <!-- ============================================
      LIGHT / DARK / SYSTEM DROPDOWN 🌙☀️🖥️
@@ -1687,7 +2319,15 @@
            is dressed up for -->
       <div class="badges">
         <span class="badge ot5">OT5 MIDZY</span>
-        <span class="badge bias">RYUJIN BIAS</span>
+        <!-- This one's secretly clickable — a tiny "easter egg."
+             "role="button" tabindex="0"" is what turns a plain
+             <span> into something a keyboard user can actually Tab
+             to and press Enter/Space on, the exact same trick the
+             copy-to-clipboard email address up in the Ads/Promos
+             button already uses (search this file for "copy-email"
+             to compare) — real buttons get all of this for free,
+             but a <span> needs it spelled out by hand. -->
+        <span class="badge bias" id="bias-badge" role="button" tabindex="0" aria-label="RYUJIN BIAS — click for a surprise">RYUJIN BIAS</span>
 
         <!-- ============================================
              This pill LOOKS like the two badges next to it, but
@@ -1726,6 +2366,25 @@
             <path d="M1 1l4 4 4-4"/>
           </svg>
         </span>
+
+        <!-- ============================================
+             RANDOM ERA SHUFFLE BUTTON 🎲
+             A tiny round button right next to the era dropdown —
+             clicking it picks a random era from the SAME list of
+             options the dropdown already has, and applies it the
+             exact same way choosing one by hand would. It's a fun
+             little "surprise me" shortcut for browsing all the
+             different looks without clicking the dropdown open
+             and scrolling through the whole list every time. -->
+        <button type="button" class="shuffle-button" id="shuffle-button" aria-label="Jump to a random era theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M16 3h5v5"/>
+            <path d="M4 20L21 3"/>
+            <path d="M21 16v5h-5"/>
+            <path d="M15 15l6 6"/>
+            <path d="M4 4l5 5"/>
+          </svg>
+        </button>
       </div>
     </div>
 
@@ -1859,6 +2518,32 @@
         </span>
       </a>
 
+      <!-- LATEST UPLOAD BUTTON: a real "what's INO's newest video?"
+           link, WITHOUT needing YouTube's official Data API (which
+           needs its own API key someone would have to manage) or a
+           backend server to go look it up automatically. The href
+           below points at the channel's own "Videos" tab, which
+           YouTube itself already keeps sorted newest-first for most
+           channels — so it's a zero-maintenance, always-roughly-
+           current stand-in for "the latest upload."
+
+           For a link to one EXACT specific video instead (the most
+           accurate version of this button), just swap the href
+           below for that video's own URL once it's posted, and
+           update the link-sub text underneath to its real title —
+           the same "update it by hand whenever something changes"
+           pattern already used by the Temporary YouTube button
+           right below this one. -->
+      <a class="link-card" href="https://youtube.com/@aceofgenz/videos" target="_blank" rel="noopener">
+        <span class="icon youtube">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.55A3.02 3.02 0 0 0 .5 6.19 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.81 3.02 3.02 0 0 0 2.12 2.14C4.5 20.5 12 20.5 12 20.5s7.5 0 9.38-.55a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.81zM9.75 15.5v-7l6.25 3.5-6.25 3.5z"/></svg>
+        </span>
+        <span class="link-text">
+          <span class="link-title">Latest Upload</span>
+          <span class="link-sub">See INO's newest video</span>
+        </span>
+      </a>
+
       <!-- TEMPORARY YOUTUBE BUTTON: sometimes a YouTube channel gets
            put in a "time out" and can't post for a while, so INO
            made this second channel as a backup place to keep
@@ -1894,6 +2579,70 @@
 </div>
 
   <!-- ============================================
+       FANDOM CORNER 🖤
+       Two small extra cards: a rotating "meet the members"
+       carousel showing all 5 members of ITZY one at a time, and a
+       standing "bias spotlight" just for Ryujin (matching her own
+       "RYUJIN BIAS" badge higher up the page). Both are built with
+       plain DOM swapping in JavaScript — search for "MEMBER
+       SPOTLIGHT CAROUSEL" and "BIAS SPOTLIGHT" in the <script> for
+       how each one actually rotates.
+       ============================================ -->
+  <div class="fandom-corner">
+    <div class="spotlight-card" id="member-spotlight">
+      <p class="spotlight-label">meet the members</p>
+      <!-- Every member "slide" sits stacked in the exact same
+           spot — only the one wearing the ".is-active" class (set
+           by JavaScript) is actually visible at any moment. Facts
+           here are just each member's well-known, publicly
+           documented position(s) in the group. -->
+      <div class="member-track" id="member-track">
+        <div class="member-slide is-active" data-accent="red">
+          <span class="member-name">YEJI</span>
+          <span class="member-role">Leader · Main Dancer · Sub Vocalist</span>
+        </div>
+        <div class="member-slide" data-accent="blue">
+          <span class="member-name">LIA</span>
+          <span class="member-role">Main Vocalist</span>
+        </div>
+        <div class="member-slide" data-accent="green">
+          <span class="member-name">RYUJIN</span>
+          <span class="member-role">Main Rapper · Main Dancer</span>
+        </div>
+        <div class="member-slide" data-accent="pink">
+          <span class="member-name">CHAERYEONG</span>
+          <span class="member-role">Main Dancer · Sub Rapper · Sub Vocalist</span>
+        </div>
+        <div class="member-slide" data-accent="lavender">
+          <span class="member-name">YUNA</span>
+          <span class="member-role">Vocalist · Dancer · Maknae</span>
+        </div>
+      </div>
+      <div class="member-controls">
+        <button type="button" class="member-nav" id="member-prev" aria-label="Show the previous member">‹</button>
+        <!-- The little row of dots gets built entirely by
+             JavaScript once the page loads, based on however many
+             ".member-slide"s it actually finds above — see the
+             <script> for why that's better than hardcoding "5 dots"
+             separately here. -->
+        <div class="member-dots" id="member-dots"></div>
+        <button type="button" class="member-nav" id="member-next" aria-label="Show the next member">›</button>
+      </div>
+    </div>
+
+    <div class="spotlight-card" id="bias-spotlight">
+      <p class="spotlight-label">🔴 bias spotlight: ryujin</p>
+      <!-- Starts completely empty on purpose — the JavaScript
+           fills this in with the first fact the instant the page
+           loads, then quietly swaps in a new one every few
+           seconds. Keeping it empty here (instead of duplicating
+           the first fact by hand) means there's only ONE place
+           (the JS) that ever needs to know the actual list of facts. -->
+      <p class="bias-fact" id="bias-fact"></p>
+    </div>
+  </div>
+
+  <!-- ============================================
        "GUESS WHO" MOODBOARD 🖼️
        Thirty-one little picture frames — every single track ITZY
        has ever put out (title tracks, pre-releases, Japanese
@@ -1902,7 +2651,7 @@
        Every single one now has a real photo AND a real official
        YouTube link — nothing in here is a placeholder anymore.
 
-       Only the 17 MAIN comebacks (the ones with proper music-show
+       Only the 16 MAIN comebacks (the ones with proper music-show
        promotions) get their own color theme in the "MOTTO" dropdown
        up above — the pre-releases, Japanese versions, and collabs
        down here are just extra photocards for completeness, not
@@ -1927,10 +2676,29 @@
        full explanation.
        ============================================ -->
   <p class="gallery-label">midzy moodboard</p>
+  <!-- ============================================
+       RYUJIN FOCUS TOGGLE ✨
+       A handful of the photocards below carry an extra
+       "data-ryujin" attribute — a plain marker meaning "this is
+       one of the songs/eras where she's a especially stand-out
+       part of the concept" (her powerful, edgy title tracks and
+       moments as center). Clicking this button flips a single
+       data-ryujin-focus="true" attribute onto <html>, the exact
+       same trick the era and light/dark switchers already use —
+       and the CSS below reacts to THAT, dimming every card that
+       does NOT have "data-ryujin" and putting a little red ring
+       around the ones that do.
+
+       The current tagged set is DALLA DALLA, WANNABE, LOCO, and
+       IN THE MORNING — search this file for `data-ryujin="true"`
+       to see (or change!) exactly which photocards are tagged. -->
+  <button type="button" class="ryujin-focus-toggle" id="ryujin-focus-toggle" aria-pressed="false">
+    ✨ Ryujin Focus
+  </button>
   <div class="gallery gallery-left">
     <!-- 1. DALLA DALLA (2019) — ITZY's actual debut song, so we
          spell that out right in the caption -->
-    <a class="photocard" href="https://youtu.be/pNfTK39k55U?si=SGZk0WAuoS0xCcq_" target="_blank" rel="noopener" aria-label="Watch the DALLA DALLA music video on YouTube">
+    <a class="photocard" data-ryujin="true" href="https://youtu.be/pNfTK39k55U?si=SGZk0WAuoS0xCcq_" target="_blank" rel="noopener" aria-label="Watch the DALLA DALLA music video on YouTube">
       <img src="dalla-dalla.jpg" alt="">
       <span>DALLA DALLA (DEBUT)</span>
     </a>
@@ -1940,7 +2708,7 @@
       <span>ICY</span>
     </a>
     <!-- 3. WANNABE (2020) -->
-    <a class="photocard" href="https://youtu.be/fE2h3lGlOsk?si=fHAwk_f3cudsaIlR" target="_blank" rel="noopener" aria-label="Watch the WANNABE music video on YouTube">
+    <a class="photocard" data-ryujin="true" href="https://youtu.be/fE2h3lGlOsk?si=fHAwk_f3cudsaIlR" target="_blank" rel="noopener" aria-label="Watch the WANNABE music video on YouTube">
       <img src="wannabe.jpg" alt="">
       <span>WANNABE</span>
     </a>
@@ -1956,7 +2724,7 @@
       <span>NOT SHY</span>
     </a>
     <!-- 6. IN THE MORNING (2021) -->
-    <a class="photocard" href="https://youtu.be/_ysomCGaZLw?si=V1vpgPL-lfMIeVLT" target="_blank" rel="noopener" aria-label="Watch the IN THE MORNING music video on YouTube">
+    <a class="photocard" data-ryujin="true" href="https://youtu.be/_ysomCGaZLw?si=V1vpgPL-lfMIeVLT" target="_blank" rel="noopener" aria-label="Watch the IN THE MORNING music video on YouTube">
       <img src="in-the-morning.jpg" alt="">
       <span>IN THE MORNING</span>
     </a>
@@ -1966,7 +2734,7 @@
       <span>BREAK ICE (COLLAB WITH KIMDAVI)</span>
     </a>
     <!-- 8. LOCO (2021) -->
-    <a class="photocard" href="https://youtu.be/MjCZfZfucEc?si=WTN1VmHab-AT6SRd" target="_blank" rel="noopener" aria-label="Watch the LOCO music video on YouTube">
+    <a class="photocard" data-ryujin="true" href="https://youtu.be/MjCZfZfucEc?si=WTN1VmHab-AT6SRd" target="_blank" rel="noopener" aria-label="Watch the LOCO music video on YouTube">
       <img src="loco.jpg" alt="">
       <span>LOCO</span>
     </a>
@@ -2089,6 +2857,24 @@
     </a>
   </div>
 
+  <!-- ============================================
+       PHOTOCARD LIGHTBOX 🔍
+       One single, reusable pop-up — the JavaScript fills in its
+       picture/caption/video link fresh every time a different
+       photocard gets clicked, instead of there being 31 separate
+       hidden pop-ups (one per song) sitting in the page already.
+       It starts out "hidden" (same real HTML attribute used by
+       the countdown banner earlier) and stays completely invisible
+       and out of the way until a photocard actually gets clicked. -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Era photo preview" hidden>
+    <div class="lightbox-card">
+      <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close preview">×</button>
+      <img class="lightbox-img" id="lightbox-img" src="" alt="">
+      <span class="lightbox-caption" id="lightbox-caption"></span>
+      <a class="lightbox-watch" id="lightbox-watch" href="#" target="_blank" rel="noopener">▶ Watch Music Video</a>
+    </div>
+  </div>
+
   <!-- The very last little bit of text at the bottom of the page —
        written to sound like an ITZY "motto" of its own. The second
        line underneath is a copyright disclaimer: it just tells
@@ -2100,6 +2886,15 @@
   <footer>
     <p>Made for INO by a fellow Midzy <span class="heart">🖤</span> · ALL IN US · not affiliated with JYP Entertainment</p>
     <p>I do not claim ownership of the content (images and videos). All rights belong to the respective owners.</p>
+    <!-- This one starts completely empty and "hidden" on purpose —
+         it's still <p id="visit-counter" hidden> even though a
+         real Firebase project IS wired up now, because the actual
+         count hasn't loaded back from the database yet the instant
+         the page first appears. The JavaScript (search for "VISIT
+         COUNTER" in the <script> section) fills in the real text
+         and removes "hidden" itself, the moment the real number
+         comes back. -->
+    <p id="visit-counter" hidden></p>
   </footer>
 
 <script>
@@ -2216,6 +3011,81 @@
   });
 
   // ============================================
+  // SHARE BUTTON 📤
+  // "navigator.share" is a real browser feature (mostly on phones
+  // and tablets) that opens the device's own native "Share" sheet
+  // — the exact same one every other app already uses to share to
+  // Messages, Instagram, AirDrop, etc. Not every browser has it
+  // (it's rare on desktop), so we check whether it exists FIRST,
+  // and just copy the page's link to the clipboard instead on
+  // browsers that don't have a share sheet to offer.
+  // ============================================
+  var shareButton = document.getElementById('share-button');
+  var shareToast = document.getElementById('share-toast');
+  var shareToastHideTimer = null;
+
+  function showShareToast() {
+    shareToast.classList.add('is-visible');
+    clearTimeout(shareToastHideTimer);
+    shareToastHideTimer = setTimeout(function () {
+      shareToast.classList.remove('is-visible');
+    }, 1600);
+  }
+
+  shareButton.addEventListener('click', function () {
+    var shareData = {
+      title: 'INO · @aceofgenz',
+      text: "Your favorite OT5 Midzy creator's link page",
+      url: window.location.href
+    };
+    // "navigator.share" being a real function (not "undefined") is
+    // how we ask "does THIS browser even have a share sheet?"
+    if (navigator.share) {
+      // People sometimes change their mind and close the share
+      // sheet without picking anything — that's not an error, it's
+      // totally normal, so we catch it here and just do nothing
+      // instead of showing a scary error in the console.
+      navigator.share(shareData).catch(function () {});
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(shareData.url).then(showShareToast).catch(function () {
+        // Same reasoning as the email copy button — if the
+        // clipboard is blocked for some reason, we just quietly
+        // don't show the "Link copied!" pill.
+      });
+    }
+  });
+
+  // ============================================
+  // BACK TO TOP BUTTON ⬆️
+  // Fades the button in once someone has scrolled down past a
+  // small threshold, and fades it back out if they scroll back up
+  // near the top again — clicking it just smoothly scrolls the
+  // whole page back to the very start.
+  // ============================================
+  var backToTopButton = document.getElementById('back-to-top');
+  var BACK_TO_TOP_SHOW_AFTER_PX = 600;
+
+  window.addEventListener('scroll', function () {
+    if (window.scrollY > BACK_TO_TOP_SHOW_AFTER_PX) {
+      backToTopButton.classList.add('is-visible');
+    } else {
+      backToTopButton.classList.remove('is-visible');
+    }
+  });
+
+  backToTopButton.addEventListener('click', function () {
+    var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({
+      top: 0,
+      // A smooth, animated scroll is nice — but for someone who's
+      // asked their device for less motion, this jumps straight to
+      // the top instantly instead, same respectful default used
+      // everywhere else on this page.
+      behavior: prefersReducedMotion ? 'auto' : 'smooth'
+    });
+  });
+
+  // ============================================
   // ERA THEME SWITCHER 🎨
   // This is the other half of the "MOTTO" dropdown's magic
   // trick. All the actual COLORS for each era live over in the
@@ -2242,6 +3112,378 @@
     updateThemeColorMeta();
     updateEraInUrl(eraSelect.value);
   });
+
+  // ============================================
+  // RANDOM ERA SHUFFLE BUTTON 🎲
+  // Picks a random <option> straight out of the era dropdown
+  // itself (instead of keeping a separate hardcoded list
+  // somewhere else) — that way, if an era is ever added or
+  // removed from the dropdown later, this button automatically
+  // keeps working with whatever the CURRENT full list is, no
+  // second list to remember to update.
+  // ============================================
+  var shuffleButton = document.getElementById('shuffle-button');
+
+  shuffleButton.addEventListener('click', function () {
+    var options = eraSelect.options;
+    // "Math.random()" gives a decimal between 0 (included) and 1
+    // (excluded). Multiplying it by "how many options there are"
+    // and rounding down with Math.floor gives a whole number
+    // that's always a valid index into the list — never too big,
+    // never negative.
+    var randomIndex = Math.floor(Math.random() * options.length);
+    eraSelect.selectedIndex = randomIndex;
+    // Setting ".selectedIndex" by itself doesn't fire a "change"
+    // event the way a real click would — so we fire one ourselves,
+    // which is what actually triggers applyEra() and repaints the
+    // page. This reuses the exact same code path a real click on
+    // the dropdown would use, instead of duplicating that logic here.
+    eraSelect.dispatchEvent(new Event('change'));
+  });
+
+  // ============================================
+  // KEYBOARD SHORTCUTS ⌨️
+  // "Escape" already closes every pop-up on this page (the email
+  // menu, both dropdowns, and the photocard lightbox) — each of
+  // those was wired up separately, right next to that specific
+  // feature's own code. This adds one more, page-wide shortcut:
+  // the Left/Right arrow keys jump to the previous/next era from
+  // ANYWHERE on the page, without needing to click the dropdown
+  // open first — a little power-user shortcut for quickly flipping
+  // through every color theme.
+  // ============================================
+  document.addEventListener('keydown', function (event) {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') { return; }
+
+    // If focus is already sitting inside a REAL form control (a
+    // dropdown, a text box, a button, a link, etc.), arrow keys
+    // already have an important, well-known job to do right there
+    // (like moving a native <select>'s own highlighted option) —
+    // this shortcut politely steps aside completely in that case,
+    // instead of fighting with whatever that control was about to
+    // do with the same key press.
+    var focusedTag = document.activeElement ? document.activeElement.tagName : '';
+    var formControlTags = ['SELECT', 'INPUT', 'TEXTAREA', 'BUTTON', 'A'];
+    if (formControlTags.indexOf(focusedTag) !== -1) { return; }
+
+    var totalEras = eraSelect.options.length;
+    var currentIndex = eraSelect.selectedIndex;
+    var nextIndex;
+    if (event.key === 'ArrowRight') {
+      nextIndex = (currentIndex + 1) % totalEras;
+    } else {
+      // Adding "totalEras" before the "%" is what keeps this from
+      // ever going negative when currentIndex is already 0 — in
+      // JavaScript, "-1 % totalEras" is still a negative number,
+      // NOT the friendly "wrap around to the last item" result a
+      // lot of other languages give you for free.
+      nextIndex = (currentIndex - 1 + totalEras) % totalEras;
+    }
+    eraSelect.selectedIndex = nextIndex;
+    eraSelect.dispatchEvent(new Event('change'));
+  });
+
+  // ============================================
+  // MEMBER SPOTLIGHT CAROUSEL 👯‍♀️
+  // Cycles through all 5 ITZY members, one at a time, by swapping
+  // WHICH slide currently wears the ".is-active" class — the CSS
+  // handles the actual fading in/out, this script's only job is
+  // deciding which one goes next.
+  // ============================================
+  (function setUpMemberCarousel() {
+    var track = document.getElementById('member-track');
+    var slides = Array.prototype.slice.call(track.querySelectorAll('.member-slide'));
+    var dotsContainer = document.getElementById('member-dots');
+    var prevButton = document.getElementById('member-prev');
+    var nextButton = document.getElementById('member-next');
+    var currentIndex = 0;
+    var autoAdvanceId = null;
+
+    // Someone who told their device "please, less motion" doesn't
+    // want things quietly changing on their own — so auto-advancing
+    // gets skipped entirely for them, and the carousel only ever
+    // moves when THEY click an arrow or a dot themselves.
+    var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Building one little dot button PER slide in JavaScript
+    // (instead of hand-writing 5 of them in the HTML) means the
+    // dots can never accidentally fall out of sync with how many
+    // members actually exist, even if one gets added or removed
+    // from the HTML later.
+    var dots = slides.map(function (slide, index) {
+      var dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'member-dot';
+      dot.setAttribute('aria-label', 'Show member ' + (index + 1) + ' of ' + slides.length);
+      dot.addEventListener('click', function () {
+        showSlide(index);
+        restartAutoAdvance();
+      });
+      dotsContainer.appendChild(dot);
+      return dot;
+    });
+
+    function showSlide(index) {
+      slides[currentIndex].classList.remove('is-active');
+      dots[currentIndex].classList.remove('is-active');
+      currentIndex = index;
+      slides[currentIndex].classList.add('is-active');
+      dots[currentIndex].classList.add('is-active');
+    }
+
+    function showNext() { showSlide((currentIndex + 1) % slides.length); }
+    function showPrev() { showSlide((currentIndex - 1 + slides.length) % slides.length); }
+
+    dots[0].classList.add('is-active');
+
+    prevButton.addEventListener('click', function () { showPrev(); restartAutoAdvance(); });
+    nextButton.addEventListener('click', function () { showNext(); restartAutoAdvance(); });
+
+    function startAutoAdvance() {
+      if (prefersReducedMotion) { return; }
+      autoAdvanceId = setInterval(showNext, 5000);
+    }
+    // Clicking an arrow/dot by hand, then having the carousel
+    // immediately jump AGAIN a second later on its own, would feel
+    // like it's fighting whatever someone just picked — restarting
+    // the timer after every manual click gives a full, fresh 5
+    // seconds before it moves on its own again.
+    function restartAutoAdvance() {
+      clearInterval(autoAdvanceId);
+      startAutoAdvance();
+    }
+
+    startAutoAdvance();
+  })();
+
+  // ============================================
+  // BIAS SPOTLIGHT 🔴
+  // A small, single line of text that quietly swaps itself out for
+  // a different Ryujin fact every few seconds — same "fade out,
+  // swap the words, fade back in" idea as the member carousel
+  // above, just with plain text instead of whole slides.
+  // ============================================
+  (function setUpBiasSpotlight() {
+    var factEl = document.getElementById('bias-fact');
+    // Feel free to add, remove, or edit any of these — they're
+    // just an array of plain sentences, so the rotator below
+    // doesn't need to change at all no matter how many there are.
+    var facts = [
+      "Ryujin is ITZY's Main Rapper and Main Dancer.",
+      'Fans nicknamed her the "God of Destruction" for her powerful stage presence.',
+      'She’s known for her iconic point choreography and knockout "killing parts."',
+      "Her ITZY member color is red — the same red used in this page's accents.",
+      "She's often front and center during ITZY's more powerful, edgy-concept title tracks."
+    ];
+    var currentIndex = 0;
+
+    function showFact(nextIndex) {
+      factEl.classList.add('is-fading');
+      setTimeout(function () {
+        currentIndex = nextIndex;
+        factEl.textContent = facts[currentIndex];
+        factEl.classList.remove('is-fading');
+      }, 300);
+    }
+
+    // Shows the very first fact right away, with no fade — there's
+    // nothing to fade FROM yet on first load.
+    factEl.textContent = facts[0];
+
+    var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!prefersReducedMotion) {
+      setInterval(function () {
+        showFact((currentIndex + 1) % facts.length);
+      }, 6000);
+    }
+  })();
+
+  // ============================================
+  // RYUJIN FOCUS TOGGLE ✨
+  // Flips a "data-ryujin-focus" attribute on/off on <html>, the
+  // exact same pattern the era and light/dark switchers already
+  // use — the CSS (search for "data-ryujin-focus" in the <style>
+  // section) does all the actual dimming/highlighting work, this
+  // script's only job is toggling that one attribute plus keeping
+  // the button's own "pressed" look and label in sync with it.
+  // ============================================
+  var ryujinFocusToggle = document.getElementById('ryujin-focus-toggle');
+
+  ryujinFocusToggle.addEventListener('click', function () {
+    var isCurrentlyOn = document.documentElement.getAttribute('data-ryujin-focus') === 'true';
+    var turningOn = !isCurrentlyOn;
+    if (turningOn) {
+      document.documentElement.setAttribute('data-ryujin-focus', 'true');
+    } else {
+      document.documentElement.removeAttribute('data-ryujin-focus');
+    }
+    // "aria-pressed" tells screen readers whether this is a toggle
+    // that's currently "on" or "off" — the CSS also watches this
+    // exact same attribute to decide how to color the button, so
+    // there's only one source of truth instead of two separate
+    // things that could accidentally fall out of sync.
+    ryujinFocusToggle.setAttribute('aria-pressed', String(turningOn));
+  });
+
+  // ============================================
+  // PHOTOCARD LIGHTBOX 🔍
+  // Clicking a photocard used to jump straight to YouTube. Now it
+  // opens this one shared pop-up instead, filled in fresh with
+  // whichever card just got clicked — the actual link to YouTube
+  // still lives right inside the pop-up too, as its own real
+  // button, for whenever someone's ready to actually go watch it.
+  // ============================================
+  var lightbox = document.getElementById('lightbox');
+  var lightboxImg = document.getElementById('lightbox-img');
+  var lightboxCaption = document.getElementById('lightbox-caption');
+  var lightboxWatch = document.getElementById('lightbox-watch');
+  var lightboxCloseButton = document.getElementById('lightbox-close');
+  // Remembers whichever photocard was clicked to OPEN the
+  // lightbox, so focus can jump back to that exact same card once
+  // the lightbox closes again — without this, a keyboard user's
+  // focus would just vanish into thin air after closing it.
+  var lightboxTriggerCard = null;
+
+  function openLightbox(photocard) {
+    var cardImage = photocard.querySelector('img');
+    var cardCaption = photocard.querySelector('span');
+    lightboxImg.src = cardImage.src;
+    lightboxImg.alt = cardImage.alt;
+    lightboxCaption.textContent = cardCaption.textContent;
+    lightboxWatch.href = photocard.href;
+    lightboxTriggerCard = photocard;
+    lightbox.hidden = false;
+    // Moving keyboard focus INTO the pop-up (onto its close
+    // button) the moment it opens is what makes this work properly
+    // for keyboard/screen-reader users — otherwise focus would
+    // stay "underneath" the pop-up on whatever was clicked, which
+    // is confusing since that part of the page is now covered up.
+    lightboxCloseButton.focus();
+  }
+
+  function closeLightbox() {
+    lightbox.hidden = true;
+    if (lightboxTriggerCard) {
+      lightboxTriggerCard.focus();
+    }
+  }
+
+  // Every single photocard (all 31 of them) gets this same click
+  // handler — one shared function, instead of 31 separate ones.
+  document.querySelectorAll('.photocard').forEach(function (photocard) {
+    photocard.addEventListener('click', function (event) {
+      // Someone holding Ctrl/Cmd/Shift while clicking (or clicking
+      // with the middle mouse button) is deliberately trying to
+      // open the link in a new tab/window themselves — a very
+      // normal, very common browser habit that this should NEVER
+      // get in the way of. Only a plain, ordinary left-click opens
+      // the lightbox instead of following the link normally.
+      if (event.ctrlKey || event.metaKey || event.shiftKey || event.button === 1) {
+        return;
+      }
+      event.preventDefault();
+      openLightbox(photocard);
+    });
+  });
+
+  lightboxCloseButton.addEventListener('click', closeLightbox);
+
+  // Clicking the dark backdrop area (anywhere that ISN'T the
+  // little card itself) also closes it — the same "click outside
+  // closes it" pattern the email menu uses earlier in this file.
+  // Checking "event.target === lightbox" (not just "somewhere
+  // inside the lightbox") is what tells the difference between
+  // clicking the backdrop versus clicking the card sitting on top
+  // of it.
+  lightbox.addEventListener('click', function (event) {
+    if (event.target === lightbox) {
+      closeLightbox();
+    }
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && !lightbox.hidden) {
+      closeLightbox();
+    }
+  });
+
+  // ============================================
+  // RYUJIN BIAS BADGE EASTER EGG 🎉
+  // Clicking (or pressing Enter/Space on) the "RYUJIN BIAS" badge
+  // sets off a tiny burst of confetti squares in her three ITZY
+  // colors (red, blue, green) — a small, low-effort surprise for
+  // anyone curious enough to click around the page. Someone who's
+  // told their device "please, less motion" never sees this
+  // animation fire at all, same respectful default as every other
+  // moving thing on this page.
+  // ============================================
+  (function setUpBiasBadgeEasterEgg() {
+    var biasBadge = document.getElementById('bias-badge');
+    var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var rootStyles = getComputedStyle(document.documentElement);
+    var confettiColors = [
+      rootStyles.getPropertyValue('--red'),
+      rootStyles.getPropertyValue('--blue'),
+      rootStyles.getPropertyValue('--green')
+    ];
+
+    function launchConfetti() {
+      if (prefersReducedMotion) { return; }
+
+      // "getBoundingClientRect()" asks the browser "exactly where
+      // on the SCREEN is this element sitting right now?" — that's
+      // what lets the confetti start exactly at the badge's own
+      // position, instead of some fixed spot that'd look wrong on
+      // different screen sizes or scroll positions.
+      var badgeBox = biasBadge.getBoundingClientRect();
+      var originX = badgeBox.left + badgeBox.width / 2;
+      var originY = badgeBox.top + badgeBox.height / 2;
+      var pieceCount = 18;
+
+      for (var i = 0; i < pieceCount; i++) {
+        var piece = document.createElement('span');
+        piece.className = 'confetti-piece';
+        piece.style.left = originX + 'px';
+        piece.style.top = originY + 'px';
+        piece.style.background = confettiColors[i % confettiColors.length];
+
+        // Picking a completely random angle (a full circle's worth
+        // of directions) and distance for every single piece is
+        // what makes the burst look like a real, messy scatter
+        // instead of a neat, repeating pattern.
+        var angle = Math.random() * Math.PI * 2;
+        var distance = 60 + Math.random() * 70;
+        piece.style.setProperty('--confetti-x', Math.cos(angle) * distance + 'px');
+        // Adding "+ 40" here nudges every piece's ending spot
+        // downward a little extra, on top of its random direction
+        // — like gravity gently winning by the time the burst ends.
+        piece.style.setProperty('--confetti-y', (Math.sin(angle) * distance + 40) + 'px');
+        piece.style.setProperty('--confetti-rot', Math.floor(Math.random() * 360) + 'deg');
+
+        document.body.appendChild(piece);
+        // Cleans each little piece back out of the page once its
+        // own animation finishes — without this, the page would
+        // quietly fill up with hundreds of old, invisible confetti
+        // pieces if someone kept clicking the badge over and over.
+        piece.addEventListener('animationend', function () {
+          this.remove();
+        });
+      }
+    }
+
+    biasBadge.addEventListener('click', launchConfetti);
+    // Because this badge is a <span> pretending to be a button
+    // (see the big comment on it up in the HTML), it doesn't
+    // automatically respond to Enter/Space the way a real <button>
+    // does — same reasoning, and same fix, as the copy-to-clipboard
+    // email address elsewhere on this page.
+    biasBadge.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        launchConfetti();
+      }
+    });
+  })();
 
   // ============================================
   // SHAREABLE ERA LINKS 🔗
@@ -2558,6 +3800,142 @@
       }
     });
   })();
+
+  // ============================================
+  // VISIT COUNTER 🖤
+  // Shows a quiet little "X Midzys have visited" line in the
+  // footer, backed by a real database (Firestore) that goes up by
+  // 1 every time someone loads the page.
+  //
+  // This config object below is filled in with a REAL Firebase
+  // project now (ino-website-55ab0) — and that's completely fine
+  // to have sitting here in plain view, even in a public repo!
+  // Unlike most API keys, a Firebase WEB config isn't a secret at
+  // all — it just tells the browser "which Firebase project should
+  // I talk to?" The actual security boundary lives somewhere else
+  // entirely: the RULES set on the Firestore database itself (in
+  // the Firebase console, not in this file), which decide what any
+  // visitor's browser is actually allowed to read or write. See
+  // the big comment inside setUpVisitCounter() below for the exact
+  // rules this counter needs.
+  //
+  // Setting this back to "null" (like it used to be) is still the
+  // instant "off switch" for the whole feature, same "empty means
+  // off" pattern as NEXT_COMEBACK_DATE further up this file — the
+  // footer line goes back to completely hidden, and the Firebase
+  // SDK stops being downloaded at all.
+  // ============================================
+  var FIREBASE_CONFIG = {
+    apiKey: "AIzaSyDd2sIKwqtrtL277eSix17kjLEiAQyML_0",
+    authDomain: "ino-website-55ab0.firebaseapp.com",
+    projectId: "ino-website-55ab0",
+    storageBucket: "ino-website-55ab0.firebasestorage.app",
+    messagingSenderId: "1537258690",
+    appId: "1:1537258690:web:faf8e0ca094b8f1ab8f75b"
+  };
+
+  // Before this goes live, the Firestore database for this project
+  // needs its SECURITY RULES set (in the Firebase console, under
+  // Firestore Database → Rules) — "test mode" (the default when a
+  // database is first created) leaves it wide open, letting anyone
+  // read AND write ANYTHING. Since this counter only ever needs to
+  // touch one exact document and only ever increment it, the rules
+  // can be locked down to allow exactly that and nothing else:
+  //
+  //   rules_version = '2';
+  //   service cloud.firestore {
+  //     match /databases/{database}/documents {
+  //       match /stats/visits {
+  //         allow read: if true;
+  //         allow create: if request.resource.data.count == 1;
+  //         allow update: if request.resource.data.count is int
+  //                       && request.resource.data.count == resource.data.count + 1;
+  //         allow delete: if false;
+  //       }
+  //     }
+  //   }
+  //
+  // Two separate rules for "create" and "update" (instead of one
+  // combined "write" rule) matter here for a subtle reason: the
+  // VERY FIRST visit ever is creating this document from nothing —
+  // there's no EXISTING count to compare against yet. A single
+  // "write" rule that always checks "resource.data.count + 1"
+  // would actually FAIL on that very first visit, since a
+  // document that doesn't exist yet has no "resource.data" to read
+  // from at all. Splitting it in two fixes that: "create" only
+  // requires the brand new document to start at exactly 1, while
+  // "update" is the one that mathematically checks every later
+  // visit is EXACTLY "the old number plus one" — so nobody can
+  // abuse this to set the counter to some huge fake number, delete
+  // it, or write anything unrelated into that document.
+  (function setUpVisitCounter() {
+    if (!FIREBASE_CONFIG) { return; }
+
+    var counterEl = document.getElementById('visit-counter');
+    var FIREBASE_SDK_VERSION = '10.7.0';
+
+    // Firebase's own SDK only gets downloaded from its CDN when
+    // this feature is actually switched on — "import()" (as a
+    // function call, not the more common "import ... from" line
+    // at the top of a file) is a special version that's allowed
+    // to run from right here, mid-script, and only fetches its
+    // module when this exact line actually runs.
+    Promise.all([
+      import('https://www.gstatic.com/firebasejs/' + FIREBASE_SDK_VERSION + '/firebase-app.js'),
+      import('https://www.gstatic.com/firebasejs/' + FIREBASE_SDK_VERSION + '/firebase-firestore.js')
+    ]).then(function (modules) {
+      var appModule = modules[0];
+      var firestoreModule = modules[1];
+      var app = appModule.initializeApp(FIREBASE_CONFIG);
+      var db = firestoreModule.getFirestore(app);
+      // Every visit reads/writes the exact SAME one document (a
+      // "stats/visits" doc) — that single shared document, plus
+      // "increment(1)", is the whole trick behind a running total
+      // that safely goes up by exactly 1 per visit, even if two
+      // people load the page at the very same moment.
+      var counterRef = firestoreModule.doc(db, 'stats', 'visits');
+      return firestoreModule.setDoc(
+        counterRef,
+        { count: firestoreModule.increment(1) },
+        { merge: true }
+      ).then(function () {
+        return firestoreModule.getDoc(counterRef);
+      });
+    }).then(function (snapshot) {
+      var total = snapshot.exists() ? snapshot.data().count : 0;
+      counterEl.textContent = '🖤 ' + total.toLocaleString() + ' Midzys have visited';
+      counterEl.hidden = false;
+    }).catch(function () {
+      // If Firebase fails to load, the config is wrong, or the
+      // security rules block it, the counter just quietly never
+      // shows up — same "fail silently instead of breaking the
+      // rest of the page" philosophy as every other optional
+      // feature on this site.
+    });
+  })();
+
+  // ============================================
+  // PWA: REGISTER THE SERVICE WORKER 📲
+  // "serviceWorker" being a real property on "navigator" is how we
+  // check "does this browser even support this feature?" first —
+  // older browsers don't have it at all, so we only try
+  // registering one if it's actually available, the same
+  // defensive-check pattern used everywhere else on this page
+  // (Web Share, Clipboard, matchMedia, etc.). Waiting for the
+  // "load" event first means the service worker starts installing
+  // itself AFTER everything the visitor actually came here to see
+  // has already finished loading, instead of competing with it.
+  // ============================================
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('service-worker.js').catch(function () {
+        // If registration fails for any reason (an older browser
+        // quirk, the file being missing, etc.), the whole rest of
+        // the site still works completely normally — it just won't
+        // be installable or offline-capable for that visit.
+      });
+    });
+  }
 </script>
 
 </body>
