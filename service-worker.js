@@ -16,12 +16,15 @@
 // watch over files in its own folder and whatever's inside it.
 // ============================================
 
-// Bumping this name (for example, to 'ino-cache-v2') is the
-// on/off switch for "throw out the old saved files and grab fresh
-// ones" — do that after making a real update to the files listed
-// below, so visitors don't get stuck seeing a stale offline copy
-// forever.
-var CACHE_NAME = 'ino-cache-v1';
+// Bumping this name (for example, to 'ino-cache-v3' next time) is
+// the on/off switch for "throw out the old saved files and grab
+// fresh ones" — do that after making a real update to index.html
+// or any file listed below, so visitors don't get stuck seeing a
+// stale copy of the page forever. This name was bumped from v1 to
+// v2 specifically because index.html changed but the cached copy
+// didn't know that yet — see the "skipWaiting" note further down
+// for the other half of that same fix.
+var CACHE_NAME = 'ino-cache-v2';
 
 // Just enough files to make the page still open and look like
 // itself with zero internet connection — not every single photo
@@ -33,10 +36,16 @@ var FILES_TO_CACHE = [
   './ino-pfp.jpg'
 ];
 
-// "install" fires exactly once, the very first time this service
-// worker is ever registered — this is where we reach out and save
-// our starter list of files into the cache.
+// "install" fires exactly once, every time a NEW version of this
+// exact file (service-worker.js) shows up — this is where we reach
+// out and save our starter list of files into a fresh cache.
+// "self.skipWaiting()" tells the browser "don't wait for every open
+// tab of the old site to be closed first — put this new version in
+// charge right away." Without it, a returning visitor could still
+// see the OLD cached page for a while even after a real update went
+// out, simply because they never fully closed their old tab.
 self.addEventListener('install', function (event) {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
       return cache.addAll(FILES_TO_CACHE);
@@ -47,7 +56,11 @@ self.addEventListener('install', function (event) {
 // "activate" fires right after "install," and is the correct
 // moment to clean up any OLD, no-longer-needed caches left behind
 // by a previous version of this file (any cache whose name doesn't
-// match the current CACHE_NAME above).
+// match the current CACHE_NAME above). "self.clients.claim()" is
+// the other half of the "take over immediately" fix above — it
+// hands this new service worker control of any already-open tabs
+// right away, instead of only affecting the NEXT time the site is
+// opened.
 self.addEventListener('activate', function (event) {
   event.waitUntil(
     caches.keys().then(function (cacheNames) {
@@ -56,6 +69,8 @@ self.addEventListener('activate', function (event) {
           .filter(function (name) { return name !== CACHE_NAME; })
           .map(function (name) { return caches.delete(name); })
       );
+    }).then(function () {
+      return self.clients.claim();
     })
   );
 });
