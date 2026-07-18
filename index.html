@@ -4139,21 +4139,39 @@
   // Before this goes live, the Firestore database needs a SECOND
   // set of rules added (in the Firebase console, under Firestore
   // Database → Rules), right alongside the visit counter's existing
-  // "stats/visits" rules above — this is a DIFFERENT collection
-  // ("guestbook"), so it needs its own match block:
+  // "stats/visits" rules — this is a DIFFERENT collection
+  // ("guestbook"), so it needs its own match block, added as a
+  // SIBLING of "match /stats/visits" INSIDE that same
+  // "match /databases/{database}/documents" block (NOT after its
+  // closing braces — a match block sitting outside
+  // "service cloud.firestore { match /databases/... { } }"
+  // entirely is invalid and the console will reject it). The whole
+  // thing should look like this:
   //
-  //   match /guestbook/{entryId} {
-  //     allow read: if true;
-  //     allow create: if request.resource.data.keys().hasOnly(['name', 'message', 'createdAt'])
-  //                   && request.resource.data.message is string
-  //                   && request.resource.data.message.size() > 0
-  //                   && request.resource.data.message.size() <= 200
-  //                   && !request.resource.data.message.lower().matches('.*(fuck|shit|bitch|nigger|faggot|retard|kys).*')
-  //                   && request.resource.data.name is string
-  //                   && request.resource.data.name.size() <= 40
-  //                   && request.resource.data.createdAt == request.time;
-  //     allow update: if false;
-  //     allow delete: if false;
+  //   rules_version = '2';
+  //   service cloud.firestore {
+  //     match /databases/{database}/documents {
+  //       match /stats/visits {
+  //         allow read: if true;
+  //         allow create: if request.resource.data.count == 1;
+  //         allow update: if request.resource.data.count is int
+  //                       && request.resource.data.count == resource.data.count + 1;
+  //         allow delete: if false;
+  //       }
+  //       match /guestbook/{entryId} {
+  //         allow read: if true;
+  //         allow create: if request.resource.data.keys().hasOnly(['name', 'message', 'createdAt'])
+  //                       && request.resource.data.message is string
+  //                       && request.resource.data.message.size() > 0
+  //                       && request.resource.data.message.size() <= 200
+  //                       && !request.resource.data.message.lower().matches('.*(fuck|shit|bitch|nigger|faggot|retard|kys).*')
+  //                       && request.resource.data.name is string
+  //                       && request.resource.data.name.size() <= 40
+  //                       && request.resource.data.createdAt == request.time;
+  //         allow update: if false;
+  //         allow delete: if false;
+  //       }
+  //     }
   //   }
   //
   // "allow update/delete: if false" is what makes this a REAL

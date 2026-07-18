@@ -234,23 +234,35 @@ service cloud.firestore {
 This is deliberately split into `create` and `update` rather than one combined `write` rule — the very FIRST visit ever is creating this document from nothing, so there's no existing `resource.data.count` yet to compare against. A single rule that always checks `resource.data.count + 1` would actually reject that first visit outright, since reading `.data` off a document that doesn't exist is an error, and Firestore treats a rule-evaluation error as "deny." `create` only requires the brand new document to start at exactly `1`; `update` is what mathematically requires every later visit to be EXACTLY "the current count plus one" — so even though writes are allowed at all, nobody can abuse that to set the counter to an arbitrary number, wipe it, or write unrelated data into that document. This same comment (with the exact rules to paste in) also lives directly above `setUpVisitCounter()` in `index.html`.
 
 ### Guestbook's Firestore Security Rules
-The Guestbook reuses the same Firestore *database* as the Visit Counter, but it's a separate `guestbook` collection, so it needs its own `match` block added alongside the `stats/visits` one above (same Firebase console → Firestore Database → Rules screen):
+The Guestbook reuses the same Firestore *database* as the Visit Counter, but it's a separate `guestbook` collection, so it needs its own `match` block added as a **sibling of `match /stats/visits`, inside that same `match /databases/{database}/documents` block** — not tacked on after its closing braces, which would leave it sitting outside `service cloud.firestore` entirely and get rejected by the console as invalid. The complete rules file (paste this whole thing into Firebase console → Firestore Database → Rules) should look like:
 ```
-match /guestbook/{entryId} {
-  allow read: if true;
-  allow create: if request.resource.data.keys().hasOnly(['name', 'message', 'createdAt'])
-                && request.resource.data.message is string
-                && request.resource.data.message.size() > 0
-                && request.resource.data.message.size() <= 200
-                && !request.resource.data.message.lower().matches('.*(fuck|shit|bitch|nigger|faggot|retard|kys).*')
-                && request.resource.data.name is string
-                && request.resource.data.name.size() <= 40
-                && request.resource.data.createdAt == request.time;
-  allow update: if false;
-  allow delete: if false;
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /stats/visits {
+      allow read: if true;
+      allow create: if request.resource.data.count == 1;
+      allow update: if request.resource.data.count is int
+                    && request.resource.data.count == resource.data.count + 1;
+      allow delete: if false;
+    }
+    match /guestbook/{entryId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['name', 'message', 'createdAt'])
+                    && request.resource.data.message is string
+                    && request.resource.data.message.size() > 0
+                    && request.resource.data.message.size() <= 200
+                    && !request.resource.data.message.lower().matches('.*(fuck|shit|bitch|nigger|faggot|retard|kys).*')
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() <= 40
+                    && request.resource.data.createdAt == request.time;
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
 }
 ```
-`allow update: if false` and `allow delete: if false` are what make this a genuine, permanent guestbook rather than an editable chat box — once a message is created, no client (not even its own author) can ever change or remove it again. The `hasOnly([...])` check stops a request from sneaking in extra fields; the `size()` checks match the exact same 200/40-character limits already enforced by the form's own `maxlength` attributes (so a request bypassing the form entirely can't exceed them either); `createdAt == request.time` stops a spoofed timestamp; and the `.matches()` line is a small, second layer of the *same* profanity check the form already runs client-side in `isAppreciationMessage()` (see `logic.js`) — this server-side copy only catches the worst, most obvious profanity (a full "does this sound appreciative?" check isn't practical to express as one regex), but unlike the client-side version, it can't be skipped by calling the database directly instead of using the real form. Because security rules only ever restrict the public SDK, INO can still open the Firebase console directly and delete any entry that slips past both filters — `allow delete: if false` blocks the *public* form, not the project's own owner.
+`allow update: if false` and `allow delete: if false` on the `guestbook` block are what make it a genuine, permanent guestbook rather than an editable chat box — once a message is created, no client (not even its own author) can ever change or remove it again. The `hasOnly([...])` check stops a request from sneaking in extra fields; the `size()` checks match the exact same 200/40-character limits already enforced by the form's own `maxlength` attributes (so a request bypassing the form entirely can't exceed them either); `createdAt == request.time` stops a spoofed timestamp; and the `.matches()` line is a small, second layer of the *same* profanity check the form already runs client-side in `isAppreciationMessage()` (see `logic.js`) — this server-side copy only catches the worst, most obvious profanity (a full "does this sound appreciative?" check isn't practical to express as one regex), but unlike the client-side version, it can't be skipped by calling the database directly instead of using the real form. Because security rules only ever restrict the public SDK, INO can still open the Firebase console directly and delete any entry that slips past both filters — `allow delete: if false` blocks the *public* form, not the project's own owner.
 
 ### Skip to Main Content Link
 A plain link (`.skip-link`) sits as the very first focusable element in `<body>`, positioned off-screen (`top: -60px`) by default and pulled into view (`top: 8px`) purely by `.skip-link:focus` — no JavaScript involved, just CSS reacting to real keyboard focus. It points at `href="#main-content"`, matching an `id="main-content"` added to the page's `<main>` element, so activating it (Enter, or a screen reader's own activation gesture) jumps straight to the actual content, skipping the fixed GitHub/Share buttons and the blurred background photo wall — a standard accessibility pattern for any page with meaningful content before the "main" landmark.
