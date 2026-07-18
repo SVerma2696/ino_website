@@ -16,15 +16,21 @@
 // watch over files in its own folder and whatever's inside it.
 // ============================================
 
-// Bumping this name (for example, to 'ino-cache-v3' next time) is
+// ELI5: this name is like a sticker on a lunchbox. When we pack a
+// NEW lunch (change index.html), we put a NEW sticker on the box
+// (bump this name) so nobody grabs YESTERDAY'S old lunch by
+// mistake.
+//
+// Bumping this name (for example, to 'ino-cache-v4' next time) is
 // the on/off switch for "throw out the old saved files and grab
 // fresh ones" — do that after making a real update to index.html
 // or any file listed below, so visitors don't get stuck seeing a
 // stale copy of the page forever. This name was bumped from v1 to
 // v2 specifically because index.html changed but the cached copy
-// didn't know that yet — see the "skipWaiting" note further down
-// for the other half of that same fix.
-var CACHE_NAME = 'ino-cache-v2';
+// didn't know that yet, and now from v2 to v3 for the same reason
+// (the member photos got bigger) — see the "skipWaiting" note
+// further down for the other half of that same fix.
+var CACHE_NAME = 'ino-cache-v3';
 
 // Just enough files to make the page still open and look like
 // itself with zero internet connection — not every single photo

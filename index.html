@@ -1355,7 +1355,7 @@
      a jarring pop */
   .member-track{
     position:relative;
-    min-height: 300px;
+    min-height: 280px;
   }
   .member-slide{
     position:absolute;
@@ -1373,22 +1373,27 @@
     opacity:1;
     pointer-events:auto;
   }
-  /* ELI5: it's like shrinking a photo to fit inside a picture
-     frame without cutting any of it off, even if the photo isn't
-     a perfect square. This frame is nice and big on purpose, so
-     her face is actually easy to see, not a tiny postage stamp.
+  /* ELI5: the picture frame is the same size and shape as the
+     photo, so there's no empty space wasted inside the frame —
+     and the photo itself is nice and big, so her face is easy to
+     see, not a tiny postage stamp.
      Every member photo is a different shape (some tall, some
-     wide) straight out of the folder, so instead of stretching or
-     cropping any of them to fit, this box is a fixed square and
-     "object-fit: contain" shrinks each photo down to fit fully
-     INSIDE that square, letterboxed if needed, but never cut off. */
+     wide) straight out of the folder. A fixed SQUARE box used to
+     hold each one (with "object-fit: contain" shrinking the photo
+     to fit inside), but that left big empty letterboxed bars
+     around any photo that wasn't already square-shaped — which is
+     exactly the "too much border" look. Fixing the HEIGHT and
+     leaving the width as "auto" instead means the browser sizes
+     the box to each photo's own real proportions, so the border
+     hugs the actual picture with zero wasted space, no matter
+     whether that particular photo is tall, wide, or square. */
   .member-photo{
-    width: 176px;
-    height: 176px;
+    height: 220px;
+    width: auto;
+    max-width: 100%;
     object-fit: contain;
     border-radius: 12px;
     border: 1px solid var(--border);
-    background: color-mix(in srgb, var(--bg-card) 60%, transparent);
   }
   .member-name{
     font-family: var(--display);
@@ -1791,9 +1796,9 @@
        smallest phone screens. The photo itself only shrinks a
        little here (not back down to the old tiny size), so it
        still reads clearly even on a small screen. */
-    .member-photo{ width: 140px; height: 140px; }
+    .member-photo{ height: 170px; }
     .member-name{ font-size: 16px; letter-spacing: 0.2px; }
-    .member-track{ min-height: 260px; }
+    .member-track{ min-height: 230px; }
   }
 
   /* ============================================
