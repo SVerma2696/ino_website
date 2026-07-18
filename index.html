@@ -1522,12 +1522,13 @@
 
   /* ============================================
      GUESTBOOK 📖
-     ELI5: this is just a little form (name + message + button)
-     stacked on top of a scrolling list of everyone else's
-     messages, styled to match the frosted-glass cards everywhere
-     else on the page — nothing fancy, just inputs that use the
-     site's existing colors/fonts (--border, --bg, --text, --mono)
-     instead of a browser's plain gray defaults.
+     ELI5: this is just a little form (name + message + button),
+     styled to match the frosted-glass cards everywhere else on
+     the page — nothing fancy, just inputs that use the site's
+     existing colors/fonts (--border, --bg, --text, --mono) instead
+     of a browser's plain gray defaults. The actual messages don't
+     live here — see "GUESTBOOK MESSAGES MODAL" further down for
+     the pop-up they live in instead.
      ============================================ */
   .guestbook-hint{
     font-family: var(--mono);
@@ -1579,23 +1580,44 @@
     text-align:center;
     margin: 0;
   }
-  /* The list of everyone else's messages, newest first — a plain
-     scrollable box (instead of letting the whole page grow
-     endlessly taller) once there are enough entries to fill it. */
+  /* The "View Messages (N)" button underneath the form — looks
+     and behaves like a plain outlined pill, matching the Ryujin
+     Focus toggle's general vibe (a quiet secondary action, not a
+     loud primary one like the red "Sign the Guestbook" button
+     above it). */
+  .guestbook-view-button{
+    display:block;
+    width:100%;
+    box-sizing:border-box;
+    margin: 10px 0 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 12px;
+    cursor:pointer;
+    transition: background-color 0.2s ease;
+  }
+  .guestbook-view-button:hover{ background: color-mix(in srgb, var(--bg) 60%, transparent); }
+  .guestbook-view-button:focus-visible{ outline: 2px solid var(--red); outline-offset: 2px; }
+
+  /* The list of everyone's messages, newest first — this now
+     lives INSIDE the guestbook messages modal below (not inline
+     in the small card), so it can safely scroll as tall as it
+     needs to without stretching the whole page. */
   .guestbook-list{
     list-style:none;
-    margin: 12px 0 0;
+    margin: 0;
     padding: 0;
-    max-height: 220px;
-    overflow-y: auto;
     display:flex;
     flex-direction:column;
-    gap:10px;
+    gap:14px;
   }
-  .guestbook-list:empty{ margin-top: 0; }
   .guestbook-list li{
     border-top: 1px solid var(--border);
-    padding-top: 10px;
+    padding-top: 12px;
   }
   .guestbook-name{
     display:block;
@@ -1611,6 +1633,111 @@
     color: var(--muted);
     margin: 0;
     word-break: break-word;
+  }
+  /* Only shows up on entries that belong to WHOEVER is currently
+     looking at the page (see "isMyEntry" in the <script>) — a
+     stranger's message never gets these buttons, only your own. */
+  .guestbook-entry-actions{
+    display:flex;
+    gap:10px;
+    margin-top: 6px;
+  }
+  .guestbook-entry-actions button{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor:pointer;
+    text-decoration: underline;
+  }
+  .guestbook-entry-actions button:hover{ color: var(--text); }
+  .guestbook-entry-actions button:focus-visible{ outline: 2px solid var(--red); outline-offset: 2px; }
+  .guestbook-entry-delete{ color: var(--red) !important; }
+  /* Swapped in over the plain message text while YOU are editing
+     YOUR OWN message — same look as the main form's textarea, so
+     it's obviously the same kind of control. */
+  .guestbook-edit-textarea{
+    width:100%;
+    box-sizing:border-box;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    resize: vertical;
+    margin-top: 4px;
+  }
+
+  /* ============================================
+     GUESTBOOK MESSAGES MODAL 📖🔍
+     ELI5: the exact same "one shared pop-up, filled in fresh each
+     time" trick as the photo lightbox just below — this one just
+     shows a scrollable list of messages instead of one photo. */
+  .guestbook-modal{
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 24px;
+    background: rgba(10,8,12,0.86);
+  }
+  .guestbook-modal[hidden]{ display:none; }
+  .guestbook-modal-card{
+    width:100%;
+    max-width: 420px;
+    max-height: 80vh;
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 20px;
+    display:flex;
+    flex-direction:column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .guestbook-modal-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom: 14px;
+  }
+  .guestbook-modal-title{
+    font-family: var(--display);
+    font-size: 15px;
+    color: var(--text);
+    margin: 0;
+  }
+  .guestbook-modal-close{
+    flex-shrink:0;
+    width: 32px;
+    height: 32px;
+    border-radius:50%;
+    border: none;
+    background: color-mix(in srgb, var(--bg) 60%, transparent);
+    color: var(--text);
+    font-size: 18px;
+    line-height:1;
+    cursor:pointer;
+  }
+  .guestbook-modal-close:hover{ background: var(--bg); }
+  .guestbook-modal-close:focus-visible{ outline: 2px solid var(--red); outline-offset:2px; }
+  /* The header stays put; only the message list itself scrolls,
+     same "tall list, short pop-up" trick as any normal app's
+     scrollable panel */
+  .guestbook-modal-card .guestbook-list{
+    overflow-y: auto;
+  }
+  .guestbook-modal-empty{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    text-align:center;
+    margin: 0;
   }
 
   /* ============================================
@@ -1981,15 +2108,25 @@
     /* "grid-template-areas" is basically a little map drawn with
        words — each row of quotes is one row of the page, and
        each word is which element goes in that square. Writing
-       "left" in all three rows tells the grid "this one column
-       spans all three rows," which is exactly how the tall
-       photocard stacks end up running alongside the card, the new
-       Fandom Corner cards, AND the footer, all at once */
+       "left" in all four rows tells the grid "this one column
+       spans all four rows," which is exactly how the tall
+       photocard stacks end up running alongside the card, the
+       Ryujin Focus button, the Fandom Corner cards, AND the
+       footer, all at once.
+       ELI5: without a NAMED spot in this word-map, an element just
+       gets dropped wherever the browser finds the next open space
+       — which for the Ryujin Focus button would be way down at
+       the BOTTOM of the page, since every square in this map is
+       already spoken for otherwise. Giving it its own row (named
+       "focus", sitting right between "page" and "fandom") is what
+       keeps it showing up exactly where it visually belongs: right
+       under the profile card, right above Meet the Members. */
     body{
       display:grid;
       grid-template-columns: auto minmax(0, 480px) auto;
       grid-template-areas:
         "left page   right"
+        "left focus  right"
         "left fandom right"
         "left foot   right";
       column-gap: 40px;
@@ -1998,6 +2135,7 @@
     }
 
     .page{ grid-area: page; }
+    .ryujin-focus-toggle{ grid-area: focus; align-self:start; margin: 0 auto; }
     .fandom-corner{ grid-area: fandom; align-self:start; }
     footer{ grid-area: foot; align-self:start; }
 
@@ -2025,11 +2163,11 @@
        pinned every card to an exact pixel spot by hand and started
        overlapping once the timeline grew past 17 songs. */
     .gallery-left, .gallery-right{
-      /* "1 / 4" spans all three named rows now (page, fandom, and
-         foot) instead of just the first two — since a fourth row
-         line always exists automatically right after the last
-         named row, "4" here means "all the way to the bottom" */
-      grid-row: 1 / 4;
+      /* "1 / 5" spans all four named rows now (page, focus, fandom,
+         and foot) — since a fifth row line always exists
+         automatically right after the last named row, "5" here
+         means "all the way to the bottom" */
+      grid-row: 1 / 5;
       align-self: start;
       /* ".gallery-left"/".gallery-right" also carry the plain
          ".gallery" class (for the mobile/tablet flex-wrap row
@@ -2146,6 +2284,7 @@
     .fandom-corner,
     .comeback-banner,
     .lightbox,
+    .guestbook-modal,
     .back-to-top,
     .select-arrow{
       display:none !important;
@@ -2744,6 +2883,35 @@
 </div>
 
   <!-- ============================================
+       RYUJIN FOCUS TOGGLE ✨
+       ELI5: this button is a magic highlighter for the picture
+       wall further down the page — press it, and every photo that
+       ISN'T one of Ryujin's especially stand-out eras fades down
+       and turns a little gray, while her photos light up with a
+       small red ring around them.
+       A handful of the photocards further down carry an extra
+       "data-ryujin" attribute — a plain marker meaning "this is
+       one of the songs/eras where she's an especially stand-out
+       part of the concept" (her powerful, edgy title tracks and
+       moments as center). Clicking this button flips a single
+       data-ryujin-focus="true" attribute onto <html>, the exact
+       same trick the era and light/dark switchers already use —
+       and the CSS reacts to THAT, dimming every card that does NOT
+       have "data-ryujin" and putting a little red ring around the
+       ones that do. Sitting here (between the social links and
+       "Meet the Members," instead of buried right above the
+       moodboard itself) makes it something a visitor actually
+       notices on the way down the page, not an easy-to-miss
+       button tucked in right before 31 photos start.
+
+       The current tagged set is DALLA DALLA, WANNABE, LOCO, and
+       IN THE MORNING — search this file for `data-ryujin="true"`
+       to see (or change!) exactly which photocards are tagged. -->
+  <button type="button" class="ryujin-focus-toggle" id="ryujin-focus-toggle" aria-pressed="false">
+    ✨ Ryujin Focus
+  </button>
+
+  <!-- ============================================
        FANDOM CORNER 🖤
        Two small extra cards: a rotating "meet the members"
        carousel showing all 5 members of ITZY one at a time, and a
@@ -2821,22 +2989,30 @@
 
     <!-- ============================================
          GUESTBOOK 📖
-         ELI5: this is a real, permanent guestbook, like the paper
-         one at a wedding or a museum — anyone can write a NEW nice
-         note, but nobody can erase or edit a note once it's
-         written, and it's ONLY for saying something you appreciate
-         about INO or ITZY, not for random chat or complaints.
+         ELI5: it's a public thank-you wall — anyone can write a
+         NEW nice note, and it's ONLY for saying something you
+         appreciate about INO or ITZY, not for random chat or
+         complaints. You CAN fix or remove your own note later
+         (see "Sign in, quietly" below for how the site remembers
+         which notes are "yours"), but nobody can ever touch
+         someone ELSE's note.
          Starts completely "hidden" on purpose, same as the visit
          counter down in the footer — the JavaScript (search for
          "GUESTBOOK" in the <script>) only reveals it once it's
          actually connected to the real database, so nobody ever
-         sees a broken, half-working form for a split second. -->
+         sees a broken, half-working form for a split second.
+
+         The messages themselves don't live inline on the page
+         anymore — they're tucked behind the "View Messages" button
+         below, which opens a pop-up (see "GUESTBOOK MESSAGES
+         MODAL" further down this file) instead of one long
+         scrolling list sitting permanently inside this small card. -->
     <div class="spotlight-card" id="guestbook-card" hidden>
       <p class="spotlight-label">🖤 leave INO some appreciation</p>
       <p class="guestbook-hint">
-        A public, permanent thank-you wall — once posted, a message
-        can't be edited or deleted, so keep it kind! Not the place
-        for chat, requests, or complaints.
+        A public appreciation wall — not the place for chat,
+        requests, or complaints. You can edit or delete your OWN
+        message any time; nobody else's.
       </p>
       <form id="guestbook-form" class="guestbook-form">
         <input type="text" id="guestbook-name" class="guestbook-input" placeholder="Your name (optional)" maxlength="40" autocomplete="off">
@@ -2844,7 +3020,12 @@
         <button type="submit" class="guestbook-submit">Sign the Guestbook 🖤</button>
         <p class="guestbook-status" id="guestbook-status" role="status" aria-live="polite" hidden></p>
       </form>
-      <ul class="guestbook-list" id="guestbook-list"></ul>
+      <!-- ELI5: this button is like a closed jar with a label on
+           it saying how many notes are inside — you don't see the
+           notes themselves until you actually open it. -->
+      <button type="button" class="guestbook-view-button" id="guestbook-view-button">
+        View Messages (<span id="guestbook-count">0</span>)
+      </button>
     </div>
   </div>
 
@@ -2882,25 +3063,6 @@
        full explanation.
        ============================================ -->
   <p class="gallery-label">midzy moodboard</p>
-  <!-- ============================================
-       RYUJIN FOCUS TOGGLE ✨
-       A handful of the photocards below carry an extra
-       "data-ryujin" attribute — a plain marker meaning "this is
-       one of the songs/eras where she's a especially stand-out
-       part of the concept" (her powerful, edgy title tracks and
-       moments as center). Clicking this button flips a single
-       data-ryujin-focus="true" attribute onto <html>, the exact
-       same trick the era and light/dark switchers already use —
-       and the CSS below reacts to THAT, dimming every card that
-       does NOT have "data-ryujin" and putting a little red ring
-       around the ones that do.
-
-       The current tagged set is DALLA DALLA, WANNABE, LOCO, and
-       IN THE MORNING — search this file for `data-ryujin="true"`
-       to see (or change!) exactly which photocards are tagged. -->
-  <button type="button" class="ryujin-focus-toggle" id="ryujin-focus-toggle" aria-pressed="false">
-    ✨ Ryujin Focus
-  </button>
   <div class="gallery gallery-left">
     <!-- 1. DALLA DALLA (2019) — ITZY's actual debut song, so we
          spell that out right in the caption -->
@@ -3078,6 +3240,26 @@
       <img class="lightbox-img" id="lightbox-img" src="" alt="">
       <span class="lightbox-caption" id="lightbox-caption"></span>
       <a class="lightbox-watch" id="lightbox-watch" href="#" target="_blank" rel="noopener">▶ Watch Music Video</a>
+    </div>
+  </div>
+
+  <!-- ============================================
+       GUESTBOOK MESSAGES MODAL 📖🔍
+       ELI5: pressing "View Messages" over in the Guestbook card
+       opens THIS pop-up, exactly the same trick as the photo
+       lightbox right above — one shared pop-up, filled in fresh
+       each time, instead of showing every message permanently
+       inline on the page. Clicking the dark backdrop, pressing the
+       × button, or pressing Escape all close it again, same as the
+       lightbox — see "GUESTBOOK MESSAGES MODAL" in the <script>
+       for exactly how. -->
+  <div class="guestbook-modal" id="guestbook-modal" role="dialog" aria-modal="true" aria-labelledby="guestbook-modal-title" hidden>
+    <div class="guestbook-modal-card">
+      <div class="guestbook-modal-header">
+        <p class="guestbook-modal-title" id="guestbook-modal-title">🖤 Guestbook Messages</p>
+        <button type="button" class="guestbook-modal-close" id="guestbook-modal-close" aria-label="Close guestbook messages">×</button>
+      </div>
+      <ul class="guestbook-list" id="guestbook-list"></ul>
     </div>
   </div>
 
@@ -4116,18 +4298,35 @@
 
   // ============================================
   // GUESTBOOK 📖
-  // ELI5: it's a REAL guestbook, like the one at a wedding — anyone
-  // can write a brand new nice note, but nobody (not even the
-  // person who wrote it) can erase or change a note once it's
-  // written. It's only for saying something you appreciate about
-  // INO or ITZY — a small keyword filter (see
+  // ELI5: it's a real public thank-you wall — anyone can write a
+  // brand new nice note, and it's only for saying something you
+  // appreciate about INO or ITZY. A small keyword filter (see
   // "isAppreciationMessage()" over in logic.js) politely turns away
   // messages that don't sound appreciative, or that contain an
-  // obviously mean word, before they're ever saved.
+  // obviously mean word, before they're ever saved. You CAN edit
+  // or delete your OWN message later — but never anyone else's.
+  //
+  // "Sign in, quietly" — how the site knows which notes are YOURS:
+  // this uses Firebase ANONYMOUS AUTHENTICATION, which quietly signs
+  // every visitor into their own private, nameless account the
+  // instant this feature loads — no login screen, no password, no
+  // email, nothing to type or even notice. It just hands the
+  // browser a permanent random ID (a "UID") and remembers it, the
+  // same way a coat-check ticket proves which coat is yours without
+  // anyone needing to know your name. Every message this browser
+  // ever creates gets tagged with that UID; the Edit/Delete buttons
+  // in the messages pop-up only ever show up on messages whose UID
+  // matches this browser's own — and, critically, the FIRESTORE
+  // RULES enforce that same match server-side too (see the big
+  // rules comment below), so it's real security, not just a
+  // friendly UI suggestion. Clearing this browser's site data (or
+  // switching devices/browsers) starts a brand new anonymous
+  // identity, which means losing edit/delete access to older
+  // messages — an honest trade-off for needing zero login system.
   //
   // Reuses the exact same lazy-loaded Firebase SDK trick as the
-  // VISIT COUNTER just above (same "only download Firebase at all
-  // if FIREBASE_CONFIG is filled in" feature flag) — but this one
+  // VISIT COUNTER above (same "only download Firebase at all if
+  // FIREBASE_CONFIG is filled in" feature flag) — but this one
   // registers its own, separately NAMED Firebase app ('guestbook')
   // instead of sharing the visit counter's default one. Firebase
   // throws a real error if two different pieces of code both try
@@ -4136,17 +4335,18 @@
   // independent, so either one can be turned on or off without
   // breaking the other.
   //
-  // Before this goes live, the Firestore database needs a SECOND
-  // set of rules added (in the Firebase console, under Firestore
-  // Database → Rules), right alongside the visit counter's existing
-  // "stats/visits" rules — this is a DIFFERENT collection
-  // ("guestbook"), so it needs its own match block, added as a
-  // SIBLING of "match /stats/visits" INSIDE that same
-  // "match /databases/{database}/documents" block (NOT after its
-  // closing braces — a match block sitting outside
-  // "service cloud.firestore { match /databases/... { } }"
-  // entirely is invalid and the console will reject it). The whole
-  // thing should look like this:
+  // Before this goes live, TWO things need doing in the Firebase
+  // console:
+  //   1. Authentication → Sign-in method → enable "Anonymous".
+  //      Without this, signInAnonymously() below always fails, and
+  //      the whole guestbook card just quietly stays hidden.
+  //   2. Firestore Database → Rules — a SECOND match block added
+  //      as a SIBLING of "match /stats/visits", INSIDE that same
+  //      "match /databases/{database}/documents" block (NOT after
+  //      its closing braces — a match block sitting outside
+  //      "service cloud.firestore { match /databases/... { } }"
+  //      entirely is invalid and the console will reject it). The
+  //      whole rules file should look like this:
   //
   //   rules_version = '2';
   //   service cloud.firestore {
@@ -4160,7 +4360,9 @@
   //       }
   //       match /guestbook/{entryId} {
   //         allow read: if true;
-  //         allow create: if request.resource.data.keys().hasOnly(['name', 'message', 'createdAt'])
+  //         allow create: if request.auth != null
+  //                       && request.resource.data.authorUid == request.auth.uid
+  //                       && request.resource.data.keys().hasOnly(['name', 'message', 'createdAt', 'authorUid'])
   //                       && request.resource.data.message is string
   //                       && request.resource.data.message.size() > 0
   //                       && request.resource.data.message.size() <= 200
@@ -4168,30 +4370,40 @@
   //                       && request.resource.data.name is string
   //                       && request.resource.data.name.size() <= 40
   //                       && request.resource.data.createdAt == request.time;
-  //         allow update: if false;
-  //         allow delete: if false;
+  //         allow update: if request.auth != null
+  //                       && request.auth.uid == resource.data.authorUid
+  //                       && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['message'])
+  //                       && request.resource.data.message is string
+  //                       && request.resource.data.message.size() > 0
+  //                       && request.resource.data.message.size() <= 200
+  //                       && !request.resource.data.message.lower().matches('.*(fuck|shit|bitch|nigger|faggot|retard|kys).*');
+  //         allow delete: if request.auth != null
+  //                       && request.auth.uid == resource.data.authorUid;
   //       }
   //     }
   //   }
   //
-  // "allow update/delete: if false" is what makes this a REAL
-  // guestbook instead of just a chat box — once a message is
-  // written, it's permanent, exactly like ink on paper. The
-  // "hasOnly" + size() checks stop anyone from sending extra
-  // fields, an empty message, a too-long message, or a spoofed
-  // timestamp, and the ".matches()" line is a small second layer
-  // of the SAME profanity check the form already does in
-  // JavaScript — this one can't be skipped by calling the database
-  // directly, since it's enforced by Firestore itself, not by code
-  // running in a visitor's own browser. It only catches the worst,
-  // most obvious profanity (regex isn't well-suited to the FULL
-  // "does this sound appreciative?" check, which is why that
-  // fuller check stays in logic.js instead) — being honest that
-  // this is a best-effort filter, not perfect moderation. Because
-  // Firestore security rules only ever restrict the public SDK,
-  // INO (the project owner) can still open the Firebase console
-  // directly and delete anything that slips through by hand — the
-  // "if false" above blocks the PUBLIC form, not the owner.
+  // The "hasOnly" + size() checks on create stop anyone from
+  // sending extra fields, an empty message, a too-long message, or
+  // a spoofed timestamp; "authorUid == request.auth.uid" stops
+  // anyone from creating a message and claiming it's someone ELSE's
+  // (which would let them edit/delete on that other person's
+  // behalf); the ".matches()" line is a small second layer of the
+  // SAME profanity check the form already does in JavaScript — this
+  // one can't be skipped by calling the database directly instead
+  // of using the real form. On update, "diff(resource.data)
+  // .affectedKeys().hasOnly(['message'])" is what stops an "edit"
+  // from secretly also changing the name, timestamp, or (most
+  // importantly) the authorUid to steal ownership of a message —
+  // ONLY the message text is allowed to change. And on both update
+  // and delete, "request.auth.uid == resource.data.authorUid" is
+  // the actual heart of the whole feature: it mathematically proves
+  // "whoever is asking is the exact same anonymous visitor who
+  // created this," which is impossible to fake without stealing
+  // that visitor's own device/browser session. Because security
+  // rules only ever restrict the public SDK, INO can still open the
+  // Firebase console directly and delete or fix anything by hand,
+  // regardless of who "owns" it.
   (function setUpGuestbook() {
     var card = document.getElementById('guestbook-card');
     if (!FIREBASE_CONFIG) { return; }
@@ -4200,35 +4412,179 @@
     var nameInput = document.getElementById('guestbook-name');
     var messageInput = document.getElementById('guestbook-message');
     var statusEl = document.getElementById('guestbook-status');
-    var listEl = document.getElementById('guestbook-list');
     var submitButton = form.querySelector('.guestbook-submit');
+    var viewButton = document.getElementById('guestbook-view-button');
+    var countEl = document.getElementById('guestbook-count');
+    var modal = document.getElementById('guestbook-modal');
+    var modalCloseButton = document.getElementById('guestbook-modal-close');
+    var listEl = document.getElementById('guestbook-list');
     var FIREBASE_SDK_VERSION = '10.7.0';
     var db = null;
     var firestoreModule = null;
+    var myUid = null;
 
     function showStatus(text) {
       statusEl.textContent = text;
       statusEl.hidden = false;
     }
 
+    // ELI5: the exact same "pop up, then close again" trick as the
+    // photo lightbox further down the page — opening moves keyboard
+    // focus INTO the pop-up (so a keyboard/screen-reader user isn't
+    // stuck "underneath" it), and closing sends focus back to
+    // whichever button opened it, so focus never just vanishes.
+    function openModal() {
+      modal.hidden = false;
+      modalCloseButton.focus();
+    }
+    function closeModal() {
+      modal.hidden = true;
+      viewButton.focus();
+    }
+
+    // Builds ONE message's <li> — including its Edit/Delete buttons
+    // if (and only if) "myUid" matches this exact message's author,
+    // meaning it's YOUR OWN message. A stranger's message never
+    // gets those buttons at all; they're not just hidden with CSS,
+    // they're never even added to the page.
+    function buildEntryItem(entryId, data) {
+      var item = document.createElement('li');
+      var nameEl = document.createElement('span');
+      nameEl.className = 'guestbook-name';
+      nameEl.textContent = data.name ? data.name : 'Anonymous Midzy';
+      var messageEl = document.createElement('p');
+      messageEl.className = 'guestbook-message';
+      messageEl.textContent = data.message;
+      item.appendChild(nameEl);
+      item.appendChild(messageEl);
+
+      var isMyEntry = myUid !== null && data.authorUid === myUid;
+      if (isMyEntry) {
+        var actions = document.createElement('div');
+        actions.className = 'guestbook-entry-actions';
+
+        var editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.textContent = 'Edit';
+        editButton.addEventListener('click', function () {
+          startEditingEntry(entryId, item, data.message, nameEl.textContent);
+        });
+
+        var deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'guestbook-entry-delete';
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', function () {
+          deleteEntry(entryId, deleteButton);
+        });
+
+        actions.appendChild(editButton);
+        actions.appendChild(deleteButton);
+        item.appendChild(actions);
+      }
+      return item;
+    }
+
+    // Swaps a message's plain <p> text for an editable textarea (a
+    // Save + Cancel button underneath it) — right in place, instead
+    // of opening a whole separate pop-up just to change a few words.
+    function startEditingEntry(entryId, item, currentMessage, currentName) {
+      var textarea = document.createElement('textarea');
+      textarea.className = 'guestbook-edit-textarea';
+      textarea.maxLength = 200;
+      textarea.rows = 3;
+      textarea.value = currentMessage;
+
+      var actions = document.createElement('div');
+      actions.className = 'guestbook-entry-actions';
+      var saveButton = document.createElement('button');
+      saveButton.type = 'button';
+      saveButton.textContent = 'Save';
+      var cancelButton = document.createElement('button');
+      cancelButton.type = 'button';
+      cancelButton.textContent = 'Cancel';
+
+      var errorEl = document.createElement('p');
+      errorEl.className = 'guestbook-status';
+      errorEl.hidden = true;
+
+      saveButton.addEventListener('click', function () {
+        var newMessage = textarea.value.trim();
+        // Same appreciation check as posting a brand new message —
+        // an edit has to stay an appreciation message too, it can't
+        // be used to sneak in something else after the fact.
+        if (!isAppreciationMessage(newMessage)) {
+          errorEl.textContent = "That doesn't quite sound like an appreciation message anymore — try again! 🖤";
+          errorEl.hidden = false;
+          return;
+        }
+        saveButton.disabled = true;
+        firestoreModule.updateDoc(
+          firestoreModule.doc(db, 'guestbook', entryId),
+          { message: newMessage.slice(0, 200) }
+        ).then(function () {
+          loadEntries();
+        }).catch(function () {
+          errorEl.textContent = "Couldn't save that edit — please try again in a moment.";
+          errorEl.hidden = false;
+          saveButton.disabled = false;
+        });
+      });
+
+      cancelButton.addEventListener('click', function () {
+        loadEntries();
+      });
+
+      actions.appendChild(saveButton);
+      actions.appendChild(cancelButton);
+
+      // Clears out the old "plain text + Edit/Delete" view and
+      // replaces it with "name + textarea + Save/Cancel" instead,
+      // all inside the SAME <li> so the message doesn't jump
+      // around the list while it's being edited. The name itself
+      // isn't editable here — only the message text is (matching
+      // what the Firestore rules actually allow an edit to touch).
+      item.textContent = '';
+      var nameEl = document.createElement('span');
+      nameEl.className = 'guestbook-name';
+      nameEl.textContent = currentName;
+      item.appendChild(nameEl);
+      item.appendChild(textarea);
+      item.appendChild(actions);
+      item.appendChild(errorEl);
+      textarea.focus();
+    }
+
+    function deleteEntry(entryId, deleteButton) {
+      if (!window.confirm('Delete this message? This cannot be undone.')) {
+        return;
+      }
+      deleteButton.disabled = true;
+      firestoreModule.deleteDoc(firestoreModule.doc(db, 'guestbook', entryId)).then(function () {
+        loadEntries();
+      }).catch(function () {
+        deleteButton.disabled = false;
+        window.alert("Couldn't delete that message — please try again in a moment.");
+      });
+    }
+
     // Rebuilds the visible list of messages from scratch out of a
     // fresh Firestore query result — simplest way to keep the list
-    // and the database from ever quietly drifting out of sync.
+    // and the database from ever quietly drifting out of sync, and
+    // also keeps the "View Messages (N)" count on the button itself
+    // accurate any time an entry is added, edited, or deleted.
     function renderEntries(snapshot) {
       listEl.textContent = '';
       snapshot.forEach(function (docSnap) {
-        var data = docSnap.data();
-        var item = document.createElement('li');
-        var nameEl = document.createElement('span');
-        nameEl.className = 'guestbook-name';
-        nameEl.textContent = data.name ? data.name : 'Anonymous Midzy';
-        var messageEl = document.createElement('p');
-        messageEl.className = 'guestbook-message';
-        messageEl.textContent = data.message;
-        item.appendChild(nameEl);
-        item.appendChild(messageEl);
-        listEl.appendChild(item);
+        listEl.appendChild(buildEntryItem(docSnap.id, docSnap.data()));
       });
+      countEl.textContent = String(snapshot.size);
+      if (snapshot.size === 0) {
+        var emptyMessage = document.createElement('p');
+        emptyMessage.className = 'guestbook-modal-empty';
+        emptyMessage.textContent = 'No messages yet — be the first to leave one! 🖤';
+        listEl.appendChild(emptyMessage);
+      }
     }
 
     // Newest-first, and capped at 20 — this is a friendly wall of
@@ -4249,23 +4605,35 @@
 
     Promise.all([
       import('https://www.gstatic.com/firebasejs/' + FIREBASE_SDK_VERSION + '/firebase-app.js'),
-      import('https://www.gstatic.com/firebasejs/' + FIREBASE_SDK_VERSION + '/firebase-firestore.js')
+      import('https://www.gstatic.com/firebasejs/' + FIREBASE_SDK_VERSION + '/firebase-firestore.js'),
+      import('https://www.gstatic.com/firebasejs/' + FIREBASE_SDK_VERSION + '/firebase-auth.js')
     ]).then(function (modules) {
       var appModule = modules[0];
       firestoreModule = modules[1];
+      var authModule = modules[2];
       var app = appModule.initializeApp(FIREBASE_CONFIG, 'guestbook');
       db = firestoreModule.getFirestore(app);
-      card.hidden = false;
-      loadEntries();
+      var auth = authModule.getAuth(app);
+      // "Quietly sign in" — this is the ENTIRE anonymous-auth step:
+      // one function call, no form, no UI, no visible sign-in step
+      // at all. Firebase remembers this identity in the browser's
+      // own storage, so it survives page reloads (though not a
+      // cleared cache, or a totally different browser/device).
+      return authModule.signInAnonymously(auth).then(function (credential) {
+        myUid = credential.user.uid;
+        card.hidden = false;
+        loadEntries();
+      });
     }).catch(function () {
       // Same "fail quietly" rule as the visit counter — if Firebase
-      // can't load, the card just stays hidden instead of showing
-      // a broken form nobody can actually use.
+      // (or Anonymous sign-in specifically) can't load, the card
+      // just stays hidden instead of showing a broken form nobody
+      // can actually use.
     });
 
     form.addEventListener('submit', function (event) {
       event.preventDefault();
-      if (!db) { return; }
+      if (!db || !myUid) { return; }
 
       var message = messageInput.value.trim();
       // "isAppreciationMessage()" (from logic.js) is the exact same
@@ -4284,7 +4652,8 @@
       firestoreModule.addDoc(firestoreModule.collection(db, 'guestbook'), {
         name: name,
         message: message.slice(0, 200),
-        createdAt: firestoreModule.serverTimestamp()
+        createdAt: firestoreModule.serverTimestamp(),
+        authorUid: myUid
       }).then(function () {
         messageInput.value = '';
         nameInput.value = '';
@@ -4295,6 +4664,25 @@
       }).finally(function () {
         submitButton.disabled = false;
       });
+    });
+
+    viewButton.addEventListener('click', function () {
+      loadEntries();
+      openModal();
+    });
+    modalCloseButton.addEventListener('click', closeModal);
+    // Clicking the dark backdrop (anywhere that ISN'T the card
+    // itself) also closes it — same "click outside closes it"
+    // pattern as the photo lightbox and the email menu.
+    modal.addEventListener('click', function (event) {
+      if (event.target === modal) {
+        closeModal();
+      }
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !modal.hidden) {
+        closeModal();
+      }
     });
   })();
 
