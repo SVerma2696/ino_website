@@ -1,0 +1,12 @@
+{
+  "name": "ino-website",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Dev-only test tooling for the pure logic functions in logic.js. The actual deployed site has zero dependencies and zero build step — this package.json never ships, it only exists so `npm test` can run.",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.0"
+  }
+}

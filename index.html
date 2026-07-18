@@ -355,6 +355,37 @@
   }
 
   /* ============================================
+     SKIP TO MAIN CONTENT LINK ⏭️
+     ELI5: normally this link is parked just off the top-left edge
+     of the screen, like it's hiding — but the SECOND someone Tabs
+     to it with a keyboard, it jumps down into full view so they
+     can actually see and press it, then hides again once they
+     move on.
+     "position: absolute; top: -60px" tucks it just off-screen by
+     default, and ":focus" (a real keyboard focus, not hover) pulls
+     it back to "top: 8px" — a plain CSS transition handles the
+     little slide. "z-index: 100" keeps it above literally
+     everything else (even the GitHub/Share buttons) so it's never
+     accidentally covered up the one time it matters. */
+  .skip-link{
+    position: absolute;
+    top: -60px;
+    left: 8px;
+    z-index: 100;
+    padding: 10px 16px;
+    border-radius: 10px;
+    background: var(--red);
+    color: #fff;
+    font-family: var(--display);
+    font-size: 13px;
+    text-decoration: none;
+    transition: top 0.2s ease;
+  }
+  .skip-link:focus{
+    top: 8px;
+  }
+
+  /* ============================================
      THE GITHUB CIRCLE 🐙 (and its little sibling, the SHARE CIRCLE)
      Two little round buttons, both pinned to the top-left corner
      of the browser window forever (position: fixed), no matter how
@@ -1490,6 +1521,99 @@
   .bias-fact.is-fading{ opacity: 0; }
 
   /* ============================================
+     GUESTBOOK 📖
+     ELI5: this is just a little form (name + message + button)
+     stacked on top of a scrolling list of everyone else's
+     messages, styled to match the frosted-glass cards everywhere
+     else on the page — nothing fancy, just inputs that use the
+     site's existing colors/fonts (--border, --bg, --text, --mono)
+     instead of a browser's plain gray defaults.
+     ============================================ */
+  .guestbook-hint{
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--muted);
+    text-align:center;
+    margin: 0 0 12px;
+  }
+  .guestbook-form{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .guestbook-input, .guestbook-textarea{
+    width:100%;
+    box-sizing:border-box;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 12px;
+    resize: vertical;
+  }
+  .guestbook-input:focus-visible, .guestbook-textarea:focus-visible{
+    outline: 2px solid var(--red);
+    outline-offset: 1px;
+  }
+  .guestbook-submit{
+    font-family: var(--display);
+    font-size: 13px;
+    color: #fff;
+    background: var(--red);
+    border: none;
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor:pointer;
+    transition: transform 0.15s ease;
+  }
+  .guestbook-submit:hover{ transform: scale(1.02); }
+  .guestbook-submit:disabled{ opacity: 0.6; cursor: default; transform: none; }
+  .guestbook-submit:focus-visible{ outline: 2px solid var(--red); outline-offset: 2px; }
+  .guestbook-status{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    text-align:center;
+    margin: 0;
+  }
+  /* The list of everyone else's messages, newest first — a plain
+     scrollable box (instead of letting the whole page grow
+     endlessly taller) once there are enough entries to fill it. */
+  .guestbook-list{
+    list-style:none;
+    margin: 12px 0 0;
+    padding: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .guestbook-list:empty{ margin-top: 0; }
+  .guestbook-list li{
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+  .guestbook-name{
+    display:block;
+    font-family: var(--display);
+    font-size: 12px;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .guestbook-message{
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--muted);
+    margin: 0;
+    word-break: break-word;
+  }
+
+  /* ============================================
      PHOTOCARD LIGHTBOX 🔍
      Clicking a photocard used to jump STRAIGHT to YouTube in a
      new tab — useful, but a little jarring if someone just wanted
@@ -2172,6 +2296,23 @@
 <body>
 
 <!-- ============================================
+     SKIP TO MAIN CONTENT LINK ⏭️
+     ELI5: this is a secret shortcut door. It's invisible for
+     almost everyone, but if you're using a keyboard (or a screen
+     reader) instead of a mouse, pressing Tab once shows a little
+     button that jumps straight past the GitHub button, share
+     button, and background photos, right to the real content —
+     so nobody's stuck pressing Tab a dozen times just to reach the
+     name and links every single visit.
+     It's a real link to "#main-content" (the id="main-content"
+     on <main> further down), styled completely off-screen by
+     default (see ".skip-link" in the CSS) and only pulled back
+     into view by ".skip-link:focus" — the same "only show it to
+     someone who's actually tabbing through the page" trick real
+     accessibility-conscious sites use everywhere. -->
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<!-- ============================================
      "VIEW SOURCE ON GITHUB" BUTTON 🐙
      A little round button in the top-LEFT corner (mirroring the
      light/dark button that floats in the top-RIGHT), linking
@@ -2302,7 +2443,7 @@
 
 <div class="page">
 
-  <main>
+  <main id="main-content">
     <!-- ============================================
          "NEXT COMEBACK" COUNTDOWN BANNER 📅
          This little bar is OFF by default — right now, there's no
@@ -2677,6 +2818,34 @@
            (the JS) that ever needs to know the actual list of facts. -->
       <p class="bias-fact" id="bias-fact"></p>
     </div>
+
+    <!-- ============================================
+         GUESTBOOK 📖
+         ELI5: this is a real, permanent guestbook, like the paper
+         one at a wedding or a museum — anyone can write a NEW nice
+         note, but nobody can erase or edit a note once it's
+         written, and it's ONLY for saying something you appreciate
+         about INO or ITZY, not for random chat or complaints.
+         Starts completely "hidden" on purpose, same as the visit
+         counter down in the footer — the JavaScript (search for
+         "GUESTBOOK" in the <script>) only reveals it once it's
+         actually connected to the real database, so nobody ever
+         sees a broken, half-working form for a split second. -->
+    <div class="spotlight-card" id="guestbook-card" hidden>
+      <p class="spotlight-label">🖤 leave INO some appreciation</p>
+      <p class="guestbook-hint">
+        A public, permanent thank-you wall — once posted, a message
+        can't be edited or deleted, so keep it kind! Not the place
+        for chat, requests, or complaints.
+      </p>
+      <form id="guestbook-form" class="guestbook-form">
+        <input type="text" id="guestbook-name" class="guestbook-input" placeholder="Your name (optional)" maxlength="40" autocomplete="off">
+        <textarea id="guestbook-message" class="guestbook-textarea" placeholder="Something you appreciate about INO or ITZY..." maxlength="200" rows="3" required></textarea>
+        <button type="submit" class="guestbook-submit">Sign the Guestbook 🖤</button>
+        <p class="guestbook-status" id="guestbook-status" role="status" aria-live="polite" hidden></p>
+      </form>
+      <ul class="guestbook-list" id="guestbook-list"></ul>
+    </div>
   </div>
 
   <!-- ============================================
@@ -2934,6 +3103,13 @@
     <p id="visit-counter" hidden></p>
   </footer>
 
+<!-- ELI5: this loads a second, separate script file (logic.js)
+     BEFORE the big one below — it's the plain math/rules
+     (countdown math, "is this a real era?" checking) pulled out
+     into their own file so an automated test can check them
+     directly, without needing a real browser. See the big comment
+     at the top of logic.js itself for the full "why." -->
+<script src="logic.js"></script>
 <script>
   // ============================================
   // TINY HELPER SCRIPT 🧩
@@ -3537,14 +3713,19 @@
     var eraFromUrl = params.get('era');
     if (!eraFromUrl) { return; }
 
-    // Trying to set a <select>'s value to something that ISN'T
-    // one of its real <option>s just quietly fails and leaves the
-    // value unchanged — so checking "did it actually take?" after
-    // trying is a simple, safe way to validate it, with no need
-    // to go searching through every <option> by hand.
-    eraSelect.value = eraFromUrl;
-    if (eraSelect.value === eraFromUrl) {
-      applyEra(eraFromUrl);
+    // "isValidEra()" (from logic.js) is the same plain, testable
+    // function the automated tests check directly — it just
+    // compares the URL's era against the REAL list of <option>
+    // values already sitting in the dropdown, so there's only one
+    // true source of "which eras actually exist," not a second
+    // hardcoded list that could quietly drift out of sync.
+    var knownEras = Array.prototype.map.call(eraSelect.options, function (option) {
+      return option.value;
+    });
+    var validEra = isValidEra(eraFromUrl, knownEras);
+    if (validEra) {
+      eraSelect.value = validEra;
+      applyEra(validEra);
     }
   }
 
@@ -3777,14 +3958,6 @@
     var dismissButton = document.getElementById('comeback-dismiss');
     var tickIntervalId = null;
 
-    // A tiny helper: turns a plain number into a 2-digit string,
-    // like turning "5" into "05" — so the countdown always reads
-    // "05s" instead of jumping between "5s" and "05s" as it ticks,
-    // which keeps the whole line from jittering side to side.
-    function twoDigits(number) {
-      return number < 10 ? '0' + number : String(number);
-    }
-
     // Works out "how many weeks/days/hours/minutes/seconds from
     // right now until the target date?" and writes it into the
     // timer line as words. This is the FULL breakdown (down to the
@@ -3794,26 +3967,16 @@
     // further down) never needs to change, so only this timer line
     // gets touched every tick — a little more efficient than
     // rewriting the whole sentence from scratch every second.
+    // The actual math lives in "formatCountdownText()" over in
+    // logic.js now (not written out by hand here), so the exact
+    // same code that runs on the real site is what the automated
+    // tests in tests/logic.test.js check too.
     function updateCountdownText() {
       var msRemaining = targetTime - Date.now();
+      bannerTimer.textContent = formatCountdownText(msRemaining);
       if (msRemaining <= 0) {
-        bannerTimer.textContent = "today! 🖤";
         clearInterval(tickIntervalId);
-        return;
       }
-      // There are 604,800,000 milliseconds in a week, 86,400,000 in
-      // a day, 3,600,000 in an hour, 60,000 in a minute, and 1,000
-      // in a second — dividing the remaining time by each of those
-      // (using the leftover "remainder" each time, via %) is how we
-      // break one big number of milliseconds into "2w 3d 14h 22m 05s".
-      var weeks = Math.floor(msRemaining / 604800000);
-      var days = Math.floor((msRemaining % 604800000) / 86400000);
-      var hours = Math.floor((msRemaining % 86400000) / 3600000);
-      var minutes = Math.floor((msRemaining % 3600000) / 60000);
-      var seconds = Math.floor((msRemaining % 60000) / 1000);
-      bannerTimer.textContent =
-        weeks + 'w ' + days + 'd ' + twoDigits(hours) + 'h ' +
-        twoDigits(minutes) + 'm ' + twoDigits(seconds) + 's';
     }
 
     banner.hidden = false;
@@ -3948,6 +4111,172 @@
       // shows up — same "fail silently instead of breaking the
       // rest of the page" philosophy as every other optional
       // feature on this site.
+    });
+  })();
+
+  // ============================================
+  // GUESTBOOK 📖
+  // ELI5: it's a REAL guestbook, like the one at a wedding — anyone
+  // can write a brand new nice note, but nobody (not even the
+  // person who wrote it) can erase or change a note once it's
+  // written. It's only for saying something you appreciate about
+  // INO or ITZY — a small keyword filter (see
+  // "isAppreciationMessage()" over in logic.js) politely turns away
+  // messages that don't sound appreciative, or that contain an
+  // obviously mean word, before they're ever saved.
+  //
+  // Reuses the exact same lazy-loaded Firebase SDK trick as the
+  // VISIT COUNTER just above (same "only download Firebase at all
+  // if FIREBASE_CONFIG is filled in" feature flag) — but this one
+  // registers its own, separately NAMED Firebase app ('guestbook')
+  // instead of sharing the visit counter's default one. Firebase
+  // throws a real error if two different pieces of code both try
+  // to initializeApp() the SAME (default, unnamed) app a second
+  // time — giving each feature its own name keeps them fully
+  // independent, so either one can be turned on or off without
+  // breaking the other.
+  //
+  // Before this goes live, the Firestore database needs a SECOND
+  // set of rules added (in the Firebase console, under Firestore
+  // Database → Rules), right alongside the visit counter's existing
+  // "stats/visits" rules above — this is a DIFFERENT collection
+  // ("guestbook"), so it needs its own match block:
+  //
+  //   match /guestbook/{entryId} {
+  //     allow read: if true;
+  //     allow create: if request.resource.data.keys().hasOnly(['name', 'message', 'createdAt'])
+  //                   && request.resource.data.message is string
+  //                   && request.resource.data.message.size() > 0
+  //                   && request.resource.data.message.size() <= 200
+  //                   && !request.resource.data.message.lower().matches('.*(fuck|shit|bitch|nigger|faggot|retard|kys).*')
+  //                   && request.resource.data.name is string
+  //                   && request.resource.data.name.size() <= 40
+  //                   && request.resource.data.createdAt == request.time;
+  //     allow update: if false;
+  //     allow delete: if false;
+  //   }
+  //
+  // "allow update/delete: if false" is what makes this a REAL
+  // guestbook instead of just a chat box — once a message is
+  // written, it's permanent, exactly like ink on paper. The
+  // "hasOnly" + size() checks stop anyone from sending extra
+  // fields, an empty message, a too-long message, or a spoofed
+  // timestamp, and the ".matches()" line is a small second layer
+  // of the SAME profanity check the form already does in
+  // JavaScript — this one can't be skipped by calling the database
+  // directly, since it's enforced by Firestore itself, not by code
+  // running in a visitor's own browser. It only catches the worst,
+  // most obvious profanity (regex isn't well-suited to the FULL
+  // "does this sound appreciative?" check, which is why that
+  // fuller check stays in logic.js instead) — being honest that
+  // this is a best-effort filter, not perfect moderation. Because
+  // Firestore security rules only ever restrict the public SDK,
+  // INO (the project owner) can still open the Firebase console
+  // directly and delete anything that slips through by hand — the
+  // "if false" above blocks the PUBLIC form, not the owner.
+  (function setUpGuestbook() {
+    var card = document.getElementById('guestbook-card');
+    if (!FIREBASE_CONFIG) { return; }
+
+    var form = document.getElementById('guestbook-form');
+    var nameInput = document.getElementById('guestbook-name');
+    var messageInput = document.getElementById('guestbook-message');
+    var statusEl = document.getElementById('guestbook-status');
+    var listEl = document.getElementById('guestbook-list');
+    var submitButton = form.querySelector('.guestbook-submit');
+    var FIREBASE_SDK_VERSION = '10.7.0';
+    var db = null;
+    var firestoreModule = null;
+
+    function showStatus(text) {
+      statusEl.textContent = text;
+      statusEl.hidden = false;
+    }
+
+    // Rebuilds the visible list of messages from scratch out of a
+    // fresh Firestore query result — simplest way to keep the list
+    // and the database from ever quietly drifting out of sync.
+    function renderEntries(snapshot) {
+      listEl.textContent = '';
+      snapshot.forEach(function (docSnap) {
+        var data = docSnap.data();
+        var item = document.createElement('li');
+        var nameEl = document.createElement('span');
+        nameEl.className = 'guestbook-name';
+        nameEl.textContent = data.name ? data.name : 'Anonymous Midzy';
+        var messageEl = document.createElement('p');
+        messageEl.className = 'guestbook-message';
+        messageEl.textContent = data.message;
+        item.appendChild(nameEl);
+        item.appendChild(messageEl);
+        listEl.appendChild(item);
+      });
+    }
+
+    // Newest-first, and capped at 20 — this is a friendly wall of
+    // appreciation to glance through, not a full archive that
+    // needs "load more" pagination.
+    function loadEntries() {
+      var entriesQuery = firestoreModule.query(
+        firestoreModule.collection(db, 'guestbook'),
+        firestoreModule.orderBy('createdAt', 'desc'),
+        firestoreModule.limit(20)
+      );
+      firestoreModule.getDocs(entriesQuery).then(renderEntries).catch(function () {
+        // Reading failed (rules not set up yet, offline, etc.) —
+        // the form above still works fine on its own, so we just
+        // leave the list empty instead of showing an error.
+      });
+    }
+
+    Promise.all([
+      import('https://www.gstatic.com/firebasejs/' + FIREBASE_SDK_VERSION + '/firebase-app.js'),
+      import('https://www.gstatic.com/firebasejs/' + FIREBASE_SDK_VERSION + '/firebase-firestore.js')
+    ]).then(function (modules) {
+      var appModule = modules[0];
+      firestoreModule = modules[1];
+      var app = appModule.initializeApp(FIREBASE_CONFIG, 'guestbook');
+      db = firestoreModule.getFirestore(app);
+      card.hidden = false;
+      loadEntries();
+    }).catch(function () {
+      // Same "fail quietly" rule as the visit counter — if Firebase
+      // can't load, the card just stays hidden instead of showing
+      // a broken form nobody can actually use.
+    });
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      if (!db) { return; }
+
+      var message = messageInput.value.trim();
+      // "isAppreciationMessage()" (from logic.js) is the exact same
+      // function the automated tests check directly — it's what
+      // actually enforces "this guestbook is for appreciation
+      // only," turning away anything empty, off-topic, or
+      // containing an obviously negative word, with a friendly
+      // nudge instead of a scary error.
+      if (!isAppreciationMessage(message)) {
+        showStatus("That doesn't quite sound like an appreciation message — try mentioning something you love or appreciate about INO or ITZY! 🖤");
+        return;
+      }
+
+      var name = nameInput.value.trim().slice(0, 40);
+      submitButton.disabled = true;
+      firestoreModule.addDoc(firestoreModule.collection(db, 'guestbook'), {
+        name: name,
+        message: message.slice(0, 200),
+        createdAt: firestoreModule.serverTimestamp()
+      }).then(function () {
+        messageInput.value = '';
+        nameInput.value = '';
+        showStatus('Thanks for signing! 🖤');
+        loadEntries();
+      }).catch(function () {
+        showStatus("Couldn't save that — please try again in a moment.");
+      }).finally(function () {
+        submitButton.disabled = false;
+      });
     });
   })();
 

@@ -24,8 +24,15 @@ ino_website/
 │   yuna.jpg
 ├── manifest.json                # Tells a phone/computer how to install this site as an app (name, icon, colors)
 ├── service-worker.js            # Lets the page keep working offline once it's been visited once — see PWA below
+├── logic.js                     # Pure, dependency-free math/rules (countdown formatting, era validation,
+│                                 # the guestbook's appreciation filter) — loaded by index.html AND imported
+│                                 # directly by the automated tests, so both use the exact same code
 ├── robots.txt                   # Tells search engines "everything here is fine to read and list"
 ├── sitemap.xml                  # A one-URL "table of contents" for search engines (this is a single-page site)
+├── package.json                 # Dev-only test tooling (Vitest) — the deployed site itself still needs none
+│                                 # of this; see "🧪 Running the Tests" below
+├── tests/
+│   └── logic.test.js            # Automated tests for every function in logic.js
 ├── README.md                   # Project documentation (this file)
 └── .gitignore                  # Ignores OS junk files, editor folders, and node/env leftovers — images are tracked, not hidden
 ```
@@ -70,6 +77,9 @@ There is no `package.json`, build step, or dependency install — `index.html` i
 * **"Latest Upload" Link Card:** Points at INO's channel's own "Videos" tab (which YouTube already keeps sorted newest-first for most channels) — a real, always-roughly-current answer to "what's his newest video?" with zero API key and zero backend needed. Swapping the href for one exact video's URL later makes it fully precise instead of just close.
 * **Back to Top Button:** A small floating circle in the bottom-right corner stays invisible until scrolling past a real distance (this page has genuine scroll depth now, between the main card and 31 photocards) — then fades in as a one-click shortcut back to the very top.
 * **Visit Counter:** A quiet "🖤 X Midzys have visited" line in the footer, backed by a real Firebase project (`ino-website-55ab0`) that goes up by 1 every page load. It's still gated behind a `FIREBASE_CONFIG` constant (same feature-flag pattern as the countdown banner) — setting that constant back to `null` is the instant off switch, hiding the line completely and stopping the Firebase SDK from even being downloaded. **Requires the Firestore database's security rules to actually be set** (see "Countdown Math"'s neighbor, "Visit Counter's Lazy-Loaded Firebase SDK," below, and the big rules comment sitting directly above `setUpVisitCounter()` in `index.html`) — without real rules limiting it to "read the count, or increment it by exactly 1," the database stays wide open to anyone.
+* **Guestbook — A Permanent Appreciation Wall:** A small form (name + short message) underneath the Ryujin Bias Spotlight lets any visitor leave a public, permanent thank-you note for INO — permanent because the Firestore security rules explicitly set `allow update: if false` and `allow delete: if false`, so once a message is saved, nobody (not even its own author) can edit or remove it, the same one-way permanence as ink in a real guestbook. It's deliberately restricted to *appreciation* messages only, not general chat: `isAppreciationMessage()` in `logic.js` requires a message to contain at least one clearly appreciative word/emoji and none of a small blocked-word list before it's ever saved, with a second, smaller version of that same profanity check re-enforced directly in the Firestore rules (via `.matches()`) so it can't be skipped by calling the database directly instead of using the form. Reuses the exact same lazy-loaded Firebase SDK pattern as the Visit Counter, gated behind the same `FIREBASE_CONFIG` flag, but registers its own separately-*named* Firebase app (`'guestbook'`) so the two features never collide by both trying to initialize the same default app. See the big rules comment directly above `setUpGuestbook()` in `index.html` for the exact Firestore rules this needs (a second `match` block, alongside the Visit Counter's own).
+* **Skip to Main Content Link:** A link that's the very first focusable thing on the page, invisible by default and only scrolled into view on real keyboard focus (`.skip-link:focus`) — lets anyone browsing by keyboard or screen reader jump straight past the GitHub/Share buttons and background photos to the actual content, instead of tabbing through everything first every single visit.
+* **Pure Logic, Pulled Out and Actually Tested:** The countdown's date math, the "is this a real era?" URL-validation check, and the guestbook's appreciation filter all live in `logic.js` — plain functions with no dependency on the DOM, timers, or the browser at all. `index.html` loads that file with an ordinary `<script src="logic.js">` tag (so the real site still needs zero build step), while `tests/logic.test.js` imports the *exact same file* and checks each function's answers directly with [Vitest](https://vitest.dev/). See "🧪 Running the Tests" below.
 
 ---
 
@@ -88,6 +98,14 @@ start index.html
 
 ### 3. Or Host it for Free
 Push this folder to a GitHub repository, then enable **Settings → Pages** on the `main` branch and root folder. GitHub will provide a live URL within a couple of minutes.
+
+### 4. 🧪 Running the Tests (Optional, Dev-Only)
+The deployed site itself still needs none of this — `logic.js` is a plain `<script>` tag, same as everything else. This is only for double-checking `logic.js`'s own math and rules automatically instead of by hand:
+```
+npm install
+npm test
+```
+`npm install` downloads [Vitest](https://vitest.dev/) into a local `node_modules/` folder (never committed — see `.gitignore`); `npm test` runs every check in `tests/logic.test.js` and prints a pass/fail summary for each one.
 
 ---
 
@@ -215,6 +233,31 @@ service cloud.firestore {
 ```
 This is deliberately split into `create` and `update` rather than one combined `write` rule — the very FIRST visit ever is creating this document from nothing, so there's no existing `resource.data.count` yet to compare against. A single rule that always checks `resource.data.count + 1` would actually reject that first visit outright, since reading `.data` off a document that doesn't exist is an error, and Firestore treats a rule-evaluation error as "deny." `create` only requires the brand new document to start at exactly `1`; `update` is what mathematically requires every later visit to be EXACTLY "the current count plus one" — so even though writes are allowed at all, nobody can abuse that to set the counter to an arbitrary number, wipe it, or write unrelated data into that document. This same comment (with the exact rules to paste in) also lives directly above `setUpVisitCounter()` in `index.html`.
 
+### Guestbook's Firestore Security Rules
+The Guestbook reuses the same Firestore *database* as the Visit Counter, but it's a separate `guestbook` collection, so it needs its own `match` block added alongside the `stats/visits` one above (same Firebase console → Firestore Database → Rules screen):
+```
+match /guestbook/{entryId} {
+  allow read: if true;
+  allow create: if request.resource.data.keys().hasOnly(['name', 'message', 'createdAt'])
+                && request.resource.data.message is string
+                && request.resource.data.message.size() > 0
+                && request.resource.data.message.size() <= 200
+                && !request.resource.data.message.lower().matches('.*(fuck|shit|bitch|nigger|faggot|retard|kys).*')
+                && request.resource.data.name is string
+                && request.resource.data.name.size() <= 40
+                && request.resource.data.createdAt == request.time;
+  allow update: if false;
+  allow delete: if false;
+}
+```
+`allow update: if false` and `allow delete: if false` are what make this a genuine, permanent guestbook rather than an editable chat box — once a message is created, no client (not even its own author) can ever change or remove it again. The `hasOnly([...])` check stops a request from sneaking in extra fields; the `size()` checks match the exact same 200/40-character limits already enforced by the form's own `maxlength` attributes (so a request bypassing the form entirely can't exceed them either); `createdAt == request.time` stops a spoofed timestamp; and the `.matches()` line is a small, second layer of the *same* profanity check the form already runs client-side in `isAppreciationMessage()` (see `logic.js`) — this server-side copy only catches the worst, most obvious profanity (a full "does this sound appreciative?" check isn't practical to express as one regex), but unlike the client-side version, it can't be skipped by calling the database directly instead of using the real form. Because security rules only ever restrict the public SDK, INO can still open the Firebase console directly and delete any entry that slips past both filters — `allow delete: if false` blocks the *public* form, not the project's own owner.
+
+### Skip to Main Content Link
+A plain link (`.skip-link`) sits as the very first focusable element in `<body>`, positioned off-screen (`top: -60px`) by default and pulled into view (`top: 8px`) purely by `.skip-link:focus` — no JavaScript involved, just CSS reacting to real keyboard focus. It points at `href="#main-content"`, matching an `id="main-content"` added to the page's `<main>` element, so activating it (Enter, or a screen reader's own activation gesture) jumps straight to the actual content, skipping the fixed GitHub/Share buttons and the blurred background photo wall — a standard accessibility pattern for any page with meaningful content before the "main" landmark.
+
+### Pure Logic + Automated Tests
+`logic.js` holds every function on the page that's *pure* — meaning its answer depends only on the arguments it's handed, never on the DOM, a timer, or anything else external: `computeCountdownParts()`/`formatCountdownText()` (the countdown's date math), `isValidEra()` (checking a `?era=` URL parameter against the dropdown's real `<option>` values), and `isAppreciationMessage()` (the guestbook's keyword filter). Each one used to be written out inline inside `index.html`'s own `<script>` block; pulling them into their own file means `tests/logic.test.js` can `import` that *exact* file and call each function directly with known inputs, checking the real answer against the expected one — no browser, no DOM, no manual clicking through the page required. `index.html` still loads `logic.js` with an ordinary `<script src="logic.js"></script>` tag placed before its own inline `<script>`, so the real, deployed site remains a plain classic script with zero build step; the small `if (typeof module !== 'undefined')` block at the very bottom of `logic.js` is invisible to a real browser (browsers have no `module` variable) and only exists so Node/Vitest can also `require`/`import` the same file.
+
 ### Ryujin Focus Filter
 ```
 Click toggle -> <html data-ryujin-focus="true">
@@ -257,8 +300,9 @@ Same "one attribute on `<html>`, let CSS attribute selectors do the rest" patter
 ## 🔧 Requirements
 
 * **To use the site:** A modern browser with `backdrop-filter` and `color-mix()` support (Chrome/Edge 111+, Safari 16.2+, Firefox 113+ — anything from 2023 onward). No internet connection is required after the initial load, aside from the Google Fonts CDN request (and, if the visit counter's ever turned on, the Firebase CDN). Copy-to-clipboard additionally requires a browser granting Clipboard API access, which normally happens automatically on a real click in a secure (`https://`) context.
-* **To edit or host it:** Nothing beyond a text editor and, optionally, Git/GitHub for hosting — there's no `npm install`, no build command, and nothing to compile.
+* **To edit or host it:** Nothing beyond a text editor and, optionally, Git/GitHub for hosting — there's no `npm install`, no build command, and nothing to compile. The deployed site never needs Node.js at all.
 * **For the newer browser-feature-dependent bits:** `navigator.share()` (the native Share button) is mainly a phone/tablet feature — desktop browsers automatically get the clipboard-copy fallback instead, so nothing breaks there. The service worker (offline/installable support) requires being served over `https://` — GitHub Pages already serves this site that way, but it won't register at all if opened directly from a local file (`file://`) instead of a real local/live server; that's a standard browser security rule for service workers, not a bug in this project.
+* **To run the automated tests (optional, dev-only):** Node.js and npm — see "🧪 Running the Tests" above. This is the *only* part of the whole project that touches Node; it has zero effect on the deployed site itself.
 
 ---
 

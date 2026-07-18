@@ -9,11 +9,21 @@
      changed" — search engines use it as a hint for how often to
      bother re-checking the page. It's fine if this drifts out of
      date a little; nothing breaks, it just stops being a perfectly
-     fresh hint. -->
+     fresh hint.
+
+     MOVING TO A CUSTOM DOMAIN SOMEDAY? Both this file's <loc> below
+     AND the "Sitemap:" line in robots.txt hardcode today's real
+     address (sverma2696.github.io/ino_website) — that's correct
+     for right now, since that's the site's actual, only address.
+     If a custom domain (like ino.link or similar) ever gets set up
+     instead, both of those need updating to the NEW address in the
+     same commit as the domain switch — a search engine trusting a
+     stale <loc> here would keep pointing people at the old GitHub
+     Pages URL instead of the real one. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://sverma2696.github.io/ino_website/</loc>
-    <lastmod>2026-07-12</lastmod>
+    <lastmod>2026-07-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
