@@ -1875,7 +1875,12 @@
 
   .ryujin-focus-toggle{
     display:block;
-    margin: 0 auto 16px;
+    /* ELI5: this button used to have NO space above it (0px), so
+       it sat squished right up against the links card above it —
+       "20px" top AND bottom now gives it its own little breathing
+       room on both sides, like a comma pausing between two
+       sentences instead of everything running together. */
+    margin: 20px auto;
     font-family: var(--mono);
     font-size: 10px;
     letter-spacing: 0.8px;
@@ -2135,7 +2140,16 @@
     }
 
     .page{ grid-area: page; }
-    .ryujin-focus-toggle{ grid-area: focus; align-self:start; margin: 0 auto; }
+    /* ELI5: no "margin" is set here on purpose — the button just
+       keeps using its own normal 20px-top-and-bottom spacing from
+       the plain (non-desktop) rule above, instead of getting a
+       SPECIAL desktop-only spacing that could quietly drift out of
+       sync with it. Without this, the button would sit flush
+       against both the profile card above AND Meet the Members
+       below on wide screens specifically, since a CSS Grid row
+       doesn't add any breathing room between rows by itself unless
+       something (a "row-gap," or an item's own margin) asks for it. */
+    .ryujin-focus-toggle{ grid-area: focus; align-self:start; }
     .fandom-corner{ grid-area: fandom; align-self:start; }
     footer{ grid-area: foot; align-self:start; }
 
