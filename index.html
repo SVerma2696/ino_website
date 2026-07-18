@@ -4614,12 +4614,26 @@
       var app = appModule.initializeApp(FIREBASE_CONFIG, 'guestbook');
       db = firestoreModule.getFirestore(app);
       var auth = authModule.getAuth(app);
-      // "Quietly sign in" — this is the ENTIRE anonymous-auth step:
-      // one function call, no form, no UI, no visible sign-in step
-      // at all. Firebase remembers this identity in the browser's
-      // own storage, so it survives page reloads (though not a
-      // cleared cache, or a totally different browser/device).
-      return authModule.signInAnonymously(auth).then(function (credential) {
+      // ELI5: this line is like writing your name on your own
+      // lunchbox in permanent marker instead of a sticky note —
+      // "browserLocalPersistence" tells Firebase to WRITE DOWN this
+      // visitor's anonymous identity somewhere that survives
+      // closing the tab and coming back later, instead of just
+      // remembering it in memory for as long as this one page stays
+      // open. The SDK actually already defaults to this on the web,
+      // but setting it explicitly here means the guestbook's whole
+      // "you can edit YOUR OWN messages later" feature never
+      // silently depends on an unwritten default — if a visitor's
+      // browser (private/incognito mode, or strict tracking-
+      // prevention settings) can't actually persist this at all,
+      // every reload quietly creates a BRAND NEW anonymous identity
+      // instead, which looks exactly like "my Edit/Delete buttons
+      // disappeared" even though nothing is actually broken — it's
+      // that browser genuinely being unable to remember who "you"
+      // are between visits.
+      return authModule.setPersistence(auth, authModule.browserLocalPersistence).then(function () {
+        return authModule.signInAnonymously(auth);
+      }).then(function (credential) {
         myUid = credential.user.uid;
         card.hidden = false;
         loadEntries();
