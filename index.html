@@ -1383,13 +1383,23 @@
      ones that aren't active fade all the way down to invisible
      instead of actually being removed, which is what makes
      swapping between them feel like a smooth crossfade instead of
-     a jarring pop */
+     a jarring pop.
+
+     ELI5: this box used to be ONE fixed tall size for all 5 girls,
+     even though her role text is a different length for each of
+     them — so anyone with a short one-line role (like Lia's "Main
+     Vocalist") left a noticeable gap of empty space at the bottom,
+     since the box was sized for the LONGEST possible member, not
+     HER. Now, JavaScript measures each member's own real content
+     height once up front (search "setUpMemberCarousel" in the
+     <script> for exactly how) and resizes this box to match
+     whoever's currently active — so the border always hugs
+     whoever's actually showing, not a generic one-size-fits-all
+     box. "transition: height" is what turns that resize into a
+     smooth little grow/shrink instead of a jarring instant jump. */
   .member-track{
     position:relative;
-    /* +18px from before, just enough room for the new birthday
-       line under each member's role, without changing anything
-       else about how big the card feels */
-    min-height: 298px;
+    transition: height 0.3s ease;
   }
   .member-slide{
     position:absolute;
@@ -2068,7 +2078,6 @@
        still reads clearly even on a small screen. */
     .member-photo{ height: 170px; }
     .member-name{ font-size: 16px; letter-spacing: 0.2px; }
-    .member-track{ min-height: 248px; }
   }
 
   /* ============================================
@@ -2279,6 +2288,7 @@
        the member carousel stops auto-advancing on its own too,
        so nothing on the page moves without someone asking it to */
     .member-slide{ transition: none; }
+    .member-track{ transition: none; }
     .bias-fact{ transition: none; }
     .back-to-top{ transition: none; }
   }
@@ -2818,7 +2828,7 @@
           </span>
         <span class="link-text">
           <span class="link-title">INO-IT-ALLS Discord Server</span>
-          <span class="link-sub">discord.gg/KK93dVyGA</span>
+          <span class="link-sub">discord.gg/wYDUcKC53</span>
         </span>
       </a>
 
@@ -3653,18 +3663,104 @@
       return dot;
     });
 
+    // ELI5: this is the actual tape measure. Every ".member-slide"
+    // is normally "position: absolute; inset: 0", which means it
+    // STRETCHES to match its parent's height instead of sizing
+    // itself from its own content — great for stacking all 5
+    // members exactly on top of each other, but it also means a
+    // slide can never honestly report "how tall am I really?" while
+    // stuck in that stretched state ("scrollHeight" was tried here
+    // first and looked plausible, but turned out to lie in exactly
+    // this situation — measuring an already-collapsed box instead
+    // of the real content, the same "measuring your own leftover
+    // guess" trap "auto" alone doesn't escape either).
+    // The fix: for one instant, switch a slide back to
+    // "position: static" (a completely normal, non-stretched box
+    // that sizes itself from its own content like anything else on
+    // the page), measure its REAL height with
+    // "getBoundingClientRect()", then immediately switch it right
+    // back to absolute. Doing this for all 5 members ONCE, right
+    // when the carousel first sets up (not every single time
+    // someone clicks Next), means the real work only ever happens
+    // once — after that, showing a member is just looking up her
+    // already-known real height in "slideHeights" below. And
+    // because every position-static-then-back-to-absolute swap
+    // happens back-to-back in one single stretch of JavaScript
+    // (never pausing to let the browser paint in between), nobody
+    // watching the actual page ever sees any of these five quick
+    // measuring-tape moments happen.
+    var slideHeights = [];
+    function remeasureSlideHeights() {
+      slideHeights = slides.map(function (slide) {
+        var previousPosition = slide.style.position;
+        slide.style.position = 'static';
+        var realHeight = Math.ceil(slide.getBoundingClientRect().height);
+        slide.style.position = previousPosition;
+        return realHeight;
+      });
+    }
+    remeasureSlideHeights();
+
+    // ELI5: fonts on this page (JetBrains Mono, Archivo Black, etc.)
+    // come from Google Fonts, not the browser's own built-in ones —
+    // which means for a brief moment right when the page first
+    // loads, text is drawn in a plain, generic fallback font
+    // instead, until the real one finishes downloading and swaps
+    // in. That's normally invisible and harmless — EXCEPT the very
+    // first "remeasureSlideHeights()" call right above runs during
+    // that same brief window, so it can end up measuring text in
+    // the WRONG (fallback) font, which occasionally wraps onto a
+    // different number of lines than the real font would (this is
+    // exactly what was happening to Chaeryeong's longer role text —
+    // her card kept measuring as if her role still fit on one line,
+    // like everyone else's, right up until the real font swapped
+    // in). "document.fonts.ready" is a real browser promise that
+    // resolves the instant every font this page uses has actually
+    // finished loading — re-measuring again at that exact moment
+    // (and re-applying whichever member is showing right then)
+    // catches and fixes any of these early, wrong-font measurements
+    // automatically, without needing a guessed timeout.
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () {
+        remeasureSlideHeights();
+        matchTrackHeightToSlide(currentIndex);
+      });
+    }
+
+    function matchTrackHeightToSlide(index) {
+      track.style.height = slideHeights[index] + 'px';
+    }
+
     function showSlide(index) {
       slides[currentIndex].classList.remove('is-active');
       dots[currentIndex].classList.remove('is-active');
       currentIndex = index;
       slides[currentIndex].classList.add('is-active');
       dots[currentIndex].classList.add('is-active');
+      matchTrackHeightToSlide(currentIndex);
     }
 
     function showNext() { showSlide((currentIndex + 1) % slides.length); }
     function showPrev() { showSlide((currentIndex - 1 + slides.length) % slides.length); }
 
     dots[0].classList.add('is-active');
+    // Sets the very first size BEFORE anyone's clicked anything,
+    // so the card already fits Yeji (the starting member) exactly
+    // right from the very first paint, not just after the first
+    // manual click or auto-advance.
+    matchTrackHeightToSlide(currentIndex);
+
+    // A member's role text can wrap onto a different number of
+    // lines when the window resizes (a phone rotated sideways, a
+    // browser window dragged narrower) — every saved height in
+    // "slideHeights" was only ever true for the PREVIOUS screen
+    // size, so a resize re-measures fresh for all 5 members (not
+    // just the one currently showing) before re-applying whichever
+    // one's actually active right now.
+    window.addEventListener('resize', function () {
+      remeasureSlideHeights();
+      matchTrackHeightToSlide(currentIndex);
+    });
 
     prevButton.addEventListener('click', function () { showPrev(); restartAutoAdvance(); });
     nextButton.addEventListener('click', function () { showNext(); restartAutoAdvance(); });
