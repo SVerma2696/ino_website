@@ -1357,6 +1357,36 @@
     margin: 0 0 24px;
   }
 
+  /* ELI5: every card in this column (Meet the Members, Bias
+     Spotlight, the Guestbook) normally stretches out to the FULL
+     480px width above, since that's just what a flex column does
+     to its children by default — but the member carousel's real
+     content (a portrait photo plus a couple of short lines of
+     text) never actually needs anywhere near that much room, which
+     left big empty strips of card on either side of the photo and
+     text. "max-width: 300px" was measured directly from the
+     longest real line of text across all 5 members (Chaeryeong's
+     role, "Main Dancer · Sub Rapper · Sub Vocalist," the widest
+     single line at ~257px) plus this card's own left/right padding
+     — so 300px is snug around the actual content, not a guessed
+     number. "align-self: center" is what's needed to opt just this
+     ONE card out of the column's default full-width stretch and
+     center it in the leftover space instead. "width: min(300px,
+     100%)" is what actually SETS the width (not just a max-width
+     ceiling) — without a real width, an "align-self: center" item
+     shrink-wraps down to its own content size instead, which would
+     make the card a slightly DIFFERENT width for every member
+     (photos aren't all the same width, even though they're all the
+     same 220px-tall). "min()" picks whichever is smaller: a flat
+     300px on any normal screen, or 100% of the available space on
+     a phone too narrow to fit even that — so the card stays one
+     single, consistent width across all 5 members, and still never
+     overflows off the edge of the smallest screens. */
+  #member-spotlight{
+    width: min(300px, 100%);
+    align-self: center;
+  }
+
   .spotlight-card{
     background: color-mix(in srgb, var(--bg-card) 88%, transparent);
     border: 1px solid var(--border);
@@ -1752,9 +1782,22 @@
   .guestbook-modal-close:focus-visible{ outline: 2px solid var(--red); outline-offset:2px; }
   /* The header stays put; only the message list itself scrolls,
      same "tall list, short pop-up" trick as any normal app's
-     scrollable panel */
+     scrollable panel. ELI5: you can still scroll it with a finger,
+     a trackpad, or a mouse wheel exactly like before — this just
+     hides the little gray scrollbar TRACK that a desktop browser
+     normally draws down the side, since it visually clashes with
+     this card's rounded corners. "scrollbar-width: none" is the
+     plain, real CSS property Firefox listens to; the
+     "::-webkit-scrollbar" rule right under it is the equivalent
+     trick every Chromium/WebKit browser (Chrome, Edge, Safari)
+     actually listens to instead — two different browsers, two
+     different property names, same one result. */
   .guestbook-modal-card .guestbook-list{
     overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .guestbook-modal-card .guestbook-list::-webkit-scrollbar{
+    display: none;
   }
   .guestbook-modal-empty{
     font-family: var(--mono);
@@ -2884,16 +2927,17 @@
            link, WITHOUT needing YouTube's official Data API (which
            needs its own API key someone would have to manage) or a
            backend server to go look it up automatically. The href
-           below points at the channel's own "Videos" tab, which
+           below points at the channel's own "Shorts" tab, which
            YouTube itself already keeps sorted newest-first for most
            channels — so it's a zero-maintenance, always-roughly-
-           current stand-in for "the latest upload."
+           current stand-in for "the latest upload" (Shorts specifically,
+           since that's INO's main upload format on this channel).
 
            For a link to one EXACT specific video instead (the most
            accurate version of this button), just swap the href
            below for that video's own URL once it's posted, and
            update the link-sub text underneath to its real title. -->
-      <a class="link-card" href="https://youtube.com/@aceofgenz/videos" target="_blank" rel="noopener">
+      <a class="link-card" href="https://www.youtube.com/@Aceofgenz/shorts" target="_blank" rel="noopener">
         <span class="icon youtube">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.55A3.02 3.02 0 0 0 .5 6.19 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.81 3.02 3.02 0 0 0 2.12 2.14C4.5 20.5 12 20.5 12 20.5s7.5 0 9.38-.55a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.81zM9.75 15.5v-7l6.25 3.5-6.25 3.5z"/></svg>
         </span>
