@@ -42,7 +42,7 @@ jobs:
     steps:
       # Step 1: get a copy of the code to look at
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Step 2: tell the robot which language it's about to read
       - name: Initialize CodeQL
