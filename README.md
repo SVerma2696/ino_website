@@ -33,6 +33,11 @@ ino_website/
 │                                 # of this; see "🧪 Running the Tests" below
 ├── tests/
 │   └── logic.test.js            # Automated tests for every function in logic.js
+├── .github/
+│   ├── SECURITY.md               # How to privately report a security issue instead of posting it publicly
+│   ├── dependabot.yml             # Asks GitHub to check weekly for newer versions of Vitest, etc.
+│   └── workflows/
+│       └── codeql.yml            # Asks GitHub to auto-scan the JavaScript for common security mistakes
 ├── README.md                   # Project documentation (this file)
 └── .gitignore                  # Ignores OS junk files, editor folders, and node/env leftovers — images are tracked, not hidden
 ```
@@ -358,6 +363,7 @@ This is a public repository — anyone can read every file and every past commit
 * **No *secret* secrets live in this repo.** No passwords, tokens, or `.env` files — this is still a static site with no server of its own, so there's no traditional backend secret to accidentally leak. `.gitignore` also keeps out OS junk files, editor settings, and any `.env`-style file, just in case one ever gets added later.
 * **The visit counter's `FIREBASE_CONFIG` object IS visible in `index.html`, and that's intentional, not an oversight.** Firebase's own documentation is explicit that a web app's config (`apiKey`, `projectId`, etc.) isn't a secret — it just tells a visitor's browser which Firebase project to talk to, the same way a phone number identifies which phone to call without being a "secret" itself. The actual security boundary lives entirely in that project's Firestore *security rules* (set on firebase.google.com, not in this repo — see "Visit Counter's Firestore Security Rules" further up), which are what actually decide whether a given read/write is allowed. **This only holds as long as those rules are actually set correctly** — an unrestricted "test mode" database paired with a public config would genuinely be an open door, so the rules are the one real to-do item here, not the config being visible.
 * **Commits use a GitHub "no-reply" identity, not a real personal email.** Every commit made in this project (from here on) is signed with `SVerma2696@users.noreply.github.com` instead of a real inbox — GitHub automatically understands this special address and still credits the commit to the right account, but it means nobody can copy a real personal email address out of the commit history (something spam bots regularly scrape public repos looking for). This is set as a *repo-only* Git setting (`git config user.email` without `--global`), so it doesn't change the identity used for any other, unrelated project on the same computer.
+* **A private way to report a security issue, plus two automated watchdogs.** `.github/SECURITY.md` gives anyone who finds a real vulnerability (an XSS hole, a Firestore rules gap, leaked credentials, etc.) a private way to report it — GitHub's own "Report a vulnerability" form, or direct email — instead of posting it in a public issue where it could be misused before it's fixed. `.github/dependabot.yml` has GitHub check weekly for newer, safer versions of this project's few dev dependencies (currently just Vitest) and open a pull request automatically when one's available. `.github/workflows/codeql.yml` runs GitHub's CodeQL scanner over the JavaScript on every push and once a week on a schedule, flagging common, well-known coding mistakes that could turn into security bugs — purely read-and-report, it never changes code on its own.
 
 ---
 

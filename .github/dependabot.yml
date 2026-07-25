@@ -1,0 +1,25 @@
+# ============================================
+# dependabot.yml — this asks a friendly robot (Dependabot) to check, once a
+# week, if any of the outside tools this project uses have a NEWER version
+# out. If one does, the robot opens a pull request for you, like a little
+# note that says "hey, want to upgrade this?" — you still get to say yes or
+# no, it never changes anything by itself.
+# ============================================
+version: 2
+updates:
+  # This watches the "npm" tools listed in package.json (right now that's
+  # just Vitest, the program that runs the tests). The real, live website
+  # doesn't use npm at all — this only matters for the test-helper files.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # This watches the little robot-helper files in .github/workflows (like
+  # codeql.yml) and checks if THEIR pieces need updating too.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5

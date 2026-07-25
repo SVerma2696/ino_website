@@ -1,0 +1,57 @@
+# ============================================
+# codeql.yml — this is a robot helper called CodeQL. Every time code gets
+# pushed (or once a week, just in case), it reads through the JavaScript on
+# this site looking for common, well-known mistakes that could let someone
+# sneaky do something bad — the same way a spell-checker reads your essay
+# looking for typos, except this one looks for security typos. If it finds
+# something, it leaves a note in the "Security" tab of the GitHub repo. It
+# never changes any code by itself — it only ever looks and reports.
+# ============================================
+name: "CodeQL"
+
+# --- When should this robot wake up and check? ---
+on:
+  push:
+    branches: ["main"]        # every time new code lands on the main branch
+  pull_request:
+    branches: ["main"]        # every time someone proposes a change to main
+  schedule:
+    # Also just check on its own once a week (Monday at 3:17am UTC), in
+    # case a NEW kind of mistake was discovered since the last check, even
+    # if nobody changed any code.
+    - cron: "17 3 * * 1"
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest       # borrow a small, temporary computer to do this on
+
+    # --- What is this robot allowed to touch? ---
+    # Just enough permission to read the code and write its findings to the
+    # "Security" tab — nothing more, on purpose.
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["javascript"]   # this site's code is all JavaScript
+
+    steps:
+      # Step 1: get a copy of the code to look at
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: tell the robot which language it's about to read
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      # Step 3: actually do the reading, and write down anything it finds
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
