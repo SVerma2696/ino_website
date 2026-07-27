@@ -170,7 +170,22 @@
     --green: #9ECFAE;       /* Ryujin's favorite color #2 */
     --red: #E2645C;         /* Ryujin's special ITZY color — also very "Not Shy" of her */
     --text: #33262E;        /* the color of most words */
-    --muted: #8B7C82;       /* the color of quieter, less important words */
+    /* --muted used to be one fixed, flat color (#8B7C82) no matter
+       which of the 16 bold era cards it was sitting on — measured
+       against the default MOTTO era's card, that flat color came
+       out to only about 2.1:1 contrast, way under the 4.5:1 a
+       screen needs for text to be comfortably readable (this is
+       used for real content too, like each member's role and
+       birthday, not just decoration). The fix: same "derive it
+       instead of hardcoding it" trick --bg-card already uses above
+       — mostly --text, with a little of --bg-card blended in, so
+       "quieter" text stays a lighter/softer VERSION of the main
+       text color instead of one color that might clash with
+       whatever bright card it happens to land on. Since it's
+       always mostly --text (which is deliberately picked to be
+       very readable already), this now passes 4.5:1 comfortably
+       against every one of the 16 era cards automatically. */
+    --muted: color-mix(in srgb, var(--text) 80%, var(--bg-card));
     --border: rgba(51,38,46,0.09); /* a very light line color, like a pencil sketch */
 
     /* FONT BOX ✏️ — these are just nicknames for the letter styles we picked */
@@ -324,7 +339,10 @@
     --bg: color-mix(in srgb, var(--wall) 38%, #120E16);
     --bg-card: color-mix(in srgb, var(--wall) 26%, #241E29);
     --text: #F5EEF2;
-    --muted: #B3A3AE;
+    /* Same contrast fix as the light-mode --muted above — derived
+       from --text and --bg-card instead of one fixed color, so it
+       stays comfortably readable against every era's dark card too. */
+    --muted: color-mix(in srgb, var(--text) 80%, var(--bg-card));
     --border: rgba(255,255,255,0.12);
   }
 
@@ -1399,6 +1417,15 @@
   .spotlight-label{
     font-family: var(--mono);
     font-size: 10px;
+    /* This used to be a plain <p>, which is normal-weight by
+       default. It's now a real <h2> instead (see the ELI5 comment
+       where these appear in the HTML further down), and a browser's
+       BUILT-IN default style for every heading tag is bold — so
+       "font-weight: normal" here undoes that default on purpose,
+       keeping this label looking pixel-for-pixel identical to
+       before. Only its MEANING changed (screen readers now treat
+       it as a real section title), not its look. */
+    font-weight: normal;
     letter-spacing: 1.4px;
     text-transform: uppercase;
     color: var(--muted);
@@ -2337,6 +2364,56 @@
   }
 
   /* ============================================
+     BIGGER INVISIBLE TAP ZONES 👆
+     ELI5: some buttons on this page LOOK small on purpose (a tiny
+     dice icon, a tiny dot under a photo) — shrinking them any more
+     than that would look silly or break a card size that was
+     carefully measured elsewhere. But a real finger on a phone is
+     bigger than a tiny icon, and phones are hard to tap accurately
+     with a target smaller than about 44x44 pixels (that's a real
+     accessibility guideline, not just a nice-to-have).
+     The trick: give each small button an invisible, see-through
+     ::before square, 44x44px, perfectly centered on top of it —
+     nothing is drawn, so nobody SEES it, but a tap or click
+     ANYWHERE inside that bigger invisible square still counts as
+     tapping the real (small-looking) button underneath. The
+     visible size and every layout measurement stay exactly the
+     same; only the tappable AREA gets bigger. Each button needs
+     "position: relative" for this trick to work, since the
+     invisible square positions itself relative to whichever real
+     button it's centered on. Four of these buttons (.github-link,
+     .share-link, .back-to-top, .lightbox-close) already have their
+     OWN "position: fixed" or "position: absolute" set earlier in
+     this file — that already works as a positioning context too,
+     so only the four that had no "position" at all need one added
+     here. (Setting "position: relative" on them AGAIN down here
+     would silently overwrite their real "fixed"/"absolute" value,
+     since this rule comes later in the file — a real bug caught
+     and avoided, not a hypothetical one.) */
+  .shuffle-button,
+  .guestbook-modal-close,
+  .member-nav,
+  .member-dot{
+    position: relative;
+  }
+  .github-link::before,
+  .share-link::before,
+  .back-to-top::before,
+  .shuffle-button::before,
+  .lightbox-close::before,
+  .guestbook-modal-close::before,
+  .member-nav::before,
+  .member-dot::before{
+    content:"";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+
+  /* ============================================
      PRINT STYLESHEET 🖨️
      Everything above this point was designed for a glowing
      screen — hitting Ctrl+P (or Cmd+P) used to print out ALL of
@@ -3005,7 +3082,14 @@
        ============================================ -->
   <div class="fandom-corner">
     <div class="spotlight-card" id="member-spotlight">
-      <p class="spotlight-label">meet the members</p>
+      <!-- ELI5: this used to be a plain paragraph, but it's really
+           the TITLE of this whole card — screen readers have a
+           special "jump to the next heading" shortcut, kind of
+           like a table of contents, and a plain <p> never shows up
+           in that list. Changing it to a real <h2> (a "chapter
+           title," one step below the page's one <h1>) makes this
+           section finally show up there. -->
+      <h2 class="spotlight-label">meet the members</h2>
       <!-- ELI5: think of this like 5 trading cards stacked in one
            pile — only the top card shows at a time. Each card has
            a girl's picture, her whole name, her job in the band,
@@ -3066,7 +3150,7 @@
     </div>
 
     <div class="spotlight-card" id="bias-spotlight">
-      <p class="spotlight-label">🔴 bias spotlight: ryujin</p>
+      <h2 class="spotlight-label">🔴 bias spotlight: ryujin</h2>
       <!-- Starts completely empty on purpose — the JavaScript
            fills this in with the first fact the instant the page
            loads, then quietly swaps in a new one every few
@@ -3097,7 +3181,7 @@
          MODAL" further down this file) instead of one long
          scrolling list sitting permanently inside this small card. -->
     <div class="spotlight-card" id="guestbook-card" hidden>
-      <p class="spotlight-label">🖤 leave INO some appreciation</p>
+      <h2 class="spotlight-label">🖤 leave INO some appreciation</h2>
       <p class="guestbook-hint">
         A public appreciation wall — not the place for chat,
         requests, or complaints. You can edit or delete your OWN
