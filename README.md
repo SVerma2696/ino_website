@@ -2,7 +2,7 @@ A fan-made, single-file "link in bio" page for ITZY content creator INO, styled 
 
 # INO's Link Page 🖤📱
 
-**🔗 Live site: [sverma2696.github.io/ino_website](https://sverma2696.github.io/ino_website/)**
+**🔗 Live site: [https://itzino.com/](https://itzino.com/)**
 
 A lightweight, single-file website that works like Linktree or Solo.to, but fully custom-built and self-hosted. Built with plain HTML, CSS, and vanilla JavaScript — no frameworks, no bundler, no `npm install`. It presents INO's profile photo, bio, and every social link (Discord, YouTube x2, TikTok, Instagram, and a smart email button) inside a frosted-glass card floating over a blurred photo backdrop, flanked on wide screens by a "moodboard" of 31 photocards spanning ITZY's entire discography in chronological order — every title track, pre-release, Japanese release, and collab from "DALLA DALLA" (2019) through "MOTTO" (2026), plus Yeji's and Yuna's solo debuts. Every photocard has a real photo and doubles as a link straight to that song's official music video on YouTube.
 
