@@ -3001,26 +3001,23 @@
       </a>
 
       <!-- LATEST UPLOAD BUTTON: a real "what's INO's newest video?"
-           link, WITHOUT needing YouTube's official Data API (which
-           needs its own API key someone would have to manage) or a
-           backend server to go look it up automatically. The href
-           below points at the channel's own "Shorts" tab, which
-           YouTube itself already keeps sorted newest-first for most
-           channels — so it's a zero-maintenance, always-roughly-
-           current stand-in for "the latest upload" (Shorts specifically,
-           since that's INO's main upload format on this channel).
-
-           For a link to one EXACT specific video instead (the most
-           accurate version of this button), just swap the href
-           below for that video's own URL once it's posted, and
-           update the link-sub text underneath to its real title. -->
-      <a class="link-card" href="https://www.youtube.com/@Aceofgenz/shorts" target="_blank" rel="noopener">
+           link. The href below starts out pointing at the channel's
+           own "Shorts" tab (which YouTube already keeps sorted
+           newest-first) as a safe, always-works fallback — but once
+           a real YOUTUBE_API_KEY is filled in further down in the
+           <script> (see "LATEST UPLOAD, THE REAL WAY" there),
+           setUpLatestUpload() overwrites this href with the ACTUAL
+           newest video from either of INO's two channels the moment
+           the page loads, and updates the line below to that
+           video's real title. id="latest-upload-link"/"-sub" are
+           what that script reaches for. -->
+      <a class="link-card" id="latest-upload-link" href="https://www.youtube.com/@Aceofgenz/shorts" target="_blank" rel="noopener">
         <span class="icon youtube">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.55A3.02 3.02 0 0 0 .5 6.19 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.81 3.02 3.02 0 0 0 2.12 2.14C4.5 20.5 12 20.5 12 20.5s7.5 0 9.38-.55a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.81zM9.75 15.5v-7l6.25 3.5-6.25 3.5z"/></svg>
         </span>
         <span class="link-text">
           <span class="link-title">Latest Upload</span>
-          <span class="link-sub">See INO's newest video</span>
+          <span class="link-sub" id="latest-upload-sub">See INO's newest video</span>
         </span>
       </a>
 
@@ -4440,6 +4437,165 @@
         // remembered for next time.
       }
     });
+  })();
+
+  // ============================================
+  // LATEST UPLOAD, THE REAL WAY 🎬
+  // ELI5: the "Latest Upload" button used to just point at INO's
+  // Shorts tab forever — YouTube keeps THAT tab sorted newest-first
+  // on its own, so it was a decent "always roughly right" stand-in
+  // for "his newest video," with zero API key needed. This upgrades
+  // it to point at the EXACT newest video instead, checked fresh
+  // every visit — by asking YouTube's real Data API "what's new?"
+  // on BOTH of INO's channels (his main Shorts channel, @aceofgenz,
+  // AND his separate longform channel, @inot5), then linking
+  // straight to whichever of the two actually posted more recently.
+  //
+  // IS IT OKAY THAT THIS KEY IS SITTING HERE IN PLAIN SIGHT, IN A
+  // PUBLIC REPO? Yes — but here's exactly why, instead of just
+  // trusting that:
+  //   - This key can ONLY read PUBLIC info that's already visible
+  //     to anyone on youtube.com (a channel's newest video, its
+  //     title). A plain API key like this — with no sign-in behind
+  //     it — is PHYSICALLY INCAPABLE of uploading, deleting, or
+  //     changing anything on INO's channels. Actually being able to
+  //     DO those things needs a totally different, much stronger
+  //     kind of login (OAuth) that this key doesn't have at all.
+  //     Think of it like a library card that can only ever be used
+  //     to LOOK UP a book's title — it can't check books out, and
+  //     it definitely can't burn the library down.
+  //   - "Application restrictions -> Websites" (set below) tells
+  //     Google "only let a real WEB BROWSER sitting on itzino.com
+  //     use this key." That stops someone else's WEBSITE from
+  //     quietly borrowing it. It's more like a guest list a
+  //     bouncer checks by eye than a lock with a real key, though —
+  //     a person using a script instead of a real browser CAN lie
+  //     about which website they're calling from. The honest worst
+  //     case if that ever happened: this project's small daily free
+  //     allowance of lookups (10,000/day) gets used up faster, and
+  //     the button just quietly falls back to the plain Shorts-tab
+  //     link for the rest of that day — exactly like it did before
+  //     this feature existed. Nothing on the real site breaks, no
+  //     money gets charged, and nobody's data is ever at risk,
+  //     because there was never any private data here to begin with.
+  //   - "API restrictions -> Restrict key" (also set below) locks
+  //     this SPECIFIC key down so it can ONLY ever be used for
+  //     YouTube lookups — not reused against any other Google
+  //     service this project happens to use, even by mistake.
+  //
+  // Restrictions actually set on this key, in Google Cloud Console
+  // (project ino-website-55ab0, the same one the Firebase key
+  // above already lives in):
+  //   - Application restrictions -> Websites -> "itzino.com/*" and
+  //     "www.itzino.com/*" — this site's REAL live domain, taken
+  //     from the CNAME file. (Worth double-checking this is still
+  //     correct: a Firebase key on this exact project once got
+  //     restricted to the WRONG domain by mistake, which silently
+  //     broke that feature on the real site until it was caught.)
+  //   - API restrictions -> Restrict key -> "YouTube Data API v3"
+  //     only.
+  // If this key ever needs replacing, that's the same two steps to
+  // repeat on the new one, right after creating it.
+  // ============================================
+  var YOUTUBE_API_KEY = 'AIzaSyBFsXtk8v6Wg-yFLVRicVsgJ4mNq38Ucs8';
+  var YOUTUBE_CHANNEL_HANDLES = ['aceofgenz', 'inot5'];
+
+  (function setUpLatestUpload() {
+    if (!YOUTUBE_API_KEY) { return; }
+
+    var linkCard = document.getElementById('latest-upload-link');
+    var subEl = document.getElementById('latest-upload-sub');
+    if (!linkCard) { return; }
+
+    // Two real network calls per channel (one to find its
+    // "uploads" playlist, one to read the newest item in it) adds
+    // up if it ran on every single visit — so the answer is
+    // remembered in localStorage for an hour before asking YouTube
+    // again. Anyone visiting more than once an hour just gets the
+    // same still-fresh answer instantly, no network call at all.
+    var CACHE_KEY = 'ino-latest-upload';
+    var CACHE_TTL_MS = 60 * 60 * 1000; // one hour
+    try {
+      var cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+      if (cached && (Date.now() - cached.fetchedAt) < CACHE_TTL_MS) {
+        applyLatestUpload(cached.videoId, cached.title);
+        return;
+      }
+    } catch (err) {
+      // localStorage blocked — just skip the cache and ask fresh.
+    }
+
+    Promise.all(YOUTUBE_CHANNEL_HANDLES.map(fetchNewestFromHandle)).then(function (results) {
+      var found = results.filter(function (result) { return result; });
+      // Fail silently if NEITHER channel answered (bad key, over
+      // quota, no internet) — the button just keeps its existing
+      // Shorts-tab link, the same "quietly do nothing" rule every
+      // other optional feature on this page already follows.
+      if (!found.length) { return; }
+
+      // Whichever of the two channels posted more RECENTLY wins,
+      // regardless of which channel it came from.
+      found.sort(function (a, b) {
+        return new Date(b.publishedAt) - new Date(a.publishedAt);
+      });
+      var newest = found[0];
+      applyLatestUpload(newest.videoId, newest.title);
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+          videoId: newest.videoId,
+          title: newest.title,
+          fetchedAt: Date.now()
+        }));
+      } catch (err) {
+        // Worst case, it just asks YouTube fresh again next visit.
+      }
+    });
+
+    // Asks one channel (by its @handle) for its newest video, in
+    // two small steps: first "what's your uploads PLAYLIST?", then
+    // "what's the newest item IN that playlist?" — two small, cheap
+    // calls instead of one bigger "search" call, since reading a
+    // playlist like this costs far less of the API's free daily
+    // quota than a full search does.
+    function fetchNewestFromHandle(handle) {
+      var channelsUrl = 'https://www.googleapis.com/youtube/v3/channels'
+        + '?part=contentDetails&forHandle=' + encodeURIComponent(handle)
+        + '&key=' + YOUTUBE_API_KEY;
+
+      return fetch(channelsUrl)
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+          var channel = data.items && data.items[0];
+          var uploadsPlaylistId = channel && channel.contentDetails
+            && channel.contentDetails.relatedPlaylists
+            && channel.contentDetails.relatedPlaylists.uploads;
+          if (!uploadsPlaylistId) { return null; }
+
+          var playlistUrl = 'https://www.googleapis.com/youtube/v3/playlistItems'
+            + '?part=snippet&maxResults=1&playlistId=' + uploadsPlaylistId
+            + '&key=' + YOUTUBE_API_KEY;
+          return fetch(playlistUrl).then(function (response) { return response.json(); });
+        })
+        .then(function (data) {
+          var video = data && data.items && data.items[0] && data.items[0].snippet;
+          if (!video) { return null; }
+          return {
+            videoId: video.resourceId.videoId,
+            title: video.title,
+            publishedAt: video.publishedAt
+          };
+        })
+        // Any single failed fetch (network error, bad response,
+        // quota hit) just quietly counts as "this channel found
+        // nothing" — the OTHER channel's result (or the existing
+        // static link, if both fail) still gets a fair chance.
+        .catch(function () { return null; });
+    }
+
+    function applyLatestUpload(videoId, title) {
+      linkCard.href = 'https://youtu.be/' + videoId;
+      if (subEl) { subEl.textContent = title; }
+    }
   })();
 
   // ============================================
