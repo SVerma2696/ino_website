@@ -4,7 +4,7 @@ A fan-made, single-file "link in bio" page for ITZY content creator INO, styled 
 
 **🔗 Live site: [https://itzino.com/](https://itzino.com/)**
 
-A lightweight, single-file website that works like Linktree or Solo.to, but fully custom-built and self-hosted. Built with plain HTML, CSS, and vanilla JavaScript — no frameworks, no bundler, no `npm install`. It presents INO's profile photo, bio, and every social link (Discord, YouTube x2, TikTok, Instagram, and a smart email button) inside a frosted-glass card floating over a blurred photo backdrop, flanked on wide screens by a "moodboard" of 31 photocards spanning ITZY's entire discography in chronological order — every title track, pre-release, Japanese release, and collab from "DALLA DALLA" (2019) through "MOTTO" (2026), plus Yeji's and Yuna's solo debuts. Every photocard has a real photo and doubles as a link straight to that song's official music video on YouTube.
+A lightweight, single-file website that works like Linktree or Solo.to, but fully custom-built and self-hosted. Built with plain **HTML, CSS, and vanilla JavaScript** — no frameworks, no bundler, no `npm install`. It utilizes a **16-era CSS custom-property theming engine**, a **Firebase Firestore-backed guestbook and visit counter**, and a full **installable, offline-capable PWA layer**, presenting INO's profile photo, bio, and every social link (Discord, YouTube x2, TikTok, Instagram, and a smart email button) inside a frosted-glass card floating over a blurred photo backdrop, flanked on wide screens by a "moodboard" of 31 photocards spanning ITZY's entire discography in chronological order — every title track, pre-release, Japanese release, and collab from "DALLA DALLA" (2019) through "MOTTO" (2026), plus Yeji's and Yuna's solo debuts. Every photocard has a real photo and doubles as a link straight to that song's official music video on YouTube.
 
 ---
 
@@ -92,6 +92,10 @@ There is no `package.json`, build step, or dependency install — `index.html` i
 
 ### 1. Get the files
 Clone this repository — all the image files are required for the background wall and moodboard to render correctly, so a partial download (just `index.html`) won't look right.
+```
+git clone https://github.com/SVerma2696/ino_website.git
+cd ino_website
+```
 
 ### 2. Run Locally in VS Code
 Because this project has zero dependencies, there is no build step. Simply open the file:
