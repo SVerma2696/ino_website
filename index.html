@@ -965,7 +965,19 @@
     font-size: 11px;
     font-weight: 500;
     letter-spacing: 0.6px;
-    color: color-mix(in srgb, var(--lavender) 70%, black);
+    /* ELI5: this used to be a lavender color mixed with a little
+       black — but "a little black mixed into lavender" and "the
+       pill's own lavender-tinted background" turned out to be way
+       too close in brightness to each other (measured contrast:
+       only about 2:1 — real screens need at least 4.5:1 to read
+       comfortably), which is exactly what a Lighthouse accessibility
+       scan caught. The fix: start from --text instead, which is
+       ALREADY built to stay readable against whatever's behind it
+       in both light AND dark mode (see --muted above for the exact
+       same trick) — only a light dusting of --lavender (18%) gets
+       mixed in on top, just enough for a hint of color, not enough
+       to undo the contrast --text already guarantees. */
+    color: color-mix(in srgb, var(--text) 82%, var(--lavender));
     background-color: color-mix(in srgb, var(--lavender) 18%, var(--bg-card));
     border: 1.5px solid color-mix(in srgb, var(--lavender) 75%, transparent);
     border-radius: 999px;
@@ -1154,6 +1166,17 @@
     display:inline-block;
     cursor:pointer;
     border-bottom: 1px dotted var(--muted);
+    /* Lighthouse flagged this the same way as the member dots —
+       genuinely too short to comfortably tap (the text's own line
+       height alone came in well under the 24px real minimum). A
+       little vertical padding is enough to clear that bar here,
+       since the email address text itself is already plenty WIDE —
+       only the height was ever the problem. Negative margin cancels
+       the padding back out horizontally/vertically so it doesn't
+       visually push the surrounding "Ads, Promos & Business" text
+       further apart than before. */
+    padding: 5px 2px;
+    margin: -5px -2px;
   }
   .copy-email:hover{ color: var(--text); border-bottom-color: var(--text); }
   .copy-email:focus-visible{
@@ -1570,16 +1593,33 @@
   .member-dots{
     display:flex;
     align-items:center;
-    gap:6px;
+    /* No "gap" here on purpose, now that each dot's own real box
+       grew to 24x24 for tap-target reasons (see .member-dot) — the
+       dots' own padding already provides breathing room between
+       the small painted circles, so adding a gap on TOP of that
+       padding would space them out too far. */
   }
   .member-dot{
+    /* ELI5: a Lighthouse scan flagged these dots as too small to
+       reliably tap on a phone (they used to be a real 6x6 pixel
+       button — genuinely tiny). The visual dot needs to STAY tiny,
+       though, or 5 of them in a row would look silly and this
+       carefully-measured little card would get too wide for its
+       own good. The trick: make the button's REAL, clickable box
+       much bigger (24x24, the real minimum accessibility guidelines
+       ask for) using padding, but tell the browser to only actually
+       PAINT color inside the small 6x6 middle ("background-clip:
+       content-box") — so the tappable AREA genuinely grows while
+       the visible dot stays exactly as small as before. */
     width:6px;
     height:6px;
+    padding:9px;
+    box-sizing:content-box;
+    background-clip:content-box;
     border-radius:50%;
     border:none;
     background: var(--border);
     cursor:pointer;
-    padding:0;
   }
   .member-dot.is-active{ background: var(--muted); }
 
@@ -1644,7 +1684,14 @@
     font-family: var(--display);
     font-size: 13px;
     color: #fff;
-    background: var(--red);
+    /* ELI5: plain white text directly on plain --red only measured
+       about 3.4:1 contrast — under the 4.5:1 a screen reader-free
+       eyeball actually needs, per the same Lighthouse scan that
+       caught .era-select above. Mixing in a little black darkens
+       the button just enough to fix that (about 5:1 now), while
+       still clearly reading as "the red button" — the hue barely
+       changes, just its brightness. */
+    background: color-mix(in srgb, var(--red) 80%, black);
     border: none;
     border-radius: 10px;
     padding: 10px 14px;
@@ -2727,15 +2774,23 @@
      even if it takes a tiny bit longer, we just let all of them
      start loading right away instead. -->
 <div class="bg-collage" aria-hidden="true">
-  <div class="bg-cell"><img class="bg-fill" src="IMG_2927.jpg" alt=""><img class="bg-full" src="IMG_2927.jpg" alt=""></div>
-  <div class="bg-cell"><img class="bg-fill" src="IMG_2936.jpg" alt=""><img class="bg-full" src="IMG_2936.jpg" alt=""></div>
-  <div class="bg-cell"><img class="bg-fill" src="IMG_2937.jpg" alt=""><img class="bg-full" src="IMG_2937.jpg" alt=""></div>
-  <div class="bg-cell"><img class="bg-fill" src="IMG_3193.jpg" alt=""><img class="bg-full" src="IMG_3193.jpg" alt=""></div>
-  <div class="bg-cell"><img class="bg-fill" src="IMG_3221.jpg" alt=""><img class="bg-full" src="IMG_3221.jpg" alt=""></div>
-  <div class="bg-cell"><img class="bg-fill" src="IMG_3282.jpg" alt=""><img class="bg-full" src="IMG_3282.jpg" alt=""></div>
-  <div class="bg-cell"><img class="bg-fill" src="IMG_3954.jpg" alt=""><img class="bg-full" src="IMG_3954.jpg" alt=""></div>
-  <div class="bg-cell"><img class="bg-fill" src="IMG_5256.jpg" alt=""><img class="bg-full" src="IMG_5256.jpg" alt=""></div>
-  <div class="bg-cell"><img class="bg-fill" src="IMG_5257.jpg" alt=""><img class="bg-full" src="IMG_5257.jpg" alt=""></div>
+  <!-- ELI5: this very first background photo is usually the very
+       first big thing the browser paints on screen (Lighthouse
+       calls this the "Largest Contentful Paint," or LCP) — so
+       "fetchpriority=high" is a hint that tells the browser "grab
+       THIS one before the other 8 background photos," shaving a
+       little time off how fast the page visibly finishes loading.
+       Only this one image needs the hint; giving every image the
+       same "most important" label would just cancel itself out. -->
+  <div class="bg-cell"><img class="bg-fill" src="IMG_2927.webp" fetchpriority="high" alt=""><img class="bg-full" src="IMG_2927.webp" alt=""></div>
+  <div class="bg-cell"><img class="bg-fill" src="IMG_2936.webp" alt=""><img class="bg-full" src="IMG_2936.webp" alt=""></div>
+  <div class="bg-cell"><img class="bg-fill" src="IMG_2937.webp" alt=""><img class="bg-full" src="IMG_2937.webp" alt=""></div>
+  <div class="bg-cell"><img class="bg-fill" src="IMG_3193.webp" alt=""><img class="bg-full" src="IMG_3193.webp" alt=""></div>
+  <div class="bg-cell"><img class="bg-fill" src="IMG_3221.webp" alt=""><img class="bg-full" src="IMG_3221.webp" alt=""></div>
+  <div class="bg-cell"><img class="bg-fill" src="IMG_3282.webp" alt=""><img class="bg-full" src="IMG_3282.webp" alt=""></div>
+  <div class="bg-cell"><img class="bg-fill" src="IMG_3954.webp" alt=""><img class="bg-full" src="IMG_3954.webp" alt=""></div>
+  <div class="bg-cell"><img class="bg-fill" src="IMG_5256.webp" alt=""><img class="bg-full" src="IMG_5256.webp" alt=""></div>
+  <div class="bg-cell"><img class="bg-fill" src="IMG_5257.webp" alt=""><img class="bg-full" src="IMG_5257.webp" alt=""></div>
 </div>
 
 <div class="page">
@@ -3104,31 +3159,31 @@
            decoration). -->
       <div class="member-track" id="member-track">
         <div class="member-slide is-active" data-accent="red">
-          <img class="member-photo" src="yeji.jpg" alt="Hwang Ye-ji">
+          <img class="member-photo" src="yeji.webp" width="560" height="700" alt="Hwang Ye-ji">
           <span class="member-name">HWANG YE-JI</span>
           <span class="member-role">Leader · Main Dancer · Sub Vocalist</span>
           <span class="member-birthday">🎂 May 26, 2000</span>
         </div>
         <div class="member-slide" data-accent="blue">
-          <img class="member-photo" src="lia.jpg" alt="Lia (Choi Ji-su)">
+          <img class="member-photo" src="lia.webp" width="525" height="700" alt="Lia (Choi Ji-su)">
           <span class="member-name">LIA (CHOI JI-SU)</span>
           <span class="member-role">Main Vocalist</span>
           <span class="member-birthday">🎂 July 21, 2000</span>
         </div>
         <div class="member-slide" data-accent="green">
-          <img class="member-photo" src="ryujin.jpg" alt="Shin Ryu-jin">
+          <img class="member-photo" src="ryujin.webp" width="467" height="700" alt="Shin Ryu-jin">
           <span class="member-name">SHIN RYU-JIN</span>
           <span class="member-role">Main Rapper · Main Dancer</span>
           <span class="member-birthday">🎂 April 17, 2001</span>
         </div>
         <div class="member-slide" data-accent="pink">
-          <img class="member-photo" src="chaeryeong.jpg" alt="Lee Chae-ryeong">
+          <img class="member-photo" src="chaeryeong.webp" width="368" height="368" alt="Lee Chae-ryeong">
           <span class="member-name">LEE CHAE-RYEONG</span>
           <span class="member-role">Main Dancer · Sub Rapper · Sub Vocalist</span>
           <span class="member-birthday">🎂 June 5, 2001</span>
         </div>
         <div class="member-slide" data-accent="lavender">
-          <img class="member-photo" src="yuna.jpg" alt="Shin Yu-na">
+          <img class="member-photo" src="yuna.webp" width="467" height="657" alt="Shin Yu-na">
           <span class="member-name">SHIN YU-NA</span>
           <span class="member-role">Vocalist · Dancer · Maknae</span>
           <span class="member-birthday">🎂 December 9, 2003</span>
@@ -3237,68 +3292,68 @@
     <!-- 1. DALLA DALLA (2019) — ITZY's actual debut song, so we
          spell that out right in the caption -->
     <a class="photocard" data-ryujin="true" href="https://youtu.be/pNfTK39k55U?si=SGZk0WAuoS0xCcq_" target="_blank" rel="noopener" aria-label="Watch the DALLA DALLA music video on YouTube">
-      <img src="dalla-dalla.jpg" alt="">
+      <img src="dalla-dalla.webp" alt="">
       <span>DALLA DALLA (DEBUT)</span>
     </a>
     <!-- 2. ICY (2019) -->
     <a class="photocard" href="https://youtu.be/zndvqTc4P9I?si=Mvw-hTrOswhWxrlI" target="_blank" rel="noopener" aria-label="Watch the ICY music video on YouTube">
-      <img src="icy.jpg" alt="">
+      <img src="icy.webp" alt="">
       <span>ICY</span>
     </a>
     <!-- 3. WANNABE (2020) -->
     <a class="photocard" data-ryujin="true" href="https://youtu.be/fE2h3lGlOsk?si=fHAwk_f3cudsaIlR" target="_blank" rel="noopener" aria-label="Watch the WANNABE music video on YouTube">
-      <img src="wannabe.jpg" alt="">
+      <img src="wannabe.webp" alt="">
       <span>WANNABE</span>
     </a>
     <!-- 4. NOBODY LIKE YOU (2020) — a "Selfie Music Video" ITZY
          filmed themselves -->
     <a class="photocard" href="https://youtu.be/6rc_R5XvT3Q?si=3eWY1TIgAwWX58ug" target="_blank" rel="noopener" aria-label="Watch the NOBODY LIKE YOU music video on YouTube">
-      <img src="nobody-like-you.jpg" alt="">
+      <img src="nobody-like-you.webp" alt="">
       <span>NOBODY LIKE YOU (SELFIE MUSIC VIDEO)</span>
     </a>
     <!-- 5. NOT SHY (2020) -->
     <a class="photocard" href="https://youtu.be/wTowEKjDGkU?si=lngZwdMQrwXX7MYF" target="_blank" rel="noopener" aria-label="Watch the NOT SHY music video on YouTube">
-      <img src="not-shy.jpg" alt="">
+      <img src="not-shy.webp" alt="">
       <span>NOT SHY</span>
     </a>
     <!-- 6. IN THE MORNING (2021) -->
     <a class="photocard" data-ryujin="true" href="https://youtu.be/_ysomCGaZLw?si=V1vpgPL-lfMIeVLT" target="_blank" rel="noopener" aria-label="Watch the IN THE MORNING music video on YouTube">
-      <img src="in-the-morning.jpg" alt="">
+      <img src="in-the-morning.webp" alt="">
       <span>IN THE MORNING</span>
     </a>
     <!-- 7. BREAK ICE (2021) — a collab track with "Second Aunt KimDaVi" -->
     <a class="photocard" href="https://youtu.be/WLQ7JqrCXec?si=VirAQgElTvAQFSP6" target="_blank" rel="noopener" aria-label="Watch the BREAK ICE music video on YouTube">
-      <img src="break-ice.jpg" alt="">
+      <img src="break-ice.webp" alt="">
       <span>BREAK ICE (COLLAB WITH KIMDAVI)</span>
     </a>
     <!-- 8. LOCO (2021) -->
     <a class="photocard" data-ryujin="true" href="https://youtu.be/MjCZfZfucEc?si=WTN1VmHab-AT6SRd" target="_blank" rel="noopener" aria-label="Watch the LOCO music video on YouTube">
-      <img src="loco.jpg" alt="">
+      <img src="loco.webp" alt="">
       <span>LOCO</span>
     </a>
     <!-- 9. SWIPE (2021) -->
     <a class="photocard" href="https://youtu.be/9oyodEkzn94?si=9HSbAuX18TjpJXcw" target="_blank" rel="noopener" aria-label="Watch the SWIPE music video on YouTube">
-      <img src="swipe.jpg" alt="">
+      <img src="swipe.webp" alt="">
       <span>SWIPE</span>
     </a>
     <!-- 10. WANNABE, Japanese version (2021) -->
     <a class="photocard" href="https://youtu.be/yeHZNPplmm4?si=SzHTrZn9hqZJU9Y3" target="_blank" rel="noopener" aria-label="Watch the Japanese-version WANNABE music video on YouTube">
-      <img src="wannabe-japanese.jpg" alt="">
+      <img src="wannabe-japanese.webp" alt="">
       <span>WANNABE (JAPANESE VERSION)</span>
     </a>
     <!-- 11. VOLTAGE (2022) — ITZY's Japanese debut -->
     <a class="photocard" href="https://youtu.be/krzf1hkFAZA?si=rbsKhUZkhOYH__5X" target="_blank" rel="noopener" aria-label="Watch the VOLTAGE music video on YouTube">
-      <img src="voltage.jpg" alt="">
+      <img src="voltage.webp" alt="">
       <span>VOLTAGE (JAPANESE DEBUT)</span>
     </a>
     <!-- 12. SNEAKERS (2022) -->
     <a class="photocard" href="https://youtu.be/Hbb5GPxXF1w?si=tS7XGGvvy8d69X4P" target="_blank" rel="noopener" aria-label="Watch the SNEAKERS music video on YouTube">
-      <img src="sneakers.jpg" alt="">
+      <img src="sneakers.webp" alt="">
       <span>SNEAKERS</span>
     </a>
     <!-- 13. BLAH BLAH BLAH, Japanese version (2022) -->
     <a class="photocard" href="https://youtu.be/F-QTb-0wRGk?si=AFapLe1ZWKAYlSJp" target="_blank" rel="noopener" aria-label="Watch the BLAH BLAH BLAH music video on YouTube">
-      <img src="blah-blah-blah.jpg" alt="">
+      <img src="blah-blah-blah.webp" alt="">
       <span>BLAH BLAH BLAH (JAPANESE)</span>
     </a>
     <!-- 14. BOYS LIKE YOU (2022) — English pre-release -->
@@ -3308,34 +3363,34 @@
     </a>
     <!-- 15. CHESHIRE (2022) -->
     <a class="photocard" href="https://youtu.be/zugAhfd2r0g?si=M-TSGTZqf6iPox9l" target="_blank" rel="noopener" aria-label="Watch the CHESHIRE music video on YouTube">
-      <img src="cheshire.jpg" alt="">
+      <img src="cheshire.webp" alt="">
       <span>CHESHIRE</span>
     </a>
     <!-- 16. BET ON ME (2023) — pre-release -->
     <a class="photocard" href="https://youtu.be/RmTq3cJqyCo?si=uBda_EJAuzyVj-WY" target="_blank" rel="noopener" aria-label="Watch the BET ON ME music video on YouTube">
-      <img src="bet-on-me.jpg" alt="">
+      <img src="bet-on-me.webp" alt="">
       <span>BET ON ME (PRE-RELEASE)</span>
     </a>
   </div>
   <div class="gallery gallery-right">
     <!-- 17. CAKE (2023) -->
     <a class="photocard" href="https://youtu.be/0bIRwBpBcZQ?si=AK7AtpANOeDtki6f" target="_blank" rel="noopener" aria-label="Watch the CAKE music video on YouTube">
-      <img src="cake.jpeg" alt="">
+      <img src="cake.webp" alt="">
       <span>CAKE</span>
     </a>
     <!-- 18. NONE OF MY BUSINESS (2023) -->
     <a class="photocard" href="https://youtu.be/FcQ6oB1JPiA?si=EVlHaQ_M0TS8kbuo" target="_blank" rel="noopener" aria-label="Watch the NONE OF MY BUSINESS music video on YouTube">
-      <img src="none-of-my-buisiness.jpg" alt="">
+      <img src="none-of-my-buisiness.webp" alt="">
       <span>NONE OF MY BUSINESS</span>
     </a>
     <!-- 19. RINGO (2023) — Japanese release -->
     <a class="photocard" href="https://youtu.be/K0xFPQ2CX5E?si=KjgUbNT8CqYHvB4Z" target="_blank" rel="noopener" aria-label="Watch the RINGO music video on YouTube">
-      <img src="ringo.jpg" alt="">
+      <img src="ringo.webp" alt="">
       <span>RINGO (JAPANESE)</span>
     </a>
     <!-- 20. BORN TO BE (2023) — pre-release -->
     <a class="photocard" href="https://youtu.be/4R7vRFGJr3k?si=ThkUgRa7mgMGoWBn" target="_blank" rel="noopener" aria-label="Watch the BORN TO BE music video on YouTube">
-      <img src="born-to-be.jpg" alt="">
+      <img src="born-to-be.webp" alt="">
       <span>BORN TO BE (PRE-RELEASE)</span>
     </a>
     <!-- 21. MR. VAMPIRE (2024) — pre-release -->
@@ -3345,12 +3400,12 @@
     </a>
     <!-- 22. UNTOUCHABLE (2024) -->
     <a class="photocard" href="https://youtu.be/5e3rKInegeU?si=VoDwDwJATOyeYPxY" target="_blank" rel="noopener" aria-label="Watch the UNTOUCHABLE music video on YouTube">
-      <img src="untouchable.jpg" alt="">
+      <img src="untouchable.webp" alt="">
       <span>UNTOUCHABLE</span>
     </a>
     <!-- 23. LIKE MAGIC (2024) — a big collab track -->
     <a class="photocard" href="https://youtu.be/t6bBDAlpQZs?si=gfF-iIVLIA0YdvpU" target="_blank" rel="noopener" aria-label="Watch the LIKE MAGIC music video on YouTube">
-      <img src="like-magic.jpg" alt="">
+      <img src="like-magic.webp" alt="">
       <span>LIKE MAGIC (COLLAB: J.Y. PARK, STRAY KIDS, NMIXX)</span>
     </a>
     <!-- 24. ALGORHYTHM (2024) — Japanese release -->
@@ -3360,32 +3415,32 @@
     </a>
     <!-- 25. GOLD (2024) -->
     <a class="photocard" href="https://youtu.be/eMk_0svqsnI?si=dsaJ7QpVwVg0P_u1" target="_blank" rel="noopener" aria-label="Watch the GOLD music video on YouTube">
-      <img src="gold.jpg" alt="">
+      <img src="gold.webp" alt="">
       <span>GOLD</span>
     </a>
     <!-- 26. IMAGINARY FRIEND (2024) -->
     <a class="photocard" href="https://youtu.be/NrUlydECU-8?si=J0-9Z1JUppMIvNIy" target="_blank" rel="noopener" aria-label="Watch the IMAGINARY FRIEND music video on YouTube">
-      <img src="imaginary-friend.jpeg" alt="">
+      <img src="imaginary-friend.webp" alt="">
       <span>IMAGINARY FRIEND</span>
     </a>
     <!-- 27. AIR, Yeji's solo debut (2025) -->
     <a class="photocard" href="https://youtu.be/TamDOXponnM?si=2TjVCj15X8sU8YiP" target="_blank" rel="noopener" aria-label="Watch the YEJI AIR music video on YouTube">
-      <img src="yeji-air.jpg" alt="">
+      <img src="yeji-air.webp" alt="">
       <span>YEJI · AIR</span>
     </a>
     <!-- 28. GIRLS WILL BE GIRLS (2025) -->
     <a class="photocard" href="https://youtu.be/1KhOhW_O8-k?si=yaHQ-drGMR5dpyTq" target="_blank" rel="noopener" aria-label="Watch the GIRLS WILL BE GIRLS music video on YouTube">
-      <img src="gwbg.jpg" alt="">
+      <img src="gwbg.webp" alt="">
       <span>GIRLS WILL BE GIRLS</span>
     </a>
     <!-- 29. TUNNEL VISION (2025) -->
     <a class="photocard" href="https://youtu.be/piSq8IioghU?si=pGMcIg4LytTRtiG0" target="_blank" rel="noopener" aria-label="Watch the TUNNEL VISION music video on YouTube">
-      <img src="tunnel-vision.jpg" alt="">
+      <img src="tunnel-vision.webp" alt="">
       <span>TUNNEL VISION</span>
     </a>
     <!-- 30. ICE CREAM, Yuna's solo debut (2026) -->
     <a class="photocard" href="https://youtu.be/x0FwbTiD3iA?si=e-ODNtLTmO5pm2Nv" target="_blank" rel="noopener" aria-label="Watch the YUNA ICE CREAM music video on YouTube">
-      <img src="ice-cream-yuna.jpg" alt="">
+      <img src="ice-cream-yuna.webp" alt="">
       <span>YUNA · ICE CREAM</span>
     </a>
     <!-- 31. MOTTO (2026) — the current era -->

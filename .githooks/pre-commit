@@ -1,0 +1,57 @@
+#!/bin/sh
+# ============================================
+# pre-commit hook — "did you forget the cache bump?" checker
+# ELI5: this is a little guard dog that runs automatically every
+# time someone tries to save a commit. Its ONE job: if index.html
+# is part of THIS commit, make sure service-worker.js's CACHE_NAME
+# line is ALSO part of this exact same commit. If it isn't, the
+# commit gets refused (nothing is lost — just fix it and try again)
+# with a plain-language explanation of why, instead of silently
+# shipping a change that a returning visitor's browser will never
+# actually see (see the big comment above CACHE_NAME in
+# service-worker.js for the real incident this is guarding against).
+#
+# This only runs on THIS computer's copy of the repo. If you (or
+# anyone) clones this repo fresh on a different machine, run this
+# ONE command once to turn the guard back on there too:
+#   git config core.hooksPath .githooks
+# ============================================
+
+staged_files=$(git diff --cached --name-only)
+
+echo "$staged_files" | grep -qx "index.html" || exit 0
+# index.html isn't part of this commit at all — nothing to check.
+
+if ! echo "$staged_files" | grep -qx "service-worker.js"; then
+  echo ""
+  echo "COMMIT BLOCKED: index.html changed, but service-worker.js didn't."
+  echo ""
+  echo "  Every real change to index.html needs CACHE_NAME bumped in"
+  echo "  service-worker.js in the SAME commit (e.g. 'ino-cache-v4' ->"
+  echo "  'ino-cache-v5') — otherwise a returning visitor's browser"
+  echo "  keeps serving its OLD cached copy of the page forever, since"
+  echo "  nothing ever told it a new version exists."
+  echo ""
+  echo "  Fix: bump CACHE_NAME near the top of service-worker.js,"
+  echo "  'git add service-worker.js', then commit again."
+  echo ""
+  exit 1
+fi
+
+# service-worker.js IS part of this commit — but did the actual
+# CACHE_NAME line change, or was the file touched for some other
+# unrelated reason? Only an ADDED line (the new value) counts.
+if ! git diff --cached -- service-worker.js | grep -q "^+var CACHE_NAME = "; then
+  echo ""
+  echo "COMMIT BLOCKED: index.html changed, and service-worker.js is"
+  echo "in this commit too, but its CACHE_NAME line itself doesn't"
+  echo "look like it actually changed."
+  echo ""
+  echo "  Bump CACHE_NAME near the top of service-worker.js to a new"
+  echo "  value (e.g. 'ino-cache-v4' -> 'ino-cache-v5'), re-stage it,"
+  echo "  then commit again."
+  echo ""
+  exit 1
+fi
+
+exit 0

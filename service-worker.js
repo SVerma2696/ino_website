@@ -27,10 +27,19 @@
 // or any file listed below, so visitors don't get stuck seeing a
 // stale copy of the page forever. This name was bumped from v1 to
 // v2 specifically because index.html changed but the cached copy
-// didn't know that yet, and now from v2 to v3 for the same reason
-// (the member photos got bigger) — see the "skipWaiting" note
-// further down for the other half of that same fix.
-var CACHE_NAME = 'ino-cache-v3';
+// didn't know that yet, then v2 to v3 for the same reason (the
+// member photos got bigger) — see the "skipWaiting" note further
+// down for the other half of that same fix.
+//
+// v3 to v4: this one stayed unbumped through ELEVEN real index.html
+// changes in a row (the whole guestbook edit/delete feature among
+// them), so returning visitors kept getting served an old, stale
+// snapshot of the page indefinitely — which is exactly what made
+// the guestbook look like it had "disappeared," even though the
+// real data in Firestore was completely untouched the whole time.
+// A git pre-commit hook now catches this automatically (see
+// .githooks/pre-commit) so it can't quietly happen again.
+var CACHE_NAME = 'ino-cache-v4';
 
 // Just enough files to make the page still open and look like
 // itself with zero internet connection — not every single photo
