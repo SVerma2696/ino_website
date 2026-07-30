@@ -120,11 +120,67 @@
   ============================================
 -->
 
+<!-- ============================================
+     SPEED CHECKLIST (from a Lighthouse test) 🏎️
+     ELI5: Lighthouse is a free robot that visits a website,
+     times how long everything takes, and then hands you a report
+     card. These are the things we changed because of its report,
+     so future-you knows why odd-looking words are on the tags:
+
+     1. The 31 moodboard photos + 5 member photos now say
+        loading="lazy" — "do not fetch me until someone scrolls
+        near me." They sit far below the top of the page, so
+        downloading them immediately was pure waste.
+     2. Nearly every picture says decoding="async" — "unwrap me
+        in the background, do not freeze the page doing it."
+     3. Every picture now has width and height numbers. Those are
+        SHAPE hints, not real sizes (CSS still decides real size);
+        they let the browser hold the right space open so nothing
+        jumps around while loading.
+     4. The Google Fonts link no longer blocks the page from
+        drawing (see the big note right below this one).
+     5. The moodboard uses content-visibility so the browser can
+        skip drawing it entirely until you scroll down to it.
+
+     STILL WORTH DOING, but it cannot be fixed inside this file —
+     it is about the picture FILES themselves:
+     Most photos in this folder are far bigger than they are ever
+     shown. Example: ino-pfp.jpg is 1200 pixels wide but is only
+     ever displayed at 136. The browser downloads all 1200 and
+     throws most of it away. Shrinking the files is by far the
+     biggest remaining speed win — the README explains how.
+     ============================================ -->
 <!-- These two lines just tell the browser "hey, go ahead and get ready to talk to Google Fonts" -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- This line downloads the fancy letters (fonts) we use on the page -->
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- ============================================
+     LOADING THE FANCY LETTERS (FONTS) WITHOUT MAKING
+     EVERYBODY WAIT ⏳
+     ELI5: imagine you are about to start a race, but you
+     refuse to move until your friend finishes tying their
+     shoes. That is what a normal font <link> does — the
+     browser stops and stares at the page, showing NOTHING
+     at all, until Google sends the letters back.
+
+     The trick below lets the browser start drawing the page
+     RIGHT AWAY and put the fancy letters on afterwards:
+
+     - media="print" is a little white lie. It tells the
+       browser "these letters are only for printing on
+       paper," so the browser says "cool, not urgent" and
+       keeps drawing the page instead of waiting.
+     - onload="this.media='all'" is us taking the lie back
+       the very instant the letters actually arrive: "just
+       kidding, use them on the screen too!"
+     - The <noscript> copy underneath is the backup plan for
+       anyone who has JavaScript switched off, so they still
+       get the nice letters, just the old slower way.
+
+     Lighthouse called the old version a "render-blocking
+     request." This is the fix for that.
+     ============================================ -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
 
 <style>
   /* ============================================
@@ -2071,6 +2127,23 @@
     gap: 18px;
     row-gap: 22px;
     margin-bottom: 14px;
+    /* ELI5: "content-visibility: auto" is like telling the
+       browser "you do not have to color in the parts of the
+       coloring book nobody is looking at yet." The moodboard
+       sits WAY down the page, so while someone is still up at
+       the top reading INO's name, the browser is allowed to
+       skip all the hard work of drawing these photocards and
+       only do it once they scroll near them.
+
+       "contain-intrinsic-size" is the important partner to it:
+       it says "but pretend it is about this big while you are
+       skipping it." Without that guess, the page would have no
+       idea how tall the skipped part is, and everything would
+       visibly jump around as you scroll (which Lighthouse
+       measures as "layout shift" — currently a perfect 0, and
+       we would like to keep it that way!). */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 640px;
   }
 
   /* Each little photo gets a plain "frame" around it, like a
@@ -2763,34 +2836,58 @@
      time. See ".bg-cell" in the <style> section for how the two
      copies are layered and sized.
 
-     Quick note: these pictures do NOT use a loading="lazy"
-     attribute (a browser trick that says "don't bother fetching
-     this picture until it's about to scroll into view"). That
-     trick can get confused on a page like this one, where things
-     move around and resize themselves depending on the screen —
-     the browser can end up thinking a picture is "off-screen"
-     when it's actually front and center, and then never load it
-     at all! Since we'd rather every picture load every time,
-     even if it takes a tiny bit longer, we just let all of them
-     start loading right away instead. -->
+     Quick note about loading: these nine background pictures do
+     NOT use loading="lazy" (a browser trick meaning "don't bother
+     fetching this picture until it's about to scroll into view").
+     That is on purpose. This whole wall is "position: fixed," so
+     it is glued to the window and is ALWAYS on screen — there is
+     no "later" for it to wait for. Telling the browser to delay
+     these would just make the page look empty for longer.
+
+     (The 31 little moodboard photocards way down the page are the
+     opposite situation — nobody sees those until they scroll a
+     long way down, so those DO use loading="lazy" now. Look for
+     "MIDZY MOODBOARD" further down this file.)
+
+     Every picture up here does get decoding="async" though, which
+     ELI5 means: "browser, you are allowed to unwrap this picture
+     in the background instead of freezing everything else while
+     you do it." Unwrapping nine big photos is real work, and
+     these are blurred on top of that, so letting it happen off to
+     the side keeps the page from feeling stuck.
+
+     The width="600" height="800" on each one is a rough size
+     guess. The browser never actually shows them at that exact
+     size (CSS stretches them to fill their squares), but knowing
+     the SHAPE ahead of time lets it reserve the right amount of
+     room immediately instead of shuffling the page around once
+     each photo finally arrives. -->
 <div class="bg-collage" aria-hidden="true">
-  <!-- ELI5: this very first background photo is usually the very
-       first big thing the browser paints on screen (Lighthouse
-       calls this the "Largest Contentful Paint," or LCP) — so
-       "fetchpriority=high" is a hint that tells the browser "grab
-       THIS one before the other 8 background photos," shaving a
-       little time off how fast the page visibly finishes loading.
-       Only this one image needs the hint; giving every image the
-       same "most important" label would just cancel itself out. -->
-  <div class="bg-cell"><img class="bg-fill" src="IMG_2927.webp" fetchpriority="high" alt=""><img class="bg-full" src="IMG_2927.webp" alt=""></div>
-  <div class="bg-cell"><img class="bg-fill" src="IMG_2936.webp" alt=""><img class="bg-full" src="IMG_2936.webp" alt=""></div>
-  <div class="bg-cell"><img class="bg-fill" src="IMG_2937.webp" alt=""><img class="bg-full" src="IMG_2937.webp" alt=""></div>
-  <div class="bg-cell"><img class="bg-fill" src="IMG_3193.webp" alt=""><img class="bg-full" src="IMG_3193.webp" alt=""></div>
-  <div class="bg-cell"><img class="bg-fill" src="IMG_3221.webp" alt=""><img class="bg-full" src="IMG_3221.webp" alt=""></div>
-  <div class="bg-cell"><img class="bg-fill" src="IMG_3282.webp" alt=""><img class="bg-full" src="IMG_3282.webp" alt=""></div>
-  <div class="bg-cell"><img class="bg-fill" src="IMG_3954.webp" alt=""><img class="bg-full" src="IMG_3954.webp" alt=""></div>
-  <div class="bg-cell"><img class="bg-fill" src="IMG_5256.webp" alt=""><img class="bg-full" src="IMG_5256.webp" alt=""></div>
-  <div class="bg-cell"><img class="bg-fill" src="IMG_5257.webp" alt=""><img class="bg-full" src="IMG_5257.webp" alt=""></div>
+  <!-- ELI5: "fetchpriority=high" is us tapping the browser on the
+       shoulder and saying "grab THIS picture first, before the
+       other eight." Only one photo gets the tap — if you told the
+       browser everything was most important, nothing would be.
+
+       Why it matters: Lighthouse measures how long until the
+       BIGGEST thing on screen finishes drawing (it calls this
+       "Largest Contentful Paint," or LCP), and on this page that
+       biggest thing is one of these background photos.
+
+       Honest caveat worth knowing: WHICH of the nine is biggest
+       depends on the screen. On a wide laptop it was a middle
+       photo; on a phone it was a different one entirely. So this
+       hint helps, but it cannot always land on exactly the right
+       photo. The much bigger lever is simply making these nine
+       files smaller — see the README's speed section. -->
+  <div class="bg-cell"><img class="bg-fill" src="IMG_2927.webp" fetchpriority="high" width="600" height="800" decoding="async" alt=""><img class="bg-full" src="IMG_2927.webp" width="600" height="800" decoding="async" alt=""></div>
+  <div class="bg-cell"><img class="bg-fill" src="IMG_2936.webp" width="600" height="800" decoding="async" alt=""><img class="bg-full" src="IMG_2936.webp" width="600" height="800" decoding="async" alt=""></div>
+  <div class="bg-cell"><img class="bg-fill" src="IMG_2937.webp" width="600" height="800" decoding="async" alt=""><img class="bg-full" src="IMG_2937.webp" width="600" height="800" decoding="async" alt=""></div>
+  <div class="bg-cell"><img class="bg-fill" src="IMG_3193.webp" width="600" height="800" decoding="async" alt=""><img class="bg-full" src="IMG_3193.webp" width="600" height="800" decoding="async" alt=""></div>
+  <div class="bg-cell"><img class="bg-fill" src="IMG_3221.webp" width="600" height="800" decoding="async" alt=""><img class="bg-full" src="IMG_3221.webp" width="600" height="800" decoding="async" alt=""></div>
+  <div class="bg-cell"><img class="bg-fill" src="IMG_3282.webp" width="600" height="800" decoding="async" alt=""><img class="bg-full" src="IMG_3282.webp" width="600" height="800" decoding="async" alt=""></div>
+  <div class="bg-cell"><img class="bg-fill" src="IMG_3954.webp" width="600" height="800" decoding="async" alt=""><img class="bg-full" src="IMG_3954.webp" width="600" height="800" decoding="async" alt=""></div>
+  <div class="bg-cell"><img class="bg-fill" src="IMG_5256.webp" width="600" height="800" decoding="async" alt=""><img class="bg-full" src="IMG_5256.webp" width="600" height="800" decoding="async" alt=""></div>
+  <div class="bg-cell"><img class="bg-fill" src="IMG_5257.webp" width="600" height="800" decoding="async" alt=""><img class="bg-full" src="IMG_5257.webp" width="600" height="800" decoding="async" alt=""></div>
 </div>
 
 <div class="page">
@@ -2827,8 +2924,22 @@
       <div class="glow"></div>
       <div class="avatar">
         <!-- This is INO's actual profile picture. It lives right next to
-             this index.html file, in a file called ino-pfp.jpg -->
-        <img src="ino-pfp.jpg" alt="INO profile photo">
+             this index.html file, in a file called ino-pfp.jpg
+
+             The extra words on the <img> tag are all speed helpers:
+             - width="136" height="136" tells the browser exactly how
+               much room to hold open, so nothing on the page jiggles
+               when the photo finally shows up.
+             - fetchpriority="high" means "go get this one early" —
+               fair, since it is the very first real thing a visitor
+               looks at.
+             - decoding="async" means "unwrap it in the background
+               instead of freezing the page while you do it."
+             - There is deliberately NO loading="lazy" here. Lazy means
+               "wait until it scrolls into view," and this picture is
+               already in view the second the page opens, so waiting
+               would only make things slower. -->
+        <img src="ino-pfp.jpg" alt="INO profile photo" width="136" height="136" fetchpriority="high" decoding="async">
       </div>
     </div>
 
@@ -3159,31 +3270,31 @@
            decoration). -->
       <div class="member-track" id="member-track">
         <div class="member-slide is-active" data-accent="red">
-          <img class="member-photo" src="yeji.webp" width="560" height="700" alt="Hwang Ye-ji">
+          <img class="member-photo" src="yeji.webp" width="560" height="700" loading="lazy" decoding="async" alt="Hwang Ye-ji">
           <span class="member-name">HWANG YE-JI</span>
           <span class="member-role">Leader · Main Dancer · Sub Vocalist</span>
           <span class="member-birthday">🎂 May 26, 2000</span>
         </div>
         <div class="member-slide" data-accent="blue">
-          <img class="member-photo" src="lia.webp" width="525" height="700" alt="Lia (Choi Ji-su)">
+          <img class="member-photo" src="lia.webp" width="525" height="700" loading="lazy" decoding="async" alt="Lia (Choi Ji-su)">
           <span class="member-name">LIA (CHOI JI-SU)</span>
           <span class="member-role">Main Vocalist</span>
           <span class="member-birthday">🎂 July 21, 2000</span>
         </div>
         <div class="member-slide" data-accent="green">
-          <img class="member-photo" src="ryujin.webp" width="467" height="700" alt="Shin Ryu-jin">
+          <img class="member-photo" src="ryujin.webp" width="467" height="700" loading="lazy" decoding="async" alt="Shin Ryu-jin">
           <span class="member-name">SHIN RYU-JIN</span>
           <span class="member-role">Main Rapper · Main Dancer</span>
           <span class="member-birthday">🎂 April 17, 2001</span>
         </div>
         <div class="member-slide" data-accent="pink">
-          <img class="member-photo" src="chaeryeong.webp" width="368" height="368" alt="Lee Chae-ryeong">
+          <img class="member-photo" src="chaeryeong.webp" width="368" height="368" loading="lazy" decoding="async" alt="Lee Chae-ryeong">
           <span class="member-name">LEE CHAE-RYEONG</span>
           <span class="member-role">Main Dancer · Sub Rapper · Sub Vocalist</span>
           <span class="member-birthday">🎂 June 5, 2001</span>
         </div>
         <div class="member-slide" data-accent="lavender">
-          <img class="member-photo" src="yuna.webp" width="467" height="657" alt="Shin Yu-na">
+          <img class="member-photo" src="yuna.webp" width="467" height="657" loading="lazy" decoding="async" alt="Shin Yu-na">
           <span class="member-name">SHIN YU-NA</span>
           <span class="member-role">Vocalist · Dancer · Maknae</span>
           <span class="member-birthday">🎂 December 9, 2003</span>
@@ -3282,170 +3393,188 @@
        somewhere. Each link also gets its own aria-label describing
        exactly where it goes.
 
-       These photos skip loading="lazy" too, for the exact same
-       reason as the 9 background photos up at the top of the page
-       — see the big comment right before <body> if you want the
-       full explanation.
+       SPEED NOTE (this changed after a Lighthouse test):
+       These 31 photos now DO use loading="lazy". ELI5: that is
+       the browser promising "I will not go fetch this picture
+       until you scroll close enough to actually see it."
+
+       They used to load all at once, right at the start, the same
+       way the background wall does. But the background wall is
+       glued to the window and is always visible, while THIS row
+       starts roughly two whole phone-screens below the top of the
+       page. So the browser was downloading about two megabytes of
+       photos that nobody was looking at yet, and the page took a
+       very long time to feel "done" because of it.
+
+       Each photo also gets:
+       - decoding="async" — "unwrap this picture in the background
+         instead of freezing the page while you do it"
+       - width="300" height="300" — a shape hint so the browser can
+         hold the right amount of space open before the picture
+         shows up, instead of everything jumping around after
+
+       (The CSS still decides the real on-screen size; these two
+       numbers only describe the SHAPE, which here is a square.)
        ============================================ -->
   <p class="gallery-label">midzy moodboard</p>
   <div class="gallery gallery-left">
     <!-- 1. DALLA DALLA (2019) — ITZY's actual debut song, so we
          spell that out right in the caption -->
-    <a class="photocard" data-ryujin="true" href="https://youtu.be/pNfTK39k55U?si=SGZk0WAuoS0xCcq_" target="_blank" rel="noopener" aria-label="Watch the DALLA DALLA music video on YouTube">
-      <img src="dalla-dalla.webp" alt="">
+    <a class="photocard" data-ryujin="true" href="https://youtu.be/pNfTK39k55U?si=SGZk0WAuoS0xCcq_" target="_blank" rel="noopener" aria-label="DALLA DALLA (DEBUT) — watch the music video on YouTube">
+      <img src="dalla-dalla.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>DALLA DALLA (DEBUT)</span>
     </a>
     <!-- 2. ICY (2019) -->
-    <a class="photocard" href="https://youtu.be/zndvqTc4P9I?si=Mvw-hTrOswhWxrlI" target="_blank" rel="noopener" aria-label="Watch the ICY music video on YouTube">
-      <img src="icy.webp" alt="">
+    <a class="photocard" href="https://youtu.be/zndvqTc4P9I?si=Mvw-hTrOswhWxrlI" target="_blank" rel="noopener" aria-label="ICY — watch the music video on YouTube">
+      <img src="icy.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>ICY</span>
     </a>
     <!-- 3. WANNABE (2020) -->
-    <a class="photocard" data-ryujin="true" href="https://youtu.be/fE2h3lGlOsk?si=fHAwk_f3cudsaIlR" target="_blank" rel="noopener" aria-label="Watch the WANNABE music video on YouTube">
-      <img src="wannabe.webp" alt="">
+    <a class="photocard" data-ryujin="true" href="https://youtu.be/fE2h3lGlOsk?si=fHAwk_f3cudsaIlR" target="_blank" rel="noopener" aria-label="WANNABE — watch the music video on YouTube">
+      <img src="wannabe.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>WANNABE</span>
     </a>
     <!-- 4. NOBODY LIKE YOU (2020) — a "Selfie Music Video" ITZY
          filmed themselves -->
-    <a class="photocard" href="https://youtu.be/6rc_R5XvT3Q?si=3eWY1TIgAwWX58ug" target="_blank" rel="noopener" aria-label="Watch the NOBODY LIKE YOU music video on YouTube">
-      <img src="nobody-like-you.webp" alt="">
+    <a class="photocard" href="https://youtu.be/6rc_R5XvT3Q?si=3eWY1TIgAwWX58ug" target="_blank" rel="noopener" aria-label="NOBODY LIKE YOU (SELFIE MUSIC VIDEO) — watch the music video on YouTube">
+      <img src="nobody-like-you.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>NOBODY LIKE YOU (SELFIE MUSIC VIDEO)</span>
     </a>
     <!-- 5. NOT SHY (2020) -->
-    <a class="photocard" href="https://youtu.be/wTowEKjDGkU?si=lngZwdMQrwXX7MYF" target="_blank" rel="noopener" aria-label="Watch the NOT SHY music video on YouTube">
-      <img src="not-shy.webp" alt="">
+    <a class="photocard" href="https://youtu.be/wTowEKjDGkU?si=lngZwdMQrwXX7MYF" target="_blank" rel="noopener" aria-label="NOT SHY — watch the music video on YouTube">
+      <img src="not-shy.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>NOT SHY</span>
     </a>
     <!-- 6. IN THE MORNING (2021) -->
-    <a class="photocard" data-ryujin="true" href="https://youtu.be/_ysomCGaZLw?si=V1vpgPL-lfMIeVLT" target="_blank" rel="noopener" aria-label="Watch the IN THE MORNING music video on YouTube">
-      <img src="in-the-morning.webp" alt="">
+    <a class="photocard" data-ryujin="true" href="https://youtu.be/_ysomCGaZLw?si=V1vpgPL-lfMIeVLT" target="_blank" rel="noopener" aria-label="IN THE MORNING — watch the music video on YouTube">
+      <img src="in-the-morning.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>IN THE MORNING</span>
     </a>
     <!-- 7. BREAK ICE (2021) — a collab track with "Second Aunt KimDaVi" -->
-    <a class="photocard" href="https://youtu.be/WLQ7JqrCXec?si=VirAQgElTvAQFSP6" target="_blank" rel="noopener" aria-label="Watch the BREAK ICE music video on YouTube">
-      <img src="break-ice.webp" alt="">
+    <a class="photocard" href="https://youtu.be/WLQ7JqrCXec?si=VirAQgElTvAQFSP6" target="_blank" rel="noopener" aria-label="BREAK ICE (COLLAB WITH KIMDAVI) — watch the music video on YouTube">
+      <img src="break-ice.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>BREAK ICE (COLLAB WITH KIMDAVI)</span>
     </a>
     <!-- 8. LOCO (2021) -->
-    <a class="photocard" data-ryujin="true" href="https://youtu.be/MjCZfZfucEc?si=WTN1VmHab-AT6SRd" target="_blank" rel="noopener" aria-label="Watch the LOCO music video on YouTube">
-      <img src="loco.webp" alt="">
+    <a class="photocard" data-ryujin="true" href="https://youtu.be/MjCZfZfucEc?si=WTN1VmHab-AT6SRd" target="_blank" rel="noopener" aria-label="LOCO — watch the music video on YouTube">
+      <img src="loco.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>LOCO</span>
     </a>
     <!-- 9. SWIPE (2021) -->
-    <a class="photocard" href="https://youtu.be/9oyodEkzn94?si=9HSbAuX18TjpJXcw" target="_blank" rel="noopener" aria-label="Watch the SWIPE music video on YouTube">
-      <img src="swipe.webp" alt="">
+    <a class="photocard" href="https://youtu.be/9oyodEkzn94?si=9HSbAuX18TjpJXcw" target="_blank" rel="noopener" aria-label="SWIPE — watch the music video on YouTube">
+      <img src="swipe.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>SWIPE</span>
     </a>
     <!-- 10. WANNABE, Japanese version (2021) -->
-    <a class="photocard" href="https://youtu.be/yeHZNPplmm4?si=SzHTrZn9hqZJU9Y3" target="_blank" rel="noopener" aria-label="Watch the Japanese-version WANNABE music video on YouTube">
-      <img src="wannabe-japanese.webp" alt="">
+    <a class="photocard" href="https://youtu.be/yeHZNPplmm4?si=SzHTrZn9hqZJU9Y3" target="_blank" rel="noopener" aria-label="WANNABE (JAPANESE VERSION) — watch the music video on YouTube">
+      <img src="wannabe-japanese.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>WANNABE (JAPANESE VERSION)</span>
     </a>
     <!-- 11. VOLTAGE (2022) — ITZY's Japanese debut -->
-    <a class="photocard" href="https://youtu.be/krzf1hkFAZA?si=rbsKhUZkhOYH__5X" target="_blank" rel="noopener" aria-label="Watch the VOLTAGE music video on YouTube">
-      <img src="voltage.webp" alt="">
+    <a class="photocard" href="https://youtu.be/krzf1hkFAZA?si=rbsKhUZkhOYH__5X" target="_blank" rel="noopener" aria-label="VOLTAGE (JAPANESE DEBUT) — watch the music video on YouTube">
+      <img src="voltage.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>VOLTAGE (JAPANESE DEBUT)</span>
     </a>
     <!-- 12. SNEAKERS (2022) -->
-    <a class="photocard" href="https://youtu.be/Hbb5GPxXF1w?si=tS7XGGvvy8d69X4P" target="_blank" rel="noopener" aria-label="Watch the SNEAKERS music video on YouTube">
-      <img src="sneakers.webp" alt="">
+    <a class="photocard" href="https://youtu.be/Hbb5GPxXF1w?si=tS7XGGvvy8d69X4P" target="_blank" rel="noopener" aria-label="SNEAKERS — watch the music video on YouTube">
+      <img src="sneakers.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>SNEAKERS</span>
     </a>
     <!-- 13. BLAH BLAH BLAH, Japanese version (2022) -->
-    <a class="photocard" href="https://youtu.be/F-QTb-0wRGk?si=AFapLe1ZWKAYlSJp" target="_blank" rel="noopener" aria-label="Watch the BLAH BLAH BLAH music video on YouTube">
-      <img src="blah-blah-blah.webp" alt="">
+    <a class="photocard" href="https://youtu.be/F-QTb-0wRGk?si=AFapLe1ZWKAYlSJp" target="_blank" rel="noopener" aria-label="BLAH BLAH BLAH (JAPANESE) — watch the music video on YouTube">
+      <img src="blah-blah-blah.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>BLAH BLAH BLAH (JAPANESE)</span>
     </a>
     <!-- 14. BOYS LIKE YOU (2022) — English pre-release -->
-    <a class="photocard" href="https://youtu.be/6uZy86ePgO0?si=MfW4-ytbr_luCeIS" target="_blank" rel="noopener" aria-label="Watch the BOYS LIKE YOU music video on YouTube">
-      <img src="boys-like-you.webp" alt="">
+    <a class="photocard" href="https://youtu.be/6uZy86ePgO0?si=MfW4-ytbr_luCeIS" target="_blank" rel="noopener" aria-label="BOYS LIKE YOU (ENGLISH PRE-RELEASE) — watch the music video on YouTube">
+      <img src="boys-like-you.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>BOYS LIKE YOU (ENGLISH PRE-RELEASE)</span>
     </a>
     <!-- 15. CHESHIRE (2022) -->
-    <a class="photocard" href="https://youtu.be/zugAhfd2r0g?si=M-TSGTZqf6iPox9l" target="_blank" rel="noopener" aria-label="Watch the CHESHIRE music video on YouTube">
-      <img src="cheshire.webp" alt="">
+    <a class="photocard" href="https://youtu.be/zugAhfd2r0g?si=M-TSGTZqf6iPox9l" target="_blank" rel="noopener" aria-label="CHESHIRE — watch the music video on YouTube">
+      <img src="cheshire.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>CHESHIRE</span>
     </a>
     <!-- 16. BET ON ME (2023) — pre-release -->
-    <a class="photocard" href="https://youtu.be/RmTq3cJqyCo?si=uBda_EJAuzyVj-WY" target="_blank" rel="noopener" aria-label="Watch the BET ON ME music video on YouTube">
-      <img src="bet-on-me.webp" alt="">
+    <a class="photocard" href="https://youtu.be/RmTq3cJqyCo?si=uBda_EJAuzyVj-WY" target="_blank" rel="noopener" aria-label="BET ON ME (PRE-RELEASE) — watch the music video on YouTube">
+      <img src="bet-on-me.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>BET ON ME (PRE-RELEASE)</span>
     </a>
   </div>
   <div class="gallery gallery-right">
     <!-- 17. CAKE (2023) -->
-    <a class="photocard" href="https://youtu.be/0bIRwBpBcZQ?si=AK7AtpANOeDtki6f" target="_blank" rel="noopener" aria-label="Watch the CAKE music video on YouTube">
-      <img src="cake.webp" alt="">
+    <a class="photocard" href="https://youtu.be/0bIRwBpBcZQ?si=AK7AtpANOeDtki6f" target="_blank" rel="noopener" aria-label="CAKE — watch the music video on YouTube">
+      <img src="cake.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>CAKE</span>
     </a>
     <!-- 18. NONE OF MY BUSINESS (2023) -->
-    <a class="photocard" href="https://youtu.be/FcQ6oB1JPiA?si=EVlHaQ_M0TS8kbuo" target="_blank" rel="noopener" aria-label="Watch the NONE OF MY BUSINESS music video on YouTube">
-      <img src="none-of-my-buisiness.webp" alt="">
+    <a class="photocard" href="https://youtu.be/FcQ6oB1JPiA?si=EVlHaQ_M0TS8kbuo" target="_blank" rel="noopener" aria-label="NONE OF MY BUSINESS — watch the music video on YouTube">
+      <img src="none-of-my-buisiness.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>NONE OF MY BUSINESS</span>
     </a>
     <!-- 19. RINGO (2023) — Japanese release -->
-    <a class="photocard" href="https://youtu.be/K0xFPQ2CX5E?si=KjgUbNT8CqYHvB4Z" target="_blank" rel="noopener" aria-label="Watch the RINGO music video on YouTube">
-      <img src="ringo.webp" alt="">
+    <a class="photocard" href="https://youtu.be/K0xFPQ2CX5E?si=KjgUbNT8CqYHvB4Z" target="_blank" rel="noopener" aria-label="RINGO (JAPANESE) — watch the music video on YouTube">
+      <img src="ringo.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>RINGO (JAPANESE)</span>
     </a>
     <!-- 20. BORN TO BE (2023) — pre-release -->
-    <a class="photocard" href="https://youtu.be/4R7vRFGJr3k?si=ThkUgRa7mgMGoWBn" target="_blank" rel="noopener" aria-label="Watch the BORN TO BE music video on YouTube">
-      <img src="born-to-be.webp" alt="">
+    <a class="photocard" href="https://youtu.be/4R7vRFGJr3k?si=ThkUgRa7mgMGoWBn" target="_blank" rel="noopener" aria-label="BORN TO BE (PRE-RELEASE) — watch the music video on YouTube">
+      <img src="born-to-be.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>BORN TO BE (PRE-RELEASE)</span>
     </a>
     <!-- 21. MR. VAMPIRE (2024) — pre-release -->
-    <a class="photocard" href="https://youtu.be/VkIEfqHFNkU?si=Krw8ZpyrDqugEX-r" target="_blank" rel="noopener" aria-label="Watch the MR. VAMPIRE music video on YouTube">
-      <img src="mr-vampire.webp" alt="">
+    <a class="photocard" href="https://youtu.be/VkIEfqHFNkU?si=Krw8ZpyrDqugEX-r" target="_blank" rel="noopener" aria-label="MR. VAMPIRE (PRE-RELEASE) — watch the music video on YouTube">
+      <img src="mr-vampire.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>MR. VAMPIRE (PRE-RELEASE)</span>
     </a>
     <!-- 22. UNTOUCHABLE (2024) -->
-    <a class="photocard" href="https://youtu.be/5e3rKInegeU?si=VoDwDwJATOyeYPxY" target="_blank" rel="noopener" aria-label="Watch the UNTOUCHABLE music video on YouTube">
-      <img src="untouchable.webp" alt="">
+    <a class="photocard" href="https://youtu.be/5e3rKInegeU?si=VoDwDwJATOyeYPxY" target="_blank" rel="noopener" aria-label="UNTOUCHABLE — watch the music video on YouTube">
+      <img src="untouchable.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>UNTOUCHABLE</span>
     </a>
     <!-- 23. LIKE MAGIC (2024) — a big collab track -->
-    <a class="photocard" href="https://youtu.be/t6bBDAlpQZs?si=gfF-iIVLIA0YdvpU" target="_blank" rel="noopener" aria-label="Watch the LIKE MAGIC music video on YouTube">
-      <img src="like-magic.webp" alt="">
+    <a class="photocard" href="https://youtu.be/t6bBDAlpQZs?si=gfF-iIVLIA0YdvpU" target="_blank" rel="noopener" aria-label="LIKE MAGIC (COLLAB: J.Y. PARK, STRAY KIDS, NMIXX) — watch the music video on YouTube">
+      <img src="like-magic.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>LIKE MAGIC (COLLAB: J.Y. PARK, STRAY KIDS, NMIXX)</span>
     </a>
     <!-- 24. ALGORHYTHM (2024) — Japanese release -->
-    <a class="photocard" href="https://youtu.be/8ExNmYax-ms?si=BIL_gHwGBLX1bbNJ" target="_blank" rel="noopener" aria-label="Watch the ALGORHYTHM music video on YouTube">
-      <img src="algorhythm.webp" alt="">
+    <a class="photocard" href="https://youtu.be/8ExNmYax-ms?si=BIL_gHwGBLX1bbNJ" target="_blank" rel="noopener" aria-label="ALGORHYTHM (JAPANESE) — watch the music video on YouTube">
+      <img src="algorhythm.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>ALGORHYTHM (JAPANESE)</span>
     </a>
     <!-- 25. GOLD (2024) -->
-    <a class="photocard" href="https://youtu.be/eMk_0svqsnI?si=dsaJ7QpVwVg0P_u1" target="_blank" rel="noopener" aria-label="Watch the GOLD music video on YouTube">
-      <img src="gold.webp" alt="">
+    <a class="photocard" href="https://youtu.be/eMk_0svqsnI?si=dsaJ7QpVwVg0P_u1" target="_blank" rel="noopener" aria-label="GOLD — watch the music video on YouTube">
+      <img src="gold.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>GOLD</span>
     </a>
     <!-- 26. IMAGINARY FRIEND (2024) -->
-    <a class="photocard" href="https://youtu.be/NrUlydECU-8?si=J0-9Z1JUppMIvNIy" target="_blank" rel="noopener" aria-label="Watch the IMAGINARY FRIEND music video on YouTube">
-      <img src="imaginary-friend.webp" alt="">
+    <a class="photocard" href="https://youtu.be/NrUlydECU-8?si=J0-9Z1JUppMIvNIy" target="_blank" rel="noopener" aria-label="IMAGINARY FRIEND — watch the music video on YouTube">
+      <img src="imaginary-friend.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>IMAGINARY FRIEND</span>
     </a>
     <!-- 27. AIR, Yeji's solo debut (2025) -->
-    <a class="photocard" href="https://youtu.be/TamDOXponnM?si=2TjVCj15X8sU8YiP" target="_blank" rel="noopener" aria-label="Watch the YEJI AIR music video on YouTube">
-      <img src="yeji-air.webp" alt="">
+    <a class="photocard" href="https://youtu.be/TamDOXponnM?si=2TjVCj15X8sU8YiP" target="_blank" rel="noopener" aria-label="YEJI · AIR — watch the music video on YouTube">
+      <img src="yeji-air.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>YEJI · AIR</span>
     </a>
     <!-- 28. GIRLS WILL BE GIRLS (2025) -->
-    <a class="photocard" href="https://youtu.be/1KhOhW_O8-k?si=yaHQ-drGMR5dpyTq" target="_blank" rel="noopener" aria-label="Watch the GIRLS WILL BE GIRLS music video on YouTube">
-      <img src="gwbg.webp" alt="">
+    <a class="photocard" href="https://youtu.be/1KhOhW_O8-k?si=yaHQ-drGMR5dpyTq" target="_blank" rel="noopener" aria-label="GIRLS WILL BE GIRLS — watch the music video on YouTube">
+      <img src="gwbg.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>GIRLS WILL BE GIRLS</span>
     </a>
     <!-- 29. TUNNEL VISION (2025) -->
-    <a class="photocard" href="https://youtu.be/piSq8IioghU?si=pGMcIg4LytTRtiG0" target="_blank" rel="noopener" aria-label="Watch the TUNNEL VISION music video on YouTube">
-      <img src="tunnel-vision.webp" alt="">
+    <a class="photocard" href="https://youtu.be/piSq8IioghU?si=pGMcIg4LytTRtiG0" target="_blank" rel="noopener" aria-label="TUNNEL VISION — watch the music video on YouTube">
+      <img src="tunnel-vision.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>TUNNEL VISION</span>
     </a>
     <!-- 30. ICE CREAM, Yuna's solo debut (2026) -->
-    <a class="photocard" href="https://youtu.be/x0FwbTiD3iA?si=e-ODNtLTmO5pm2Nv" target="_blank" rel="noopener" aria-label="Watch the YUNA ICE CREAM music video on YouTube">
-      <img src="ice-cream-yuna.webp" alt="">
+    <a class="photocard" href="https://youtu.be/x0FwbTiD3iA?si=e-ODNtLTmO5pm2Nv" target="_blank" rel="noopener" aria-label="YUNA · ICE CREAM — watch the music video on YouTube">
+      <img src="ice-cream-yuna.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>YUNA · ICE CREAM</span>
     </a>
     <!-- 31. MOTTO (2026) — the current era -->
-    <a class="photocard" href="https://youtu.be/1jKnI_ib8c8?si=3rumb4Y2TbG3zckT" target="_blank" rel="noopener" aria-label="Watch the MOTTO music video on YouTube">
-      <img src="motto.webp" alt="">
+    <a class="photocard" href="https://youtu.be/1jKnI_ib8c8?si=3rumb4Y2TbG3zckT" target="_blank" rel="noopener" aria-label="MOTTO — watch the music video on YouTube">
+      <img src="motto.webp" alt="" width="300" height="300" loading="lazy" decoding="async">
       <span>MOTTO</span>
     </a>
   </div>
@@ -3462,7 +3591,7 @@
   <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Era photo preview" hidden>
     <div class="lightbox-card">
       <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close preview">×</button>
-      <img class="lightbox-img" id="lightbox-img" src="" alt="">
+      <img class="lightbox-img" id="lightbox-img" src="" alt="" decoding="async">
       <span class="lightbox-caption" id="lightbox-caption"></span>
       <a class="lightbox-watch" id="lightbox-watch" href="#" target="_blank" rel="noopener">▶ Watch Music Video</a>
     </div>
@@ -5057,14 +5186,29 @@
       }
     }
 
-    // Newest-first, and capped at 20 — this is a friendly wall of
-    // appreciation to glance through, not a full archive that
-    // needs "load more" pagination.
+    // Newest-first. The number in limit() below is a ceiling on how
+    // many appreciation notes get shown at once.
+    //
+    // ELI5: imagine a fridge covered in nice notes from friends. The
+    // number below is how many notes fit on the fridge door. It used
+    // to be 20, which meant that once note #21 arrived, the oldest
+    // ones quietly stopped showing up — they were never deleted, they
+    // just ran out of fridge. It is now 200 so every note has room.
+    //
+    // IMPORTANT: this limit is ONLY about what is DISPLAYED. Nothing
+    // here (and nothing anywhere in this file) ever deletes a note.
+    // If notes seem to vanish, they are almost always still safe in
+    // Firestore and just not being drawn — check this number first.
+    //
+    // One more thing worth knowing: orderBy('createdAt') means a note
+    // is only included if it actually HAS a createdAt field. Any very
+    // old note saved before that field existed would be skipped here
+    // even though it is still sitting safely in the database.
     function loadEntries() {
       var entriesQuery = firestoreModule.query(
         firestoreModule.collection(db, 'guestbook'),
         firestoreModule.orderBy('createdAt', 'desc'),
-        firestoreModule.limit(20)
+        firestoreModule.limit(200)
       );
       firestoreModule.getDocs(entriesQuery).then(renderEntries).catch(function () {
         // Reading failed (rules not set up yet, offline, etc.) —

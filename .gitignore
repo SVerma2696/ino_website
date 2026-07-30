@@ -30,11 +30,23 @@ Desktop.ini
 # --- Node.js stuff ---
 # This is dev-only test tooling (Vitest, for the pure logic in
 # logic.js) — the real, deployed site still has zero dependencies
-# and zero build step. "node_modules" is where npm downloads every
-# package to (huge, and easy to redownload with "npm install"), so
-# it never needs to be tracked by Git. "package-lock.json" is the
-# opposite — small, and IS tracked on purpose (see below) so
-# everyone gets the exact same versions of everything.
+# and zero build step.
+#
+# ELI5 on the two npm files, since only ONE of them is hidden:
+#   node_modules/      -> HIDDEN. This is the giant folder npm fills
+#                         with thousands of downloaded files. It can
+#                         always be rebuilt by running "npm install",
+#                         so there is no reason to upload it.
+#   package.json       -> TRACKED. The short shopping list saying
+#                         which tools this project uses.
+#   package-lock.json  -> TRACKED, on purpose. This is the receipt
+#                         recording the EXACT version of every single
+#                         thing that got installed. Keeping it means
+#                         a fresh "npm install" on another computer
+#                         builds an identical setup instead of a
+#                         slightly newer, possibly broken one.
+# Neither tracked file is hidden here — they are only mentioned so
+# it is obvious the omission is deliberate rather than forgotten.
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -52,6 +64,36 @@ yarn-error.log*
 .env
 .env.local
 .env.*.local
+
+# --- Lighthouse / performance reports ---
+# ELI5: Lighthouse is a free robot that visits the website, times
+# how long everything takes, and hands back a report card. Each
+# report is a single ~1 MB file, and it goes out of date the
+# moment anything changes — so keeping every old one would just
+# make this repo heavy for no reason. Keep them on your own
+# computer; the README's "🏎️ Performance (Lighthouse)" section is
+# where the actual findings get written down for good.
+*.report.json
+*.report.html
+lighthouse-report*.json
+lighthouse-report*.html
+itzino_com-*.json
+itzino_com-*.html
+.lighthouseci/
+
+# --- Full-size image originals ---
+# ELI5: the photos on the live site are shrunk down small so the
+# page loads fast (see the README's Performance section). If you
+# keep the big original versions around while making the small
+# ones, drop them in a folder called "originals" and they will
+# stay on your computer instead of doubling the size of the repo.
+#
+# Important: this ONLY hides that one folder. The real website
+# photos sitting next to index.html are still tracked normally —
+# without them the live site would be a page of broken images.
+originals/
+*-original.*
+*-full.*
 
 # --- Local AI tool output ---
 # "graphify-out" is a folder a helper tool makes on YOUR computer to draw a
