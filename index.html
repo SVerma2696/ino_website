@@ -1666,7 +1666,16 @@
        ask for) using padding, but tell the browser to only actually
        PAINT color inside the small 6x6 middle ("background-clip:
        content-box") — so the tappable AREA genuinely grows while
-       the visible dot stays exactly as small as before. */
+       the visible dot stays exactly as small as before.
+
+       IMPORTANT gotcha that broke this once already: "background"
+       (no dash) is a shorthand that quietly resets EVERY background
+       sub-property it doesn't mention — including "background-clip"
+       — back to its plain default the moment it runs. So it has to
+       be written using the longer "background-color" below, not
+       plain "background", or it un-does the content-box trick right
+       above it and paints the whole big 24x24 box solid again (that
+       is exactly what made the dots look huge). */
     width:6px;
     height:6px;
     padding:9px;
@@ -1674,10 +1683,10 @@
     background-clip:content-box;
     border-radius:50%;
     border:none;
-    background: var(--border);
+    background-color: var(--border);
     cursor:pointer;
   }
-  .member-dot.is-active{ background: var(--muted); }
+  .member-dot.is-active{ background-color: var(--muted); }
 
   /* BIAS SPOTLIGHT — one line of text that quietly swaps itself
      out for a different fun fact every few seconds. "min-height"
@@ -2074,10 +2083,16 @@
     display:block;
     /* ELI5: this button used to have NO space above it (0px), so
        it sat squished right up against the links card above it —
-       "20px" top AND bottom now gives it its own little breathing
-       room on both sides, like a comma pausing between two
-       sentences instead of everything running together. */
-    margin: 20px auto;
+       a little top AND bottom breathing room, like a comma
+       pausing between two sentences instead of everything running
+       together. It used to be "20px", which doesn't sound like
+       much, but this button has no card/border of its own — it's
+       just floating text over the blurry background — so with
+       nothing to visually "catch" the eye, that empty space reads
+       as a much bigger gap than the same 20px would next to a
+       bordered card. "10px" keeps the little pause without it
+       looking like a whole empty section. */
+    margin: 10px auto;
     font-family: var(--mono);
     font-size: 10px;
     letter-spacing: 0.8px;
@@ -2192,6 +2207,21 @@
 
   .photocard img{
     width:100%;
+    /* ELI5: each <img> tag also has width="300" height="300"
+       written on it in the HTML (that's the Lighthouse "hold my
+       spot" trick from the SPEED CHECKLIST note near the top of
+       this file). The problem: once BOTH a width and a height are
+       pinned down like that, "aspect-ratio" below gives up and does
+       nothing — it only ever fills in a side that's still blank.
+       That let each frame stretch to a flat 300px tall no matter
+       how narrow it was, squishing the real photo (most of which
+       are wide, not square) into a skinny strip floating in a
+       mostly-empty tall box — the "borders are way taller than
+       wide" bug. Saying "height: auto" here — AFTER width — tells
+       the browser "actually, forget that 300, leave the height
+       blank" so "aspect-ratio" is allowed to do its job again:
+       height = width, a real square, every time. */
+    height:auto;
     aspect-ratio: 1 / 1;   /* every frame is still a perfect square... */
     /* ...but "contain" (instead of the old "cover") means the
        photo shrinks to fit ENTIRELY inside that square rather
