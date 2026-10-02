@@ -44,8 +44,23 @@
      <link> tag. The "apple-mobile-web-app-*" tags exist because
      Safari on iPhone/iPad historically ignores the manifest file
      for some of these details and wants its own separate,
-     Apple-specific tags instead. -->
-<link rel="manifest" href="manifest.json">
+     Apple-specific tags instead.
+
+     ELI5 on why this is a tiny script instead of a plain <link>:
+     when you open index.html by double-clicking it (a "file://"
+     address instead of a real website), the browser is not allowed
+     to read manifest.json, and it fills the console with red
+     "blocked by CORS policy" errors. So we only add the manifest
+     tag when the page is a real website (http or https). On the
+     live site this works exactly like the old plain <link> did. -->
+<script>
+  if (location.protocol !== 'file:') {
+    var manifestLink = document.createElement('link');
+    manifestLink.rel = 'manifest';
+    manifestLink.href = 'manifest.json';
+    document.head.appendChild(manifestLink);
+  }
+</script>
 <link rel="apple-touch-icon" href="crown.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="INO">
@@ -2196,10 +2211,28 @@
      so it still looks exactly like a photocard, not a hyperlink */
   .photocard{
     width: 84px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 5px 5px 8px;
+    /* The colored stripe along the top of each card is PAINTED on
+       as a flat 3px band inside the card (the "linear-gradient"
+       part), not drawn as a thick top border. A 3px top border
+       meeting 1px side borders makes slanted corner joins, and once
+       the card is tilted those made the top corners look pinched
+       and curvy. Each card picks its stripe color with "--card-stripe"
+       further down. */
+    background:
+      linear-gradient(var(--card-stripe, transparent), var(--card-stripe, transparent)) top / 100% 3px no-repeat,
+      var(--bg-card);
+    /* A slightly stronger edge line than the page's usual faint
+       "--border", so each tilted card has a crisp, straight outline
+       instead of a fuzzy, wobbly-looking one */
+    border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+    /* Sharp, square corners (no rounding) so every card is a
+       real rectangle, even while it's tilted. Rounded corners plus
+       the thick colored top line used to make the top edge look
+       bent and curvy */
+    border-radius: 0;
+    /* 8px on top (instead of 5px) = 3px for the colored stripe
+       + the same 5px gap above the photo as the other sides */
+    padding: 8px 5px 8px;
     box-shadow: 0 6px 16px rgba(51,38,46,0.14);
     text-align:center;
     display:block;
@@ -2211,6 +2244,15 @@
        toggle's dim/undim effect fade gently too, instead of
        instantly popping between "normal" and "faded out" */
     transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease, filter 0.3s ease;
+    /* ELI5: when a box is tilted, the browser has to draw its
+       straight edges out of tiny square pixels, which can look like
+       little stair-steps, so the edges seem wavy and bent. These
+       two lines are a well-known trick that makes the browser draw
+       tilted cards more carefully, so the edges come out smooth and
+       straight. (The see-through outline is invisible; the keyboard
+       focus outline further down still replaces it when needed.) */
+    backface-visibility: hidden;
+    outline: 1px solid transparent;
   }
 
   /* Since these are real, clickable links now, someone tabbing
@@ -2249,7 +2291,7 @@
        two sides have room left over, like a photo mat */
     object-fit:contain;
     background: var(--bg-card);
-    border-radius:2px;
+    border-radius:0;
     display:block;
   }
 
@@ -2269,7 +2311,9 @@
 
   /* A gentle "scattered on a desk" look: every photocard tilts
      a tiny bit, alternating left and right, like a stack that
-     got playfully shuffled */
+     got playfully shuffled. The corners stay sharp and square
+     (see above), so even tilted, each card is still a real
+     rectangle, just turned a little */
   .photocard:nth-child(odd){ transform: rotate(-4deg); }
   .photocard:nth-child(even){ transform: rotate(3deg); }
 
@@ -2285,16 +2329,16 @@
      11th, 16th... card" — so however many eras get added to the
      timeline later, the same 5 crayons just keep cycling forever
      instead of running out */
-  .gallery-left .photocard:nth-child(5n+1){ border-top: 3px solid var(--red); }
-  .gallery-left .photocard:nth-child(5n+2){ border-top: 3px solid var(--blue); }
-  .gallery-left .photocard:nth-child(5n+3){ border-top: 3px solid var(--green); }
-  .gallery-left .photocard:nth-child(5n+4){ border-top: 3px solid var(--pink); }
-  .gallery-left .photocard:nth-child(5n){ border-top: 3px solid var(--lavender); }
-  .gallery-right .photocard:nth-child(5n+1){ border-top: 3px solid var(--pink); }
-  .gallery-right .photocard:nth-child(5n+2){ border-top: 3px solid var(--lavender); }
-  .gallery-right .photocard:nth-child(5n+3){ border-top: 3px solid var(--red); }
-  .gallery-right .photocard:nth-child(5n+4){ border-top: 3px solid var(--blue); }
-  .gallery-right .photocard:nth-child(5n){ border-top: 3px solid var(--green); }
+  .gallery-left .photocard:nth-child(5n+1){ --card-stripe: var(--red); }
+  .gallery-left .photocard:nth-child(5n+2){ --card-stripe: var(--blue); }
+  .gallery-left .photocard:nth-child(5n+3){ --card-stripe: var(--green); }
+  .gallery-left .photocard:nth-child(5n+4){ --card-stripe: var(--pink); }
+  .gallery-left .photocard:nth-child(5n){ --card-stripe: var(--lavender); }
+  .gallery-right .photocard:nth-child(5n+1){ --card-stripe: var(--pink); }
+  .gallery-right .photocard:nth-child(5n+2){ --card-stripe: var(--lavender); }
+  .gallery-right .photocard:nth-child(5n+3){ --card-stripe: var(--red); }
+  .gallery-right .photocard:nth-child(5n+4){ --card-stripe: var(--blue); }
+  .gallery-right .photocard:nth-child(5n){ --card-stripe: var(--green); }
 
   /* ============================================
      TINY-SCREEN TUNING 🤏
@@ -3696,6 +3740,24 @@
 <script src="logic.js"></script>
 <script>
   // ============================================
+  // "WAS THIS OPENED BY DOUBLE-CLICKING?" CHECK 📁
+  // ELI5: double-clicking index.html opens it as a plain FILE
+  // (its address starts with "file://"), not as a real website.
+  // A few things on this page can't work that way, and just
+  // fill the browser console with red errors if they try:
+  //   - the YouTube "Latest Upload" lookup, the visit counter,
+  //     and the guestbook all use Google keys that are locked to
+  //     the real website (itzino.com) on purpose, so Google says
+  //     "no" (a 403 error) to anything else;
+  //   - changing the address bar (for shareable era links) is
+  //     not allowed on a file.
+  // So when this is true, those features just quietly skip
+  // themselves. On the real website it is always false and
+  // everything runs like normal.
+  // ============================================
+  var IS_LOCAL_FILE = window.location.protocol === 'file:';
+
+  // ============================================
   // TINY HELPER SCRIPT 🧩
   // This part just makes the email button work like a
   // light switch: click it once, the little menu pops
@@ -4405,6 +4467,8 @@
   // same themed look, without needing to click the dropdown
   // themselves.
   function updateEraInUrl(eraValue) {
+    // Not allowed on a double-clicked file (see IS_LOCAL_FILE)
+    if (IS_LOCAL_FILE) { return; }
     var newUrl = new URL(window.location.href);
     if (eraValue === 'motto') {
       newUrl.searchParams.delete('era');
@@ -4733,7 +4797,9 @@
   var YOUTUBE_CHANNEL_HANDLES = ['aceofgenz', 'inot5'];
 
   (function setUpLatestUpload() {
-    if (!YOUTUBE_API_KEY) { return; }
+    // Skipped on a double-clicked file: the key only works on
+    // the real website (see IS_LOCAL_FILE near the top)
+    if (!YOUTUBE_API_KEY || IS_LOCAL_FILE) { return; }
 
     var linkCard = document.getElementById('latest-upload-link');
     var subEl = document.getElementById('latest-upload-sub');
@@ -4898,7 +4964,8 @@
   // abuse this to set the counter to some huge fake number, delete
   // it, or write anything unrelated into that document.
   (function setUpVisitCounter() {
-    if (!FIREBASE_CONFIG) { return; }
+    // Skipped on a double-clicked file (see IS_LOCAL_FILE)
+    if (!FIREBASE_CONFIG || IS_LOCAL_FILE) { return; }
 
     var counterEl = document.getElementById('visit-counter');
     var FIREBASE_SDK_VERSION = '10.7.0';
@@ -5053,7 +5120,8 @@
   // regardless of who "owns" it.
   (function setUpGuestbook() {
     var card = document.getElementById('guestbook-card');
-    if (!FIREBASE_CONFIG) { return; }
+    // Skipped on a double-clicked file (see IS_LOCAL_FILE)
+    if (!FIREBASE_CONFIG || IS_LOCAL_FILE) { return; }
 
     var form = document.getElementById('guestbook-form');
     var nameInput = document.getElementById('guestbook-name');

@@ -39,7 +39,7 @@
 // real data in Firestore was completely untouched the whole time.
 // A git pre-commit hook now catches this automatically (see
 // .githooks/pre-commit) so it can't quietly happen again.
-var CACHE_NAME = 'ino-cache-v7';
+var CACHE_NAME = 'ino-cache-v9';
 
 // Just enough files to make the page still open and look like
 // itself with zero internet connection — not every single photo

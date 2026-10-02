@@ -95,7 +95,7 @@ originals/
 *-original.*
 *-full.*
 
-# --- Local AI tool output ---
+# --- Local helper tool output ---
 # "graphify-out" is a folder a helper tool makes on YOUR computer to draw a
 # map of this project's code. It's just a helper picture for you, not part
 # of the actual website, so Git doesn't need to remember it or send it to
